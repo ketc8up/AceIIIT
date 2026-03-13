@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wrong Exam — UGEE Campaign Poster</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=DM+Serif+Display:ital@0;1&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
 <style>
+  html { scroll-behavior: smooth; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -210,6 +211,44 @@
     padding: 0 16px;
     line-height: 1.6;
   }
+ /* ENROLL CTA */
+
+.enroll-section{
+  text-align:center;
+  padding:40px 20px;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  margin:40px 0;
+}
+
+.enroll-section h2{
+  font-family:'Bebas Neue', sans-serif;
+  font-size:36px;
+  letter-spacing:2px;
+  margin-bottom:10px;
+  color:var(--ink);
+}
+
+.enroll-section p{
+  color:var(--muted);
+  margin-bottom:20px;
+}
+
+.cta-button{
+  display:inline-block;
+  background:var(--red);
+  color:white;
+  padding:14px 32px;
+  font-weight:bold;
+  text-decoration:none;
+  letter-spacing:1px;
+  border-radius:4px;
+  transition:0.25s;
+}
+
+.cta-button:hover{
+  background:var(--red-dark);
+}
 
   .photo-placeholder .corner {
     position: absolute;
@@ -604,6 +643,19 @@
       repeating-linear-gradient(90deg, var(--ink) 0, var(--ink) 4px, transparent 4px, transparent 8px) 0 18px/48px 4px no-repeat;
     opacity: 0.25;
   }
+ .floating-enroll{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:var(--red);
+  color:white;
+  padding:14px 18px;
+  text-decoration:none;
+  font-weight:bold;
+  border-radius:50px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.4);
+  z-index:999;
+}
 
   .cta-text { }
   .cta-line1 {
@@ -1158,14 +1210,30 @@
     </div>
   </div>
 
+ <!-- ENROLL CTA SECTION -->
+
+<div class="enroll-section">
+
+<h2>Secure Your Seat</h2>
+
+<p>
+Batch filling fast. Once seats are gone, registrations close.
+</p>
+
+<a href="registrations.html" class="cta-button">
+ENROLL NOW
+</a>
+
+</div>
+ 
   <!-- CONTACT -->
-  <div class="cta-section">
+  <div class="cta-section" id="contact">
     <div class="cta-text" style="flex:1;">
       <div class="cta-line1">Have questions? Reach us directly.</div>
       <div style="display:flex; gap:40px; margin-top:14px; flex-wrap:wrap;">
         <div>
           <div style="font-family:'Space Mono',monospace; font-size:8px; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">Uman Debnath · UGEE AIR 2</div>
-          <a href="https://instagram.com/ketc8up" target="_blank" style="font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:0.06em; color:var(--ink); text-decoration:none;">
+          <a href="https://instagram.com/ketc8up" target="_blank" rel="noopener noreferrer" style="font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:0.06em; color:var(--ink); text-decoration:none;">
             <span style="color:var(--gold);">@</span>ketc8up
           </a>
           <div style="font-family:'Space Mono',monospace; font-size:8px; color:var(--muted); margin-top:3px; letter-spacing:0.1em;">Instagram</div>
@@ -1173,7 +1241,7 @@
         <div style="width:1px; background:var(--line); align-self:stretch;"></div>
         <div>
           <div style="font-family:'Space Mono',monospace; font-size:8px; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">Priyanshu Sekhar De</div>
-          <a href="https://instagram.com/priyanshu.pix07" target="_blank" style="font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:0.06em; color:var(--ink); text-decoration:none;">
+          <a href="https://instagram.com/priyanshu.pix07" target="_blank" rel="noopener noreferrer" style="font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:0.06em; color:var(--ink); text-decoration:none;">
             <span style="color:var(--red);">@</span>priyanshu.pix07
           </a>
           <div style="font-family:'Space Mono',monospace; font-size:8px; color:var(--muted); margin-top:3px; letter-spacing:0.1em;">Instagram</div>
@@ -1392,5 +1460,9 @@
   updateCountdown();
   setInterval(updateCountdown, 1000);
 </script>
+<a href="registrations.html" class="floating-enroll">
+Enroll Now
+</a>
+
 </body>
 </html>
