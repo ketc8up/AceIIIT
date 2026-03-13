@@ -416,11 +416,12 @@ body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-hei
 </div><!-- end wrap -->
 
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycby6SUQ3R-ER0-64EIps8rGWN3q3F_7sYrtLJ4xc8vPTb5WzXUOwPvMCaTEvYgRlO1SNdg/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzkrKdjLxyz44LTDoUhIiLwH6O_o4OIlgJf-QiCzdPP58QxpWN6Trtu8W0D7LbRBYxNDw/exec";
 const fd = {};
 let cur = 1, sel = 0;
 
 function v(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
+function validTxnId(id){ return /^\d{12}$/.test(String(id||'')); }
 
 function setDots(n){
   [1,2,3].forEach(i=>{
@@ -443,6 +444,7 @@ function go(n){
   if(cur===2&&n>2){
     if(!sel)    return err(2,'Please select a course.');
     if(!v('txnId'))    return err(2,'Please enter your UPI Transaction ID.');
+    if(!validTxnId(v('txnId'))) return err(2,'UPI Transaction ID must be exactly 12 digits.');
     if(!document.getElementById('ss').files[0]) return err(2,'Please upload your payment screenshot.');
   }
 
@@ -517,11 +519,33 @@ function dDr(e){
 function fCh(e){if(e.target.files[0])showF(e.target.files[0].name);}
 function showF(n){document.getElementById('fn').textContent=n;document.getElementById('fok').style.display='flex';}
 
+const txnInput=document.getElementById('txnId');
+if(txnInput){
+  txnInput.addEventListener('input', function(){
+    this.value=this.value.replace(/\D/g,'').slice(0,12);
+  });
+}
+
 async function submit(){
+
+  if(!validTxnId(v('txnId'))){
+    err(2,'UPI Transaction ID must be exactly 12 digits.');
+    document.getElementById('s1').style.display='none';
+    document.getElementById('s3').style.display='none';
+    document.getElementById('s2').style.display='block';
+    cur=2;
+    setDots(2);
+    return;
+  }
 
   document.getElementById('sub').disabled=true;
   document.getElementById('spin').style.display='block';
   document.getElementById('subtxt').textContent='SUBMITTING...';
+  const reviewError=document.getElementById('e3');
+  if(reviewError){
+    reviewError.textContent='';
+    reviewError.className='err';
+  }
 
   const file=document.getElementById('ss').files[0];
 
@@ -565,14 +589,23 @@ try{
 
   const data = await res.json();
 
-  if(data.status === "error"){
-    console.error("Backend error:", data.message);
-    // still show success to user — data is saved
+  if(data.status !== "success"){
+    err(3, data.message || (data.status === "duplicate"
+      ? 'This UPI Transaction ID has already been used.'
+      : 'Submission failed. Please try again.'));
+    document.getElementById('sub').disabled=false;
+    document.getElementById('spin').style.display='none';
+    document.getElementById('subtxt').textContent='SUBMIT ENROLLMENT';
+    return;
   }
 
 }catch(e){
   // Network error — still show success, data may have saved
-  console.warn("Fetch error:", e);
+  err(3,'Submission failed. Please check your connection or Apps Script deployment.');
+  document.getElementById('sub').disabled=false;
+  document.getElementById('spin').style.display='none';
+  document.getElementById('subtxt').textContent='SUBMIT ENROLLMENT';
+  return;
 }
 
 [1,2,3].forEach(i=>document.getElementById('s'+i).style.display='none');
