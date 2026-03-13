@@ -244,10 +244,33 @@
   letter-spacing:1px;
   border-radius:4px;
   transition:0.25s;
+  position:relative;
+  overflow:hidden;
 }
 
 .cta-button:hover{
   background:var(--red-dark);
+}
+
+.cta-button::after,
+.floating-enroll::after{
+  content:"";
+  position:absolute;
+  top:-120%;
+  left:-35%;
+  width:42%;
+  height:320%;
+  transform:rotate(24deg);
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.34), rgba(255,255,255,0));
+  animation:glaze-pass 2.8s ease-in-out infinite;
+  pointer-events:none;
+}
+
+@keyframes glaze-pass {
+  0% { left:-45%; opacity:0; }
+  12% { opacity:1; }
+  55% { left:120%; opacity:1; }
+  100% { left:120%; opacity:0; }
 }
 
   .photo-placeholder .corner {
@@ -655,6 +678,7 @@
   border-radius:50px;
   box-shadow:0 8px 25px rgba(0,0,0,0.4);
   z-index:999;
+  overflow:hidden;
 }
 
   .cta-text { }
@@ -954,10 +978,11 @@
     letter-spacing: 0.16em;
     text-transform: uppercase;
   }
-  .mentor-footer-strip em {
+.mentor-footer-strip em {
     font-style: normal;
     color: var(--gold);
   }
+
 </style>
 </head>
 <body>
@@ -1220,7 +1245,7 @@
 Batch filling fast. Once seats are gone, registrations close.
 </p>
 
-<a href="registrations.html" class="cta-button">
+<a href="registration.html" class="cta-button">
 ENROLL NOW
 </a>
 
@@ -1459,8 +1484,9 @@ ENROLL NOW
 
   updateCountdown();
   setInterval(updateCountdown, 1000);
+
 </script>
-<a href="registrations.html" class="floating-enroll">
+<a href="registration.html" class="floating-enroll">
 Enroll Now
 </a>
 
