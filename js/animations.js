@@ -92,7 +92,63 @@ function initReadingProgress() {
 }
 
 function initHeroNav() {
+  const nav = document.querySelector("[data-mobile-nav]");
+  const menuToggle = nav?.querySelector(".hero-menu-toggle");
+  const menuLinks = Array.from(nav?.querySelectorAll(".hero-nav-links a") || []);
   const links = Array.from(document.querySelectorAll(".hero-nav-link[href^='#']"));
+  const mobileQuery = window.matchMedia("(max-width: 820px)");
+
+  const closeMenu = () => {
+    if (!nav || !menuToggle) return;
+    nav.classList.remove("is-open");
+    menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.setAttribute("aria-label", "Open menu");
+  };
+
+  const setMenuState = (open) => {
+    if (!nav || !menuToggle) return;
+    nav.classList.toggle("is-open", open);
+    menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    menuToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  };
+
+  if (menuToggle && nav) {
+    menuToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setMenuState(!nav.classList.contains("is-open"));
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!mobileQuery.matches || !nav.classList.contains("is-open")) return;
+      if (nav.contains(event.target)) return;
+      closeMenu();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeMenu();
+      }
+    });
+
+    menuLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        closeMenu();
+      });
+    });
+
+    const syncMenuToViewport = () => {
+      if (!mobileQuery.matches) {
+        closeMenu();
+      }
+    };
+
+    if (typeof mobileQuery.addEventListener === "function") {
+      mobileQuery.addEventListener("change", syncMenuToViewport);
+    } else if (typeof mobileQuery.addListener === "function") {
+      mobileQuery.addListener(syncMenuToViewport);
+    }
+  }
+
   if (!links.length) return;
 
   const sections = links
@@ -122,6 +178,10 @@ function initHeroNav() {
       const id = link.getAttribute("href")?.slice(1);
       if (id) {
         setActiveLink(id);
+      }
+
+      if (mobileQuery.matches) {
+        closeMenu();
       }
     });
   });

@@ -5,21 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wrong Exam — UGEE Campaign Poster</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=DM+Serif+Display:ital@0;1&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
-<link rel="preload" href="css/styles.css?v=5" as="style">
-<link rel="stylesheet" href="css/styles.css?v=5">
+<link rel="preload" href="css/styles.css?v=7" as="style">
+<link rel="stylesheet" href="css/styles.css?v=7">
 </head>
 <body>
 <div class="reading-progress" aria-hidden="true">
   <span class="reading-progress-bar"></span>
 </div>
 <div class="hero-nav-shell" aria-hidden="false">
-  <nav class="hero-nav" aria-label="Primary">
-    <a class="hero-nav-link is-active" href="#home">Home</a>
-    <a class="hero-nav-link" href="#info">Info</a>
-    <a class="hero-nav-link" href="#timeline">Timeline</a>
-    <a class="hero-nav-link" href="#enrollment">Enrollment</a>
-    <a class="hero-nav-link" href="#team">Meet the Team!</a>
-  </nav>
+  <div class="hero-nav" data-mobile-nav>
+    <button class="hero-menu-toggle" type="button" aria-expanded="false" aria-controls="hero-nav-menu" aria-label="Open menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <nav class="hero-nav-links" id="hero-nav-menu" aria-label="Primary">
+      <a class="hero-nav-link is-active" href="#home">Home</a>
+      <a class="hero-nav-link" href="#info">Info</a>
+      <a class="hero-nav-link" href="#timeline">Timeline</a>
+      <a class="hero-nav-link" href="#enrollment">Enrollment</a>
+      <a class="hero-nav-link" href="#team">Meet the Team!</a>
+      <a class="hero-enroll-cta" href="registrations.html">Enroll Now</a>
+    </nav>
+  </div>
 </div>
 <div class="poster" id="home">
   <div class="red-stripe"></div>
@@ -489,8 +497,8 @@ ENROLL NOW
 
 </div>
 
-<script src="js/countdown.js?v=5" defer></script>
-<script src="js/animations.js?v=5" defer></script>
+<script src="js/countdown.js?v=7" defer></script>
+<script src="js/animations.js?v=7" defer></script>
 <a href="registrations.html" class="floating-enroll">
 Enroll Now
 </a>
