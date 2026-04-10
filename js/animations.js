@@ -17,6 +17,10 @@ function addRevealHooks() {
     { selector: ".enroll-section" },
     { selector: ".cta-section", direction: "reveal-right" },
     { selector: ".footer" },
+    {
+      selector: ".mock-faq-item",
+      direction: (_, index) => (index % 2 === 0 ? "reveal-left" : "reveal-right")
+    },
     { selector: ".mentor-section-header" },
     {
       selector: ".mentor-col",
@@ -315,6 +319,64 @@ function initTypewriterHeadline() {
   window.setTimeout(typeSegment, 420);
 }
 
+function initMockShowcase() {
+  const showcase = document.querySelector("[data-mock-showcase]");
+  if (!showcase) return;
+
+  const track = showcase.querySelector(".mock-showcase-track");
+  const slides = Array.from(showcase.querySelectorAll(".mock-showcase-slide"));
+  const dots = Array.from(showcase.querySelectorAll(".mock-showcase-dots span"));
+  const caption = showcase.querySelector("[data-mock-caption]");
+
+  if (!track || slides.length <= 1) return;
+
+  let activeIndex = 0;
+  let intervalId = 0;
+
+  const setActiveSlide = (index) => {
+    activeIndex = (index + slides.length) % slides.length;
+    track.style.transform = `translateX(-${activeIndex * 100}%)`;
+
+    slides.forEach((slide, slideIndex) => {
+      slide.classList.toggle("is-active", slideIndex === activeIndex);
+    });
+
+    dots.forEach((dot, dotIndex) => {
+      dot.classList.toggle("is-active", dotIndex === activeIndex);
+    });
+
+    if (caption) {
+      caption.textContent = slides[activeIndex].dataset.mockTitle || "";
+    }
+  };
+
+  const startAutoPlay = () => {
+    if (prefersReducedMotion) return;
+    window.clearInterval(intervalId);
+    intervalId = window.setInterval(() => {
+      setActiveSlide(activeIndex + 1);
+    }, 3400);
+  };
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener("click", () => {
+      setActiveSlide(index);
+      startAutoPlay();
+    });
+  });
+
+  showcase.addEventListener("mouseenter", () => {
+    window.clearInterval(intervalId);
+  });
+
+  showcase.addEventListener("mouseleave", () => {
+    startAutoPlay();
+  });
+
+  setActiveSlide(0);
+  startAutoPlay();
+}
+
 function animateFloatingEnroll() {
   const floatingEnroll = document.querySelector(".floating-enroll");
   if (!floatingEnroll) return;
@@ -413,6 +475,7 @@ addRevealHooks();
 initReadingProgress();
 initHeroNav();
 initTypewriterHeadline();
+initMockShowcase();
 animateFloatingEnroll();
 animateParallax();
 animateScheduleRows();
