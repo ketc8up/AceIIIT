@@ -379,6 +379,71 @@ body::after{
   transform:rotate(-38deg);
 }
 
+.interview-redirect{
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  width:min(360px, calc(100vw - 32px));
+  z-index:120;
+}
+
+.interview-redirect-card{
+  width:100%;
+  margin:0;
+  padding:20px 20px 18px;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:22px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
+    rgba(16,20,28,0.88);
+  box-shadow:var(--shadow);
+  text-align:left;
+  backdrop-filter:blur(16px);
+}
+
+.interview-redirect-kicker{
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--gold);
+  font-weight:700;
+}
+
+.interview-redirect-title{
+  margin-top:10px;
+  font-size:clamp(1rem, 1.5vw, 1.2rem);
+  line-height:1.35;
+  font-weight:700;
+  color:var(--text);
+}
+
+.interview-redirect-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:18px;
+  width:100%;
+  padding:13px 18px;
+  border-radius:999px;
+  background:linear-gradient(135deg, var(--red), var(--red-dark));
+  color:#fff;
+  text-decoration:none;
+  text-transform:uppercase;
+  letter-spacing:1.6px;
+  font-size:11px;
+  font-weight:700;
+  box-shadow:0 18px 42px rgba(200,16,46,0.28);
+  transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.interview-redirect-button:hover,
+.interview-redirect-button:focus-visible{
+  transform:translateY(-2px);
+  box-shadow:0 22px 46px rgba(200,16,46,0.34);
+  filter:saturate(1.08);
+  outline:none;
+}
+
 [data-tilt]{
   --tilt-x:0deg;
   --tilt-y:0deg;
@@ -1328,6 +1393,28 @@ body::after{
 
   .promo-strip{
     align-items:flex-start;
+  }
+
+  .interview-redirect{
+    position:static;
+    width:auto;
+    padding:0 24px 40px;
+  }
+
+  .interview-redirect-card{
+    width:min(100%, 760px);
+    margin:0 auto;
+    padding:28px;
+    text-align:center;
+  }
+
+  .interview-redirect-title{
+    font-size:clamp(1.2rem, 2vw, 1.6rem);
+  }
+
+  .interview-redirect-button{
+    width:auto;
+    padding:14px 22px;
   }
 }
 
