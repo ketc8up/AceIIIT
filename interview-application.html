@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apply - AceIIIT Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/interview-application.css?v=1">
+<script defer src="assets/js/interview-application.js?v=1"></script>
+</head>
+<body>
+<div class="ambient ambient-one"></div>
+<div class="ambient ambient-two"></div>
+
+<div class="topbar">
+  <a class="logo-wrap" href="interview.html" aria-label="Back to interview page">
+    <img class="logo-img" src="assets/images/logo.jpg" alt="AceIIIT">
+  </a>
+  <div class="prog" aria-label="Application progress">
+    <div class="pdot on" id="d1"></div>
+    <div class="pdot" id="d2"></div>
+    <div class="pdot" id="d3"></div>
+    <div class="ptxt" id="ptxt">01 / 03</div>
+  </div>
+</div>
+
+<section class="hero" data-reveal>
+  <div class="hero-tag">Free Interview Prep</div>
+  <h1 class="hero-title" aria-label="Apply for the AceIIIT interview cohort">
+    <span class="hero-word hero-word-main">MOCK</span>
+    <span class="hero-word hero-word-accent">INTERVIEWS</span>
+  </h1>
+  <div class="trust">
+    <div class="ti">10 selected students</div>
+    <div class="ti">No payment required</div>
+    <div class="ti">Review updates by email</div>
+  </div>
+</section>
+
+<main class="wrap">
+  <section class="promo-strip" data-reveal>
+    <div class="promo-strip-label"><span class="promo-strip-ping"></span>Selection Based</div>
+    <div class="promo-strip-text">Apply with your UGEE interview-call details. We use your form and scores to select the final cohort.</div>
+    <a class="promo-link" href="interview.html">View program page</a>
+  </section>
+
+  <section id="s1" class="step" data-reveal>
+    <div class="card">
+      <div class="card-title">Your Details</div>
+      <div class="card-sub">Same basics, minus the payment. Keep it clean and accurate.</div>
+
+      <div class="r2">
+        <div class="field">
+          <label for="fullName">Full Name *</label>
+          <input id="fullName" type="text" placeholder="Your full name" autocomplete="name" required>
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone *</label>
+          <input id="phone" type="tel" placeholder="98765 43210" autocomplete="tel" pattern="[0-9]{10}" maxlength="10" required inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email *</label>
+        <input id="email" type="email" placeholder="your@email.com" autocomplete="email" required>
+      </div>
+
+      <div class="r2">
+        <div class="field">
+          <label for="city">City *</label>
+          <input id="city" type="text" placeholder="Your city" required>
+        </div>
+
+        <div class="field">
+          <label for="age">Age *</label>
+          <input id="age" type="number" placeholder="Age" min="14" max="60" required>
+        </div>
+      </div>
+
+      <div id="e1" class="err"></div>
+
+      <div class="nav">
+        <button class="btn-next" id="toStep2" type="button">Add Scores &#8594;</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="s2" class="step" hidden data-reveal>
+    <div class="card">
+      <div class="card-title">Scores &amp; Scorecard</div>
+      <div class="card-sub">This is the part we actually review for selection.</div>
+
+      <div class="score-grid">
+        <div class="score-panel score-panel-highlight">
+          <div class="score-kicker">Interview Cohort</div>
+          <div class="score-title">10 seats only</div>
+          <p>We review your SUPR score, REAP score, and scorecard before finalizing the cohort.</p>
+          <div class="score-chip-row">
+            <div class="score-chip">Free</div>
+            <div class="score-chip">Selective</div>
+            <div class="score-chip">Interview focused</div>
+          </div>
+        </div>
+
+        <div class="score-panel">
+          <div class="r2">
+            <div class="field">
+              <label for="suprScore">SUPR Score *</label>
+              <input id="suprScore" type="text" placeholder="Enter your SUPR score" inputmode="decimal" required>
+            </div>
+
+            <div class="field">
+              <label for="reapScore">REAP Score *</label>
+              <input id="reapScore" type="text" placeholder="Enter your REAP score" inputmode="decimal" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="scorecardFile">Scorecard Image *</label>
+            <div class="fdrop" id="drop" tabindex="0" role="button" aria-controls="scorecardFile">
+              <input type="file" id="scorecardFile" accept="image/*">
+              <div class="fdrop-t">Upload your scorecard image</div>
+              <div class="fdrop-s">Tap to choose or drag and drop - JPG PNG WEBP</div>
+            </div>
+          </div>
+
+          <div class="fok" id="fok">&#10003; <span id="fn">Scorecard uploaded</span></div>
+          <div class="secbar">We only use this to verify your application and shortlist the final cohort.</div>
+        </div>
+      </div>
+
+      <div id="e2" class="err"></div>
+
+      <div class="nav">
+        <button class="btn-back" id="toStep1" type="button">&#8592; Back</button>
+        <button class="btn-next" id="toStep3" type="button">Review &#8594;</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="s3" class="step" hidden data-reveal>
+    <div class="card">
+      <div class="card-title">Review &amp; Submit</div>
+      <div class="card-sub">One last check before we put your application into review.</div>
+
+      <div class="rgrid" id="rgrid"></div>
+
+      <div class="field">
+        <label for="lastQ">Anything we should know? <span class="label-note">(Optional)</span></label>
+        <textarea id="lastQ" placeholder="You can mention constraints, concerns, or what you most want help with."></textarea>
+      </div>
+
+      <div id="e3" class="err"></div>
+
+      <div class="nav">
+        <button class="btn-back" id="backToStep2" type="button">&#8592; Back</button>
+        <button class="btn-submit" id="sub" type="button">
+          <div class="spin" id="spin"></div>
+          <span id="subtxt">SUBMIT APPLICATION</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="succ" id="succ" data-reveal>
+    <div class="succ-card">
+      <div class="succ-top">
+        <img class="succ-logo" src="assets/images/logo.jpg" alt="AceIIIT">
+        <div class="succ-head">
+          <div class="succ-tag">&#10003; Application Received</div>
+          <div class="succ-title">SEE YOU SOON, <span class="succ-name" id="sname">-</span></div>
+        </div>
+      </div>
+
+      <div class="succ-body">
+        <div class="succ-sub">Your application is now under review. If selected, we will contact you on your email with the next steps.</div>
+        <div class="rgrid" id="sgrid"></div>
+        <div class="email-note">Confirmation goes to your email first. Keep an eye on it.</div>
+        <div class="nxt">
+          <div class="nxt-title">What happens next</div>
+          <div class="ns"><div class="nn">1</div><div class="nt"><strong>We review your scores</strong>Your form, SUPR, REAP, and scorecard are checked together.</div></div>
+          <div class="ns"><div class="nn">2</div><div class="nt"><strong>We shortlist the cohort</strong>Only 10 students are selected.</div></div>
+          <div class="ns"><div class="nn">3</div><div class="nt"><strong>We email the next steps</strong>Selected students receive the interview-prep instructions.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
