@@ -4,914 +4,42 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wrong Exam — UGEE Campaign Poster</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=DM+Serif+Display:ital@0;1&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<link rel="preload" href="css/styles.css?v=10" as="style">
+<link rel="stylesheet" href="css/styles.css?v=10">
 
-  :root {
-    --ink: #0a0a0a;
-    --paper: #f2ede4;
-    --red: #d63b2f;
-    --red-dark: #9e1f15;
-    --gold: #c9952a;
-    --muted: #6b6458;
-    --line: #c8bfb0;
-  }
-
-  body {
-    background: #1a1714;
-    font-family: 'Space Mono', monospace;
-    margin: 0;
-  }
-
-  .poster {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    background: var(--paper);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px #3a3530;
-  }
-
-  .poster::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 10;
-    opacity: 0.5;
-  }
-
-  /* ── TOP BAR ── */
-  .top-bar {
-    background: var(--ink);
-    padding: 10px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .top-bar span {
-    color: var(--paper);
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    opacity: 0.7;
-  }
-  .top-bar .dot {
-    width: 6px; height: 6px;
-    background: var(--red);
-    border-radius: 50%;
-    animation: blink 1.6s ease-in-out infinite;
-  }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-
-  /* ── HEADER AREA ── */
-  .header {
-    padding: 40px 40px 0;
-    position: relative;
-  }
-
-  .institute-tag {
-    display: inline-block;
-    border: 1.5px solid var(--ink);
-    padding: 4px 12px;
-    font-size: 9px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--ink);
-    margin-bottom: 28px;
-  }
-
-  .headline-block { position: relative; }
-
-  .headline-pre {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  .headline-main {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 108px;
-    line-height: 0.88;
-    color: var(--ink);
-    letter-spacing: -0.01em;
-    position: relative;
-    z-index: 2;
-  }
-
-  .headline-main .struck {
-    position: relative;
-    display: inline-block;
-    color: var(--muted);
-  }
-  .headline-main .struck::after {
-    content: '';
-    position: absolute;
-    left: -4px; right: -4px; top: 52%;
-    height: 7px;
-    background: var(--red);
-    transform: rotate(-1.5deg);
-    z-index: 3;
-  }
-
-  .headline-sub {
-    font-family: 'DM Serif Display', serif;
-    font-style: italic;
-    font-size: 28px;
-    color: var(--ink);
-    margin-top: 14px;
-    line-height: 1.25;
-    max-width: 480px;
-  }
-
-  .headline-sub em {
-    font-style: normal;
-    color: var(--red);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 34px;
-    letter-spacing: 0.04em;
-    vertical-align: -2px;
-  }
-
-  .rule { height: 1px; background: var(--line); margin: 28px 40px; }
-  .rule-thick { height: 3px; background: var(--ink); margin: 0 40px 0; }
-
-  /* ── PHOTO ROW ── */
-  .photo-section {
-    padding: 0 40px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 28px;
-  }
-
-  .photo-card { position: relative; }
-
-  .photo-placeholder {
-    width: 100%;
-    aspect-ratio: 3/4;
-    background: #d8d0c6;
-    border: 2px dashed #b0a898;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .photo-placeholder::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(0,0,0,0.03) 8px, rgba(0,0,0,0.03) 16px);
-  }
-
-  .photo-real {
-    width: 100%;
-    aspect-ratio: 3/4;
-    position: relative;
-    overflow: hidden;
-    border: 2px solid var(--line);
-  }
-  .photo-real img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
-    display: block;
-    filter: grayscale(8%) contrast(1.04);
-  }
-  /* keep corner brackets on real photos too */
-  .photo-real .corner {
-    position: absolute;
-    width: 20px; height: 20px;
-    border-color: var(--paper);
-    border-style: solid;
-    opacity: 0.7;
-    z-index: 2;
-  }
-
-  .photo-placeholder svg { width: 48px; height: 48px; opacity: 0.3; }
-
-  .photo-placeholder p {
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-align: center;
-    padding: 0 16px;
-    line-height: 1.6;
-  }
-
-  .photo-placeholder .corner {
-    position: absolute;
-    width: 20px; height: 20px;
-    border-color: var(--ink);
-    border-style: solid;
-    opacity: 0.5;
-  }
-  .corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
-  .corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
-  .corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
-  .corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
-
-  .photo-label {
-    margin-top: 10px;
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .photo-label .rank-badge {
-    background: var(--ink);
-    color: var(--paper);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 13px;
-    padding: 3px 9px;
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-  .photo-label .rank-badge.gold {
-    background: var(--gold);
-    color: var(--ink);
-  }
-  .photo-label .desc {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    line-height: 1.65;
-    color: var(--muted);
-    letter-spacing: 0.04em;
-  }
-
-  /* ── BODY COPY ── */
-  .body-section { padding: 28px 40px 0; }
-
-  .body-copy {
-    font-family: 'DM Serif Display', serif;
-    font-size: 15px;
-    line-height: 1.75;
-    color: #2a2520;
-    max-width: 600px;
-  }
-
-  .body-copy strong {
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--ink);
-    letter-spacing: 0.06em;
-  }
-
-  /* ── WHAT'S INSIDE ── */
-  .inside-section {
-    margin: 24px 40px 0;
-    border: 1.5px solid var(--ink);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .inside-item {
-    padding: 16px 20px;
-    border-right: 1.5px solid var(--ink);
-    position: relative;
-  }
-  .inside-item:last-child { border-right: none; }
-  .inside-item:nth-child(3),
-  .inside-item:nth-child(4) { border-top: 1.5px solid var(--ink); }
-
-  .inside-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 40px;
-    color: var(--red);
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-  .inside-label {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--ink);
-    font-weight: 700;
-  }
-  .inside-desc {
-    font-size: 9px;
-    color: var(--muted);
-    margin-top: 4px;
-    line-height: 1.5;
-    letter-spacing: 0.03em;
-  }
-
-  /* ── LIVE COUNTDOWN ── */
-  .countdown-bar {
-    margin: 16px 40px 0;
-    border: 1.5px solid var(--red);
-    background: rgba(214,59,47,0.04);
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 0;
-  }
-  .countdown-label {
-    font-size: 8px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--red);
-    margin-right: 20px;
-    flex-shrink: 0;
-    font-weight: 700;
-  }
-  .countdown-units {
-    display: flex;
-    gap: 12px;
-    flex: 1;
-  }
-  .countdown-unit {
-    text-align: center;
-    flex: 1;
-  }
-  .countdown-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 36px;
-    color: var(--red);
-    line-height: 1;
-    letter-spacing: 0.04em;
-    display: block;
-  }
-  .countdown-unit-label {
-    font-size: 7px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-  .countdown-sep {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px;
-    color: var(--red);
-    opacity: 0.4;
-    align-self: flex-start;
-    padding-top: 2px;
-    animation: blink 1s step-end infinite;
-  }
-
-  /* ── REFERRAL STRIP ── */
-  .referral-strip {
-    margin: 12px 40px 0;
-    background: var(--gold);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .referral-icon {
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-  .referral-text { }
-  .referral-headline {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 15px;
-    color: var(--ink);
-    letter-spacing: 0.08em;
-    line-height: 1.2;
-  }
-  .referral-desc {
-    font-size: 8.5px;
-    color: rgba(10,10,10,0.65);
-    letter-spacing: 0.1em;
-    margin-top: 2px;
-    line-height: 1.5;
-    text-transform: uppercase;
-  }
-
-  /* ── CALENDAR SECTION ── */
-  .schedule-section {
-    margin: 20px 40px 0;
-    border: 1.5px solid var(--ink);
-  }
-  .schedule-header {
-    background: var(--ink);
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .schedule-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px;
-    color: var(--paper);
-    letter-spacing: 0.12em;
-  }
-  .schedule-note {
-    font-size: 8px;
-    color: var(--gold);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-  }
-  .schedule-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-  .schedule-col {
-    padding: 14px 18px;
-  }
-  .schedule-col:first-child {
-    border-right: 1.5px solid var(--line);
-  }
-  .schedule-col-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--line);
-  }
-  .instructor-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .dot-uman { background: var(--gold); }
-  .dot-priyanshu { background: var(--red); }
-  .schedule-col-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    color: var(--ink);
-  }
-  .schedule-col-rank {
-    font-size: 7.5px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-left: auto;
-  }
-  .cal-dates {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .cal-date-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .cal-date-pill {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 2px;
-    letter-spacing: 0.06em;
-    flex-shrink: 0;
-    min-width: 52px;
-    text-align: center;
-  }
-  .pill-uman {
-    background: rgba(201,149,42,0.15);
-    color: var(--gold);
-    border: 1px solid rgba(201,149,42,0.3);
-  }
-  .pill-priyanshu {
-    background: rgba(214,59,47,0.1);
-    color: var(--red);
-    border: 1px solid rgba(214,59,47,0.25);
-  }
-  .cal-day-name {
-    font-size: 8px;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .cal-session-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 11px;
-    color: rgba(10,10,10,0.2);
-    margin-left: auto;
-    letter-spacing: 0.05em;
-  }
-  .seats-note {
-    padding: 8px 20px;
-    background: rgba(214,59,47,0.06);
-    border-top: 1px solid rgba(214,59,47,0.2);
-    font-size: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--red);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .seats-count {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px;
-    letter-spacing: 0.05em;
-  }
-
-  /* ── PRICING BAR ── */
-  .price-bar {
-    margin: 20px 40px 0;
-    background: var(--ink);
-    padding: 20px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-  }
-
-  .price-left { }
-  .price-label {
-    font-size: 9px;
-    color: rgba(242,237,228,0.45);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-  .price-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 58px;
-    color: var(--paper);
-    line-height: 1;
-    letter-spacing: 0.02em;
-  }
-  .price-num sup {
-    font-size: 24px;
-    vertical-align: super;
-    opacity: 0.7;
-    font-family: 'Space Mono', monospace;
-  }
-  .price-note {
-    font-size: 9px;
-    color: var(--gold);
-    letter-spacing: 0.1em;
-    margin-top: 4px;
-    text-transform: uppercase;
-  }
-
-  .price-divider {
-    width: 1px;
-    height: 60px;
-    background: rgba(242,237,228,0.15);
-  }
-
-  .price-right { text-align: right; }
-  .price-deadline {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    color: var(--red);
-    letter-spacing: 0.06em;
-    margin-bottom: 4px;
-  }
-  .price-seats {
-    font-size: 9px;
-    color: rgba(242,237,228,0.45);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    line-height: 1.7;
-  }
-
-  /* ── BOTTOM CTA ── */
-  .cta-section {
-    padding: 24px 40px 0;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-  }
-
-  .qr-placeholder {
-    width: 72px; height: 72px;
-    border: 2px solid var(--ink);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .qr-inner {
-    width: 48px; height: 48px;
-    background: 
-      linear-gradient(var(--ink) 0, var(--ink)) 0 0/14px 14px no-repeat,
-      linear-gradient(var(--ink) 0, var(--ink)) 34px 0/14px 14px no-repeat,
-      linear-gradient(var(--ink) 0, var(--ink)) 0 34px/14px 14px no-repeat,
-      repeating-linear-gradient(var(--ink) 0, var(--ink) 4px, transparent 4px, transparent 8px) 18px 0/4px 48px no-repeat,
-      repeating-linear-gradient(90deg, var(--ink) 0, var(--ink) 4px, transparent 4px, transparent 8px) 0 18px/48px 4px no-repeat;
-    opacity: 0.25;
-  }
-
-  .cta-text { }
-  .cta-line1 {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-  .cta-link {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    color: var(--ink);
-    letter-spacing: 0.06em;
-  }
-  .cta-sub {
-    font-size: 9px;
-    color: var(--muted);
-    margin-top: 4px;
-    letter-spacing: 0.06em;
-    line-height: 1.6;
-  }
-
-  .cta-badge {
-    margin-left: auto;
-    width: 80px; height: 80px;
-    position: relative;
-    flex-shrink: 0;
-  }
-  .badge-circle {
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    border: 2px solid var(--red);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-    animation: spin-slow 20s linear infinite;
-  }
-  @keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  .badge-text {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 11px;
-    color: var(--red);
-    letter-spacing: 0.08em;
-    line-height: 1.2;
-    animation: spin-slow 20s linear infinite reverse;
-  }
-
-  /* ── FOOTER ── */
-  .footer {
-    margin: 24px 40px 0;
-    padding: 14px 0 32px;
-    border-top: 1px solid var(--line);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .footer-left {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    line-height: 1.7;
-  }
-  .footer-right {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    color: var(--ink);
-    letter-spacing: 0.1em;
-    opacity: 0.18;
-  }
-
-  .red-stripe {
-    position: absolute;
-    right: 0; top: 0;
-    width: 6px; height: 100%;
-    background: var(--red);
-  }
-
-  .bg-number {
-    position: absolute;
-    right: 24px; top: 68px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 320px;
-    color: var(--ink);
-    opacity: 0.035;
-    line-height: 1;
-    pointer-events: none;
-    z-index: 1;
-    letter-spacing: -0.05em;
-  }
-
-  /* ═══════════════════════════════
-     MENTOR SECTION
-  ═══════════════════════════════ */
-  .mentor-section-header {
-    background: var(--ink);
-    padding: 14px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0;
-  }
-  .mentor-section-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    color: var(--paper);
-    letter-spacing: 0.14em;
-  }
-  .mentor-section-sub {
-    font-size: 8px;
-    color: rgba(242,237,228,0.35);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
-
-  .mentor-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    border-top: none;
-  }
-
-  .mentor-col {
-    padding: 28px 32px;
-    background: var(--paper);
-    position: relative;
-  }
-  .mentor-col:first-child {
-    border-right: 1.5px solid var(--line);
-  }
-
-  .mentor-photo {
-    width: 100%;
-    aspect-ratio: 3/4;
-    overflow: hidden;
-    margin-bottom: 20px;
-    position: relative;
-    border: 1.5px solid var(--line);
-  }
-  .mentor-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
-    display: block;
-    filter: grayscale(8%) contrast(1.04);
-  }
-  .mentor-photo .corner {
-    position: absolute;
-    width: 16px; height: 16px;
-    border-color: var(--paper);
-    border-style: solid;
-    opacity: 0.7;
-    z-index: 2;
-  }
-
-  /* col accent stripe top */
-  .mentor-col::before {
-    content: '';
-    display: block;
-    height: 3px;
-    margin-bottom: 20px;
-  }
-  .mentor-col.uman::before  { background: var(--gold); }
-  .mentor-col.priyan::before { background: var(--red); }
-
-  .mentor-badge-row {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-  }
-  .m-badge {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 11px;
-    padding: 2px 8px;
-    letter-spacing: 0.08em;
-  }
-  .m-badge-gold { background: var(--gold); color: var(--ink); }
-  .m-badge-ink  { background: var(--ink);  color: var(--paper); }
-  .m-badge-red  { background: var(--red);  color: var(--paper); }
-
-  .mentor-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 34px;
-    color: var(--ink);
-    line-height: 0.95;
-    letter-spacing: 0.01em;
-    margin-bottom: 4px;
-  }
-  .mentor-role {
-    font-size: 8px;
-    color: var(--muted);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    line-height: 1.8;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  /* cred rows */
-  .cred-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    margin-bottom: 16px;
-    border: 1px solid var(--line);
-  }
-  .cred-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 12px;
-    padding: 9px 12px;
-    border-bottom: 1px solid var(--line);
-    align-items: baseline;
-  }
-  .cred-row:last-child { border-bottom: none; }
-  .cred-key {
-    font-size: 8px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    line-height: 1.5;
-  }
-  .cred-val {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px;
-    color: var(--red);
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-    text-align: right;
-  }
-  .cred-val.gold { color: var(--gold); }
-
-  /* awards */
-  .awards-block {
-    margin-top: 14px;
-  }
-  .awards-label {
-    font-size: 7.5px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-    font-weight: 700;
-  }
-  .award-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 9px;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(200,191,176,0.5);
-  }
-  .award-row:last-child { border-bottom: none; }
-  .award-pip {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    margin-top: 4px;
-  }
-  .pip-gold { background: var(--gold); }
-  .pip-red  { background: var(--red); }
-  .pip-ink  { background: var(--ink); }
-  .award-name {
-    font-size: 9.5px;
-    font-weight: 700;
-    color: var(--ink);
-    letter-spacing: 0.03em;
-    line-height: 1.4;
-  }
-  .award-issuer {
-    font-size: 8px;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-    margin-top: 1px;
-    line-height: 1.5;
-  }
-
-  /* bottom strip */
-  .mentor-footer-strip {
-    background: var(--ink);
-    padding: 12px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .mentor-footer-strip span {
-    font-size: 8px;
-    color: rgba(242,237,228,0.3);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-  }
-  .mentor-footer-strip em {
-    font-style: normal;
-    color: var(--gold);
-  }
-</style>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="apple-touch-icon" href="images/favicon.png">
 </head>
 <body>
-<div class="poster">
+<div class="reading-progress" aria-hidden="true">
+  <span class="reading-progress-bar"></span>
+</div>
+<div class="hero-nav-shell" aria-hidden="false">
+  <div class="hero-nav" data-mobile-nav>
+    <button class="hero-menu-toggle" type="button" aria-expanded="false" aria-controls="hero-nav-menu" aria-label="Open menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <nav class="hero-nav-links" id="hero-nav-menu" aria-label="Primary">
+      <a class="hero-nav-link is-active" href="#home">Home</a>
+      <a class="hero-nav-link" href="#info">Info</a>
+      <a class="hero-nav-link" href="#timeline">Timeline</a>
+      <a class="hero-nav-link" href="#enrollment">Enrollment</a>
+            <a class="hero-nav-link" href="mock.html">Test Series</a>
+            <a class="hero-nav-link hero-nav-link-launch" href="interview.html">Interview Prep</a>
+      <a class="hero-nav-link" href="#team">Meet the Team!</a>
+      <a class="hero-enroll-cta" href="registrations.html">Enroll Now</a>
+    </nav>
+  </div>
+</div>
+<div class="poster" id="home">
   <div class="red-stripe"></div>
-  <div class="bg-number">2</div>
+  <div class="bg-number" data-parallax="slow">2</div>
+  <div class="hero-watermark" aria-hidden="true">
+    <img src="images/logo.svg" alt="">
+  </div>
 
   <!-- HEADER -->
   <div class="header">
@@ -919,22 +47,30 @@
 
     <div class="headline-block">
       <p class="headline-pre">A message to every 95–98 percentiler</p>
-      <div class="headline-main">
-        YOU<br>FAILED THE
-        <span class="struck">RIGHT</span><br>
-        WRONG<br>EXAM.
+      <div class="headline-main typewriter-headline" role="text" aria-label="YOU FAILED THE RIGHT WRONG EXAM.">
+        <span class="type-line"><span class="type-fragment" data-type-line="YOU"></span></span>
+        <span class="type-line"><span class="type-fragment" data-type-line="FAILED THE "></span><span class="struck"><span class="type-fragment typed-word" data-type-line="RIGHT"></span></span></span>
+        <span class="type-line"><span class="type-fragment" data-type-line="WRONG"></span></span>
+        <span class="type-line"><span class="type-fragment" data-type-line="EXAM."></span></span>
       </div>
       <p class="headline-sub">
         You didn't fail JEE.<br>
         JEE failed to test <em>YOU.</em>
       </p>
+      <div class="hero-launch-row">
+        <a href="interview.html" class="hero-launch-cta">
+          <span class="hero-launch-tag">Now Live</span>
+          <span class="hero-launch-title">Interview Prep</span>
+        </a>
+        <p class="hero-launch-note">Mock interviews · 10 free seats · built for shortlisted UGEE 2026 students</p>
+      </div>
     </div>
   </div>
 
-  <div class="rule" style="margin-top: 28px;"></div>
+  <div class="rule rule-top"></div>
 
   <!-- PHOTO ROW -->
-  <div class="photo-section">
+  <div class="photo-section" id="info">
     <div class="photo-card">
       <div class="photo-real">
         <div class="corner tl"></div>
@@ -976,7 +112,7 @@
       We're both sitting in IIITH CS Dual Degree right now. Between us, we have 
       <strong>the exact notes</strong> we used to clear SUPR — and 
       <strong>12 live classes</strong> where we don't just solve PYQs. We show you 
-      how to <em style="font-style:italic; color:var(--red);">think</em> through REAP. The exam doesn't test what you memorised. 
+      how to <em class="accent-think">think</em> through REAP. The exam doesn't test what you memorised. 
       It tests how your brain actually works. For some of you, that's the best news 
       you've heard since results dropped.
     </p>
@@ -997,7 +133,7 @@
     <div class="inside-item">
       <div class="inside-num">2</div>
       <div class="inside-label">Instructors. Inside.</div>
-      <div class="inside-desc">Currently at IIITH CS.<br>Not coaching faculty.<br>Your future batchmates.</div>
+      <div class="inside-desc">Currently at IIITH CS.<br>Not coaching faculty.<br>Your future seniors.</div>
     </div>
     <div class="inside-item">
       <div class="inside-num" id="days-num">—</div>
@@ -1030,9 +166,9 @@
         <div class="countdown-unit-label">Secs</div>
       </div>
     </div>
-    <div style="font-size:8px; color:var(--red); letter-spacing:0.12em; text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:16px; line-height:1.6;">
+    <div class="countdown-meta">
       May 2, 2026<br>
-      <span style="color:var(--muted);">UGEE Exam Day</span>
+      <span class="countdown-meta-sub">UGEE Exam Day</span>
     </div>
   </div>
 
@@ -1046,10 +182,10 @@
   </div>
 
   <!-- TENTATIVE CLASS SCHEDULE -->
-  <div class="schedule-section">
+  <div class="schedule-section" id="timeline">
     <div class="schedule-header">
       <div class="schedule-title">Tentative Class Schedule</div>
-      <div class="schedule-note">Batch of '30 · 99 Seats Only</div>
+      <div class="schedule-note">99 Seats Only</div>
     </div>
     <div class="schedule-grid">
       <!-- Uman's classes -->
@@ -1066,18 +202,18 @@
             <div class="cal-session-num">S1</div>
           </div>
           <div class="cal-date-row">
-            <div class="cal-date-pill pill-uman">22 Mar</div>
-            <div class="cal-day-name">Sunday</div>
+            <div class="cal-date-pill pill-uman">20 Mar</div>
+            <div class="cal-day-name">Friday</div>
             <div class="cal-session-num">S2</div>
           </div>
           <div class="cal-date-row">
-            <div class="cal-date-pill pill-uman">28 Mar</div>
-            <div class="cal-day-name">Saturday</div>
+            <div class="cal-date-pill pill-uman">22 Mar</div>
+            <div class="cal-day-name">Sunday</div>
             <div class="cal-session-num">S3</div>
           </div>
           <div class="cal-date-row">
-            <div class="cal-date-pill pill-uman">4 Apr</div>
-            <div class="cal-day-name">Saturday</div>
+            <div class="cal-date-pill pill-uman">1 Apr</div>
+            <div class="cal-day-name">Wednesday</div>
             <div class="cal-session-num">S4</div>
           </div>
           <div class="cal-date-row">
@@ -1098,22 +234,22 @@
         <div class="schedule-col-header">
           <div class="instructor-dot dot-priyanshu"></div>
           <div class="schedule-col-name">Priyanshu</div>
-          <div class="schedule-col-rank">SUPR</div>
+          <div class="schedule-col-rank">AIR 176</div>
         </div>
         <div class="cal-dates">
           <div class="cal-date-row">
-            <div class="cal-date-pill pill-priyanshu">18 Mar</div>
+            <div class="cal-date-pill pill-priyanshu">25 Mar</div>
             <div class="cal-day-name">Wednesday</div>
             <div class="cal-session-num">S1</div>
           </div>
           <div class="cal-date-row">
-            <div class="cal-date-pill pill-priyanshu">25 Mar</div>
-            <div class="cal-day-name">Wednesday</div>
+            <div class="cal-date-pill pill-priyanshu">28 Mar</div>
+            <div class="cal-day-name">Saturday</div>
             <div class="cal-session-num">S2</div>
           </div>
           <div class="cal-date-row">
-            <div class="cal-date-pill pill-priyanshu">1 Apr</div>
-            <div class="cal-day-name">Wednesday</div>
+            <div class="cal-date-pill pill-priyanshu">6 Apr</div>
+            <div class="cal-day-name">Monday</div>
             <div class="cal-session-num">S3</div>
           </div>
           <div class="cal-date-row">
@@ -1141,7 +277,7 @@
   </div>
 
   <!-- PRICE BAR -->
-  <div class="price-bar">
+  <div class="price-bar" id="enrollment">
     <div class="price-left">
       <div class="price-label">Full Package — Notes + 12 Classes</div>
       <div class="price-num"><sup>₹</sup>1499</div>
@@ -1158,32 +294,54 @@
     </div>
   </div>
 
+ <!-- ENROLL CTA SECTION -->
+
+<div class="enroll-section">
+
+<h2>Secure Your Seat</h2>
+
+<p>
+Batch filling fast. Once seats are gone, registrations close.
+</p>
+
+<a href="registrations.html" class="cta-button">
+ENROLL NOW
+</a>
+
+</div>
+ 
   <!-- CONTACT -->
-  <div class="cta-section">
-    <div class="cta-text" style="flex:1;">
+  <div class="cta-section" id="contact">
+    <div class="cta-text cta-contact">
       <div class="cta-line1">Have questions? Reach us directly.</div>
-      <div style="display:flex; gap:40px; margin-top:14px; flex-wrap:wrap;">
-        <div>
-          <div style="font-family:'Space Mono',monospace; font-size:8px; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">Uman Debnath · UGEE AIR 2</div>
-          <a href="https://instagram.com/ketc8up" target="_blank" style="font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:0.06em; color:var(--ink); text-decoration:none;">
-            <span style="color:var(--gold);">@</span>ketc8up
+      <div class="contact-grid">
+        <div class="contact-card">
+          <div class="contact-meta">Uman Debnath · UGEE AIR 2</div>
+          <a href="https://instagram.com/ketc8up" target="_blank" rel="noopener noreferrer" class="contact-handle">
+            <span class="contact-accent contact-accent-gold">@</span>ketc8up
           </a>
-          <div style="font-family:'Space Mono',monospace; font-size:8px; color:var(--muted); margin-top:3px; letter-spacing:0.1em;">Instagram</div>
+          <div class="contact-platform">Instagram</div>
         </div>
-        <div style="width:1px; background:var(--line); align-self:stretch;"></div>
-        <div>
-          <div style="font-family:'Space Mono',monospace; font-size:8px; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">Priyanshu Sekhar De</div>
-          <a href="https://instagram.com/priyanshu.pix07" target="_blank" style="font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:0.06em; color:var(--ink); text-decoration:none;">
-            <span style="color:var(--red);">@</span>priyanshu.pix07
+        <div class="contact-divider"></div>
+        <div class="contact-card">
+          <div class="contact-meta">Priyanshu Sekhar De</div>
+          <a href="https://instagram.com/priyanshu.pix07" target="_blank" rel="noopener noreferrer" class="contact-handle">
+            <span class="contact-accent contact-accent-red">@</span>priyanshu.pix07
           </a>
-          <div style="font-family:'Space Mono',monospace; font-size:8px; color:var(--muted); margin-top:3px; letter-spacing:0.1em;">Instagram</div>
+          <div class="contact-platform">Instagram</div>
         </div>
       </div>
-      <div style="font-family:'DM Serif Display',serif; font-size:11px; color:var(--muted); margin-top:16px; font-style:italic;">We actually reply.</div>
+      <div class="cta-note">We actually reply.</div>
     </div>
     <div class="cta-badge">
       <div class="badge-circle">
-        <div class="badge-text">WRONG<br>EXAM<br>★</div>
+        <span class="badge-ring badge-ring-outer"></span>
+        <span class="badge-ring badge-ring-inner"></span>
+        <span class="badge-orbit badge-orbit-primary"></span>
+        <span class="badge-orbit badge-orbit-secondary"></span>
+        <div class="badge-core">
+          <div class="badge-text">WRONG<br>EXAM<br>★</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1194,13 +352,13 @@
       Made by students. For students.<br>
       No coaching. No corporate. Just us.
     </div>
-    <div class="footer-right">UGEE 2025</div>
+    <div class="footer-right">UGEE 2026</div>
   </div>
 
   <!-- ══════════ MENTOR SECTION ══════════ -->
-  <div class="rule" style="margin: 0 0;"></div>
+  <div class="rule rule-zero"></div>
 
-  <div class="mentor-section-header">
+  <div class="mentor-section-header" id="team">
     <div class="mentor-section-title">Meet Your Instructors</div>
     <div class="mentor-section-sub">Currently inside IIITH CS · Batch of '30</div>
   </div>
@@ -1217,9 +375,9 @@
       <div class="mentor-name">Uman<br>Debnath</div>
       <div class="mentor-role">
         B.Tech + MS · Computer Science &amp; Engineering<br>
-        IIIT Hyderabad · Jul 2025<br>
+        IIIT Hyderabad<br>
         School: Ramakrishna Mission Vidyalaya, Viveknagar<br>
-        Activities: Cricket Club · Public Speaking · Event Management
+        Activities: Game Theory Club · Photography Club · Quiz Club
       </div>
 
       <div class="cred-list">
@@ -1276,7 +434,7 @@
           <div class="award-pip pip-gold"></div>
           <div>
             <div class="award-name">NSEC 2024 — Score 89 · Top 359 Nationally</div>
-            <div class="award-issuer">Indian Association of Physics Teachers (IAPT) · Dec 2024 · Qualified INCHO 2025</div>
+            <div class="award-issuer">Indian Association of Physics Teachers (IAPT) · Dec 2024</div>
           </div>
         </div>
       </div>
@@ -1293,7 +451,7 @@
       <div class="mentor-role">
         B.Tech + MS · Computer Science &amp; Engineering<br>
         IIIT Hyderabad · Batch of 2030<br>
-        Activities: Quiz Club Member · Photography Club Member
+        Activities: Photography Club Member
       </div>
 
       <div class="cred-list">
@@ -1336,7 +494,7 @@
           <div class="award-pip pip-ink"></div>
           <div>
             <div class="award-name">IIITH UGEE 2025 — AIR 176</div>
-            <div class="award-issuer">Cleared via SUPR stream · April 2025</div>
+            <div class="award-issuer">Cleared · April 2025</div>
           </div>
         </div>
       </div>
@@ -1345,52 +503,17 @@
   </div><!-- mentor-grid -->
 
   <div class="mentor-footer-strip">
-    <span>Not coaching faculty — <em>your future batchmates</em></span>
+    <span>Not coaching faculty — <em>your future seniors</em></span>
     <span>DM us on Instagram · We actually reply</span>
   </div>
 
 </div>
 
-<script>
-  // Target: May 2 2026, 00:00 IST (UTC+5:30)
-  const EXAM_TARGET = new Date('2026-05-02T00:00:00+05:30');
+<script src="js/countdown.js?v=10" defer></script>
+<script src="js/animations.js?v=10" defer></script>
+<a href="registrations.html" class="floating-enroll">
+Enroll Now
+</a>
 
-  function updateCountdown() {
-    const now = new Date();
-    const diff = EXAM_TARGET - now;
-
-    const pad = n => String(Math.max(0, n)).padStart(2, '0');
-
-    if (diff <= 0) {
-      ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = '00';
-      });
-      const dn = document.getElementById('days-num');
-      if (dn) dn.textContent = '0';
-      return;
-    }
-
-    const days  = Math.floor(diff / 864e5);
-    const hours = Math.floor((diff % 864e5) / 36e5);
-    const mins  = Math.floor((diff % 36e5)  / 6e4);
-    const secs  = Math.floor((diff % 6e4)   / 1e3);
-
-    const elD = document.getElementById('cd-days');
-    const elH = document.getElementById('cd-hours');
-    const elM = document.getElementById('cd-mins');
-    const elS = document.getElementById('cd-secs');
-    const elDN = document.getElementById('days-num');
-
-    if (elD)  elD.textContent  = pad(days);
-    if (elH)  elH.textContent  = pad(hours);
-    if (elM)  elM.textContent  = pad(mins);
-    if (elS)  elS.textContent  = pad(secs);
-    if (elDN) elDN.textContent = days;
-  }
-
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-</script>
 </body>
 </html>

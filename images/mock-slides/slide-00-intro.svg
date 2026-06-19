@@ -1,0 +1,53 @@
+<svg width="1280" height="1280" viewBox="0 0 1280 1280" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1280" height="1280" fill="#0D0C0A"/>
+  <text x="52" y="96" fill="#9A948A" font-family="Space Mono, monospace" font-size="20" letter-spacing="10">INTRODUCING</text>
+  <text x="50" y="218" fill="#D71F18" font-family="Bebas Neue, Arial Black, sans-serif" font-size="96" font-weight="700">ACEIIIT</text>
+  <text x="50" y="308" fill="#F2EDE4" font-family="Bebas Neue, Arial Black, sans-serif" font-size="96" font-weight="700">MOCKS.</text>
+  <text x="50" y="368" fill="#B8B0A5" font-family="DM Serif Display, Georgia, serif" font-size="28" font-style="italic">Practice under real exam pressure.</text>
+  <text x="50" y="412" fill="#B8B0A5" font-family="DM Serif Display, Georgia, serif" font-size="28" font-style="italic">Perform with total confidence.</text>
+
+  <rect x="28" y="492" width="1124" height="608" fill="#F0E9DD" stroke="#D1C6B8" stroke-width="3"/>
+  <rect x="70" y="560" width="636" height="424" rx="28" fill="#F7F1E7" stroke="#E3D8C9" stroke-width="2"/>
+  <rect x="760" y="560" width="396" height="424" rx="24" fill="#201A16"/>
+
+  <text x="106" y="606" fill="#161312" font-family="Space Mono, monospace" font-size="14" font-weight="700" letter-spacing="5">ACEIIIT TEST SYSTEM</text>
+  <text x="106" y="732" fill="#151312" font-family="Bebas Neue, Arial Black, sans-serif" font-size="104" font-weight="700">PRACTICE</text>
+  <text x="106" y="834" fill="#151312" font-family="Bebas Neue, Arial Black, sans-serif" font-size="104" font-weight="700">UNDER THE</text>
+  <text x="106" y="936" fill="#151312" font-family="Bebas Neue, Arial Black, sans-serif" font-size="104" font-weight="700">RIGHT</text>
+  <text x="106" y="1038" fill="#151312" font-family="Bebas Neue, Arial Black, sans-serif" font-size="104" font-weight="700">PRESSURE.</text>
+  <rect x="104" y="878" width="410" height="12" transform="rotate(-4 104 878)" fill="#A22314"/>
+
+  <text x="106" y="458" fill="#D8AA2A" font-family="Space Mono, monospace" font-size="14" font-weight="700" letter-spacing="6">● ACEIIIT</text>
+  <text x="892" y="458" fill="#D7D0C4" font-family="Space Mono, monospace" font-size="14" letter-spacing="5">MOCK PLATFORM BY</text>
+  <text x="1104" y="458" fill="#F2EDE4" font-family="Bebas Neue, Arial Black, sans-serif" font-size="26" font-weight="700">ACEIIIT</text>
+
+  <rect x="798" y="586" width="92" height="36" rx="18" fill="#D5AA2C"/>
+  <rect x="902" y="586" width="108" height="36" rx="18" fill="#34302A"/>
+  <text x="822" y="609" fill="#151312" font-family="Space Mono, monospace" font-size="14" font-weight="700">LOGIN</text>
+  <text x="935" y="609" fill="#F2EDE4" font-family="Space Mono, monospace" font-size="14" font-weight="700">SIGN UP</text>
+
+  <text x="816" y="692" fill="#D5AA2C" font-family="Space Mono, monospace" font-size="15" font-weight="700" letter-spacing="4">ACCESS PORTAL</text>
+  <text x="816" y="748" fill="#F2EDE4" font-family="Bebas Neue, Arial Black, sans-serif" font-size="42" font-weight="700">EMAIL OTP LOGIN</text>
+  <text x="816" y="788" fill="#A39B90" font-family="Space Mono, monospace" font-size="16">Enter your email to receive a one-time password.</text>
+  <text x="816" y="812" fill="#A39B90" font-family="Space Mono, monospace" font-size="16">UGEE 2026 test series access, all in one place.</text>
+
+  <text x="816" y="886" fill="#D5AA2C" font-family="Space Mono, monospace" font-size="14" font-weight="700" letter-spacing="4">EMAIL</text>
+  <rect x="816" y="904" width="264" height="42" rx="10" fill="#312A25"/>
+  <text x="836" y="931" fill="#665E56" font-family="Space Mono, monospace" font-size="15">student@example.com</text>
+
+  <text x="816" y="988" fill="#D5AA2C" font-family="Space Mono, monospace" font-size="14" font-weight="700" letter-spacing="4">FULL NAME</text>
+  <rect x="816" y="1004" width="264" height="42" rx="10" fill="#312A25"/>
+  <text x="836" y="1031" fill="#665E56" font-family="Space Mono, monospace" font-size="15">Your name</text>
+
+  <rect x="816" y="1084" width="110" height="36" rx="18" fill="#2C241F" stroke="#5C5147"/>
+  <text x="842" y="1107" fill="#F2EDE4" font-family="Space Mono, monospace" font-size="14" font-weight="700">SEND OTP</text>
+
+  <rect x="106" y="1058" width="134" height="78" rx="16" fill="#201A16"/>
+  <rect x="252" y="1058" width="134" height="78" rx="16" fill="#201A16"/>
+  <rect x="398" y="1058" width="134" height="78" rx="16" fill="#201A16"/>
+  <text x="130" y="1098" fill="#F2EDE4" font-family="Bebas Neue, Arial Black, sans-serif" font-size="34" font-weight="700">SUPR</text>
+  <text x="274" y="1098" fill="#F2EDE4" font-family="Bebas Neue, Arial Black, sans-serif" font-size="34" font-weight="700">REAP</text>
+  <text x="422" y="1098" fill="#F2EDE4" font-family="Bebas Neue, Arial Black, sans-serif" font-size="34" font-weight="700">Analytics</text>
+
+  <text x="50" y="1206" fill="#D71F18" font-family="Bebas Neue, Arial Black, sans-serif" font-size="48" font-weight="700">ACEIIIT.COM</text>
+</svg>

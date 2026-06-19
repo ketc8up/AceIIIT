@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enroll - AceIIIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/registrations.css">
+<script defer src="assets/js/registrations.js"></script>
+
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="apple-touch-icon" href="images/favicon.png">
+</head>
+<body>
+<div class="ambient ambient-one"></div>
+<div class="ambient ambient-two"></div>
+
+<div class="topbar">
+  <img class="logo-img" src="assets/images/logo.jpg" alt="AceIIIT">
+  <div class="prog" aria-label="Enrollment progress">
+    <div class="pdot on" id="d1"></div>
+    <div class="pdot" id="d2"></div>
+    <div class="pdot" id="d3"></div>
+    <div class="ptxt" id="ptxt">01 / 03</div>
+  </div>
+</div>
+
+<section class="hero" data-reveal>
+  <div class="hero-tag">Course Enrollment</div>
+  <h1 class="hero-title" aria-label="Join AceIIIT">
+    <span class="hero-word hero-word-main">JOIN</span>
+    <span class="hero-word hero-word-accent">ACEIIIT</span>
+  </h1>
+  <div class="trust">
+    <div class="ti">100% Secure</div>
+    <div class="ti">Instant Confirmation</div>
+    <div class="ti">Verified within 24 hrs</div>
+  </div>
+</section>
+
+<main class="wrap">
+  <section class="promo-strip" data-reveal>
+    <div class="promo-strip-label"><span class="promo-strip-ping"></span>New</div>
+    <div class="promo-strip-text">Mock tests are live: <span class="promo-count">2 free</span> with signup, <span class="promo-count">4 paid</span> when selected in the next step.</div>
+    <div class="promo-strip-arrow" aria-hidden="true"></div>
+  </section>
+
+  <section id="s1" class="step" data-reveal>
+    <div class="card" data-tilt>
+      <div class="card-title">Your Details</div>
+      <div class="card-sub">Quick. Clean. Under a minute.</div>
+
+      <div class="r2">
+        <div class="field">
+          <label for="fullName">Full Name *</label>
+          <input id="fullName" type="text" placeholder="Your full name" autocomplete="name" required>
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone *</label>
+          <input id="phone" type="tel" placeholder="98765 43210" autocomplete="tel" pattern="[0-9]{10}" maxlength="10" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email *</label>
+        <input id="email" type="email" placeholder="your@email.com" autocomplete="email" required>
+      </div>
+
+      <div class="r2">
+        <div class="field">
+          <label for="city">City *</label>
+          <input id="city" type="text" placeholder="Your city" required>
+        </div>
+
+        <div class="field">
+          <label for="age">Age *</label>
+          <input id="age" type="number" placeholder="Age" min="10" max="60" required>
+        </div>
+      </div>
+
+      <div id="e1" class="err"></div>
+
+      <div class="nav">
+        <button class="btn-next" id="toStep2" type="button">Select Course &#8594;</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="s2" class="step" hidden data-reveal>
+    <div class="card" data-tilt>
+      <div class="card-title">Course &amp; Payment</div>
+      <div class="card-sub">Pick your track and complete payment without leaving the flow.</div>
+
+      <div class="courses">
+        <button class="cc" id="cc1" type="button" data-course-key="notes" data-tilt>
+          <div class="ck" id="ck1"></div>
+          <div class="badge">Notes Only</div>
+          <div class="cname">Study Material</div>
+          <div class="price">&#8377;499</div>
+          <div class="inc">Complete notes PDF</div>
+        </button>
+
+        <button class="cc" id="cc2" type="button" data-course-key="full" data-tilt>
+          <div class="ck" id="ck2"></div>
+          <div class="badge">Full Course</div>
+          <div class="cname">Class + Notes</div>
+          <div class="price">&#8377;1,499</div>
+          <div class="inc">Live classes + notes</div>
+        </button>
+
+        <button class="cc cc-wide" id="cc3" type="button" data-course-key="mock" data-tilt>
+          <div class="ck" id="ck3"></div>
+          <div class="badge">Mock Tests</div>
+          <div class="cname">2 free on signup + 4 paid mocks</div>
+          <div class="price">&#8377;599</div>
+          <div class="inc">New mock test section with dedicated UGEE questions</div>
+        </button>
+      </div>
+
+      <div class="mock-showcase" data-reveal data-tilt>
+        <div class="mock-showcase-copy">
+          <div class="mock-kicker">New Mock Test Section</div>
+          <div class="mock-showcase-title">2 free mock tests on email signup. 4 paid mocks when you choose the new pack.</div>
+          <div class="mock-showcase-sub">A cleaner pressure test track inside the same flow. Select the mock-test course above to reveal its payment QR below.</div>
+          <div class="mock-pill-row">
+            <div class="mock-pill">2 free after signup</div>
+            <div class="mock-pill">4 paid mock tests</div>
+          </div>
+        </div>
+
+        <div class="mock-showcase-preview">
+          <div class="mock-highlight-panel" data-tilt>
+            <div class="mock-highlight-row">
+              <span class="mock-highlight-num">2</span>
+              <span class="mock-highlight-copy">Free on signup</span>
+            </div>
+            <div class="mock-highlight-row">
+              <span class="mock-highlight-num">4</span>
+              <span class="mock-highlight-copy">Paid mock tests</span>
+            </div>
+            <div class="mock-highlight-note">QR appears only after the mock-test course is selected.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="payblock" id="pMock" data-reveal>
+        <div class="pay-top">
+          <div>
+            <div class="plabel">Pay exactly</div>
+            <div class="pamt">&#8377;599</div>
+          </div>
+          <div class="pbadge">Mock Tests</div>
+        </div>
+
+        <div class="pay-body">
+          <div class="pay-layout">
+            <div class="mock-showcase-preview">
+              <div class="mock-qr-card" data-tilt>
+                <div class="mock-qr-shell">
+                  <img id="mockQrImageBlock" src="" alt="Mock test UPI QR">
+                </div>
+                <div class="mock-qr-copy">UPI ID: <span id="mockUpiIdTextBlock"></span></div>
+                <div class="mock-qr-amount">Amount: <span id="mockUpiAmountTextBlock"></span></div>
+              </div>
+            </div>
+
+            <div class="qr-info">
+              <div class="qi-label">Mock Test Access</div>
+              <div class="qi-val">Signup unlocks 2 free mocks. This pack adds 4 more paid mock tests in one clean flow.</div>
+              <div class="apps">
+                <div class="app">GPay</div>
+                <div class="app">PhonePe</div>
+                <div class="app">Paytm</div>
+                <div class="app">Any UPI</div>
+              </div>
+              <a class="upi-link" id="mockPayLinkBlock" href="#">Open UPI App</a>
+            </div>
+          </div>
+
+          <div class="steps-row">
+            <div class="ps"><div class="pn">1</div><div class="pt"><strong>Scan QR</strong>Or open the UPI app</div></div>
+            <div class="ps"><div class="pn">2</div><div class="pt"><strong>Pay &#8377;599</strong>Exact amount</div></div>
+            <div class="ps"><div class="pn">3</div><div class="pt"><strong>Screenshot</strong>Capture success screen</div></div>
+            <div class="ps"><div class="pn">4</div><div class="pt"><strong>Upload</strong>Then continue</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="payblock" id="p499" data-reveal>
+        <div class="pay-top">
+          <div>
+            <div class="plabel">Pay exactly</div>
+            <div class="pamt">&#8377;499</div>
+          </div>
+          <div class="pbadge">Notes Only</div>
+        </div>
+
+        <div class="pay-body">
+          <div class="pay-layout">
+            <div class="mock-showcase-preview">
+              <div class="mock-qr-card" data-tilt>
+                <div class="mock-qr-shell">
+                  <img id="notesQrImage" src="" alt="Notes only UPI QR">
+                </div>
+                <div class="mock-qr-copy">UPI ID: <span id="notesUpiIdText"></span></div>
+                <div class="mock-qr-amount">Amount: <span id="notesUpiAmountText"></span></div>
+              </div>
+            </div>
+
+            <div class="qr-info">
+              <div class="qi-label">UPI ID</div>
+              <div class="qi-val">arka24apj@oksbi</div>
+              <div class="apps">
+                <div class="app">GPay</div>
+                <div class="app">PhonePe</div>
+                <div class="app">Paytm</div>
+                <div class="app">Any UPI</div>
+              </div>
+              <a class="upi-link" id="notesPayLink" href="#">Open UPI App</a>
+            </div>
+          </div>
+
+          <div class="steps-row">
+            <div class="ps"><div class="pn">1</div><div class="pt"><strong>Scan QR</strong>Open UPI app</div></div>
+            <div class="ps"><div class="pn">2</div><div class="pt"><strong>Pay &#8377;499</strong>Exact amount</div></div>
+            <div class="ps"><div class="pn">3</div><div class="pt"><strong>Screenshot</strong>Success screen</div></div>
+            <div class="ps"><div class="pn">4</div><div class="pt"><strong>Upload</strong>Below</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="payblock" id="p1499" data-reveal>
+        <div class="pay-top">
+          <div>
+            <div class="plabel">Pay exactly</div>
+            <div class="pamt">&#8377;1,499</div>
+          </div>
+          <div class="pbadge">Class + Notes</div>
+        </div>
+
+        <div class="pay-body">
+          <div class="pay-layout">
+            <div class="mock-showcase-preview">
+              <div class="mock-qr-card" data-tilt>
+                <div class="mock-qr-shell">
+                  <img id="fullQrImage" src="" alt="Class plus notes UPI QR">
+                </div>
+                <div class="mock-qr-copy">UPI ID: <span id="fullUpiIdText"></span></div>
+                <div class="mock-qr-amount">Amount: <span id="fullUpiAmountText"></span></div>
+              </div>
+            </div>
+
+            <div class="qr-info">
+              <div class="qi-label">UPI ID</div>
+              <div class="qi-val">arka24apj@oksbi</div>
+              <div class="apps">
+                <div class="app">GPay</div>
+                <div class="app">PhonePe</div>
+                <div class="app">Paytm</div>
+                <div class="app">Any UPI</div>
+              </div>
+              <a class="upi-link" id="fullPayLink" href="#">Open UPI App</a>
+            </div>
+          </div>
+
+          <div class="steps-row">
+            <div class="ps"><div class="pn">1</div><div class="pt"><strong>Scan QR</strong>Open UPI app</div></div>
+            <div class="ps"><div class="pn">2</div><div class="pt"><strong>Pay &#8377;1,499</strong>Exact amount</div></div>
+            <div class="ps"><div class="pn">3</div><div class="pt"><strong>Screenshot</strong>Success screen</div></div>
+            <div class="ps"><div class="pn">4</div><div class="pt"><strong>Upload</strong>Below</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="txn-wrap" id="txnwrap">
+        <div class="field">
+          <label for="txnId">UPI Transaction ID *</label>
+          <input id="txnId" type="text" placeholder="e.g. 405828919383" autocomplete="off" maxlength="12" pattern="\d{12}" required inputmode="numeric">
+        </div>
+
+        <div class="fdrop" id="drop" tabindex="0" role="button" aria-controls="ss">
+          <input type="file" id="ss" accept="image/*">
+          <div class="fdrop-t">Upload Payment Screenshot</div>
+          <div class="fdrop-s">Tap to choose or drag and drop - JPG PNG WEBP</div>
+        </div>
+
+        <div class="fok" id="fok">&#10003; <span id="fn">Screenshot uploaded</span></div>
+        <div class="secbar">&#128274; We will never ask for your PIN, OTP or password.</div>
+      </div>
+
+      <div id="e2" class="err"></div>
+
+      <div class="nav">
+        <button class="btn-back" id="toStep1" type="button">&#8592; Back</button>
+        <button class="btn-next" id="toStep3" type="button">Review &#8594;</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="s3" class="step" hidden data-reveal>
+    <div class="card" data-tilt>
+      <div class="card-title">Review &amp; Confirm</div>
+      <div class="card-sub">Check everything once before you submit.</div>
+
+      <div class="rgrid" id="rgrid"></div>
+
+      <div class="field">
+        <label for="lastQ">Any questions? <span class="label-note">(Optional)</span></label>
+        <textarea id="lastQ" placeholder="Ask us anything - we reply within 24 hrs"></textarea>
+      </div>
+
+      <div id="e3" class="err"></div>
+
+      <div class="nav">
+        <button class="btn-back" id="backToStep2" type="button">&#8592; Back</button>
+        <button class="btn-submit" id="sub" type="button">
+          <div class="spin" id="spin"></div>
+          <span id="subtxt">CONFIRM ENROLLMENT</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="succ" id="succ" data-reveal>
+    <div class="succ-card" data-tilt>
+      <div class="succ-top">
+        <img class="succ-logo" src="assets/images/logo.jpg" alt="AceIIIT">
+        <div class="succ-head">
+          <div class="succ-tag">&#10003; Enrollment Received</div>
+          <div class="succ-title">WELCOME, <span class="succ-name" id="sname">-</span></div>
+        </div>
+      </div>
+
+      <div class="succ-body">
+        <div class="succ-sub">Payment verification happens within 24 hours. Course or mock-test access details will be sent to your email.</div>
+        <div class="rgrid" id="sgrid"></div>
+        <div class="email-note">&#128231; Confirmation sent to your email &nbsp;&#183;&nbsp; &#128241; SMS sent to your phone</div>
+        <div class="nxt">
+          <div class="nxt-title">What happens next</div>
+          <div class="ns"><div class="nn">1</div><div class="nt"><strong>Check email &amp; SMS</strong>Confirmation lands first.</div></div>
+          <div class="ns"><div class="nn">2</div><div class="nt"><strong>Payment verified</strong>Reviewed by our team within 24 hours.</div></div>
+          <div class="ns"><div class="nn">3</div><div class="nt"><strong>Access granted</strong>Details are shared on your email.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="interview-redirect" data-reveal>
+    <div class="interview-redirect-card" data-tilt>
+      <div class="interview-redirect-kicker">Looking for interview prep?</div>
+      <h2 class="interview-redirect-title">If you meant to apply for the free UGEE interview-prep cohort, use the separate application form.</h2>
+      <a class="interview-redirect-button" href="interview-application.html">Go to Interview Prep Form</a>
+    </div>
+  </section>
+</main>
+</body>
+</html>
