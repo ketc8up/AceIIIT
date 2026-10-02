@@ -1,0 +1,29 @@
+{
+  "source": "assets/original-approved-transparent-artwork.png",
+  "journey": "assets/existing-journey-red.png",
+  "stage_assets": [
+    "assets/stages/01.png",
+    "assets/stages/02.png",
+    "assets/stages/03.png",
+    "assets/stages/04.png",
+    "assets/stages/05.png"
+  ],
+  "order": [
+    "01 Prepare",
+    "02 Practice",
+    "03 Analyse",
+    "04 Interview",
+    "05 Writing"
+  ],
+  "initial_state": "all stage assets hidden; journey clip width 0",
+  "scroll_behavior": "journey fills continuously left-to-right while each stage reveals at its threshold",
+  "thresholds": [
+    0.035,
+    0.28,
+    0.52,
+    0.74,
+    0.88
+  ],
+  "no_overlap": true,
+  "reduced_motion": "complete composition immediately"
+}

@@ -1,0 +1,65 @@
+/* Dark Theme Tokens */
+html.dark {
+  --paper: #0e0e0e;
+  --surface: #1a1a1a;
+  --surface-soft: #242424;
+  --ink: #dfd8c6;
+  --ink-soft: #9f9684;
+  
+  --gold: #d4af37;
+  --gold-strong: #ffd700;
+  --wine: #cc4534;
+  --green: #29b673;
+  --red: #f87171;
+  --gray: #a39c93;
+  
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 32px 80px rgba(0, 0, 0, 0.6);
+  
+  color-scheme: dark;
+}
+
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Theme Toggle Button styling */
+.theme-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-soft);
+  color: var(--ink);
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.1);
+  outline: none;
+  transition: all 0.3s ease;
+  margin-left: 16px;
+}
+
+html.dark .theme-toggle-btn {
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.2);
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.1);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.96);
+}
+
+/* Curtain Animation */
+.theme-curtain {
+  position: fixed;
+  inset: 0;
+  transform-origin: top;
+  transform: scaleY(0);
+  z-index: 9997;
+  pointer-events: none;
+}

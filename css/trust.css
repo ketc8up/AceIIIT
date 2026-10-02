@@ -1,0 +1,295 @@
+/* ==========================================================================
+   TRUST — Circular Testimonials (Mentor / Team Showcase)
+   ========================================================================== */
+
+.trust-section {
+  padding: 4rem 0 8rem;
+  background-color: var(--paper);
+  border-top: 1px solid rgba(20, 17, 15, 0.10);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle grid texture matching packages section */
+.trust-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(20, 17, 15, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 17, 15, 0.022) 1px, transparent 1px);
+  background-size: 52px 52px;
+  pointer-events: none;
+}
+
+.trust-container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Section Header ── */
+.trust-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 5rem;
+  flex-wrap: wrap;
+}
+
+.trust-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--red);
+  margin: 0 0 0.8rem;
+}
+
+.trust-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.0;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.trust-subtitle {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  max-width: 360px;
+  line-height: 1.65;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* ── CTC Wrapper: 2-col grid (images | content) ── */
+.ctc-wrapper {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 7rem;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .ctc-wrapper {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+  }
+}
+
+/* ── Image Carousel ── */
+.ctc-images {
+  position: relative;
+  width: 100%;
+  max-width: 250px;
+  margin: 0 auto;
+  aspect-ratio: 4 / 5;
+  perspective: 1000px;
+}
+
+.ctc-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  border-radius: 18px;
+  box-shadow: 0 16px 48px rgba(20, 17, 15, 0.18);
+  transition: transform 0.8s cubic-bezier(.4, 2, .3, 1),
+              opacity 0.8s cubic-bezier(.4, 2, .3, 1);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── Content Panel ── */
+.ctc-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+}
+
+.ctc-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+  font-weight: 900;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.0;
+  margin: 0 0 0.5rem;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.ctc-designation {
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 700;
+  margin: 0 0 2rem;
+  transition: opacity 0.25s ease;
+}
+
+.ctc-quote {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+  line-height: 1.75;
+  color: var(--ink-soft);
+  margin: 0 0 2.5rem;
+  min-height: 6em;
+}
+
+/* Word-by-word blur-in animation */
+.ctc-word {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(6px);
+  transform: translateY(4px);
+}
+
+.ctc-word.ctc-word-anim {
+  animation: ctcWordIn 0.28s ease-out forwards;
+}
+
+@keyframes ctcWordIn {
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctc-word {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    animation: none !important;
+  }
+}
+
+/* ── Nav row: arrows + dots ── */
+.ctc-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.ctc-btn-prev,
+.ctc-btn-next {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.ctc-btn-prev:hover,
+.ctc-btn-next:hover {
+  background: var(--gold);
+  transform: scale(1.06);
+}
+
+.ctc-btn-prev svg,
+.ctc-btn-next svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--surface);
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.ctc-dots {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.ctc-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(20, 17, 15, 0.2);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.ctc-dot--active {
+  background: var(--ink);
+  transform: scale(1.4);
+}
+
+/* ── Footer bar ── */
+.trust-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(20, 17, 15, 0.10);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.trust-footer-text {
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 0.65rem;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.65;
+}
+
+.btn-dossier {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background-color: var(--ink);
+  color: var(--surface);
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.btn-dossier:hover {
+  background-color: var(--red);
+  transform: translateY(-1px);
+}
+
+.btn-dossier svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}

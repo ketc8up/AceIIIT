@@ -1,0 +1,24 @@
+# Secrets and environment files
+.env
+**/.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Local TLS certificates (private key)
+.certs/
+*.pem
+
+# Uploaded payment receipts (student data)
+private_uploads/
+api/private_uploads/
+
+# Local databases
+*.db
+*.db-journal
+
+# Dependencies / build output
+node_modules/
+dist/
+coverage/
+.DS_Store

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ACEIIIT | Method</title>
+<style>
+:root { --paper:#f3ecdf; }
+* { box-sizing:border-box; }
+html,body { margin:0; background:var(--paper); }
+.method {
+  position:relative;
+  height:340vh;
+  background:var(--paper);
+}
+.sticky {
+  position:sticky;
+  top:0;
+  height:100vh;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+.frame {
+  position:relative;
+  width:min(96vw,1500px);
+  aspect-ratio:2171/724;
+}
+.layer {
+  position:absolute;
+  top:0;
+  height:100%;
+  display:block;
+  object-fit:fill;
+}
+.route {
+  left:0;
+  width:100%;
+  clip-path:inset(0 100% 0 0);
+  z-index:2;
+}
+.stage {
+  opacity:0;
+  transform:translateY(12px);
+  transition:
+    opacity .65s cubic-bezier(.2,.75,.25,1),
+    transform .65s cubic-bezier(.2,.75,.25,1);
+  z-index:3;
+}
+.stage.show {
+  opacity:1;
+  transform:translateY(0);
+}
+.s1 { left:0; width:23.030861354214647%; }
+.s2 { left:23.030861354214647%; width:25.56425610317826%; }
+.s3 { left:48.59511745739291%; width:23.952095808383234%; }
+.s4 { left:72.54721326577614%; width:11.054813450023032%; }
+.s5 { left:83.60202671579917%; width:16.39797328420083%; }
+
+@media(max-width:700px) {
+  .method { height:280vh; }
+  .frame { width:145vw; max-width:none; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .method { height:auto; }
+  .sticky { position:relative; height:auto; padding:8vh 0; }
+  .stage { opacity:1!important; transform:none!important; transition:none!important; }
+  .route { clip-path:none!important; }
+}
+</style>
+</head>
+<body>
+<section class="method" id="why-aceiiit" aria-label="The ACEIIIT preparation journey">
+  <div class="sticky">
+    <div class="frame">
+
+      <!-- ONLY the actual existing journey is present initially, clipped to zero width. -->
+      <img id="journey" class="layer route"
+           src="assets/existing-journey-red.png" alt="" aria-hidden="true">
+
+      <!-- Each stage is a completely separate, non-overlapping layer. -->
+      <img class="layer stage s1" data-stage="1"
+           src="assets/stages/01.png"
+           alt="ACEIIIT and Prepare: build the right foundation.">
+
+      <img class="layer stage s2" data-stage="2"
+           src="assets/stages/02.png"
+           alt="Practice: work through realistic UGEE-style problems.">
+
+      <img class="layer stage s3" data-stage="3"
+           src="assets/stages/03.png"
+           alt="Analyse: understand your performance and where to improve.">
+
+      <img class="layer stage s4" data-stage="4"
+           src="assets/stages/04.png"
+           alt="Interview: prepare for the stage beyond the test.">
+
+      <img class="layer stage s5" data-stage="5"
+           src="assets/stages/05.png"
+           alt="Same questions. A brighter you.">
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const section = document.getElementById('why-aceiiit');
+  const journey = document.getElementById('journey');
+  const stages = [...document.querySelectorAll('.stage')];
+
+  // Each threshold corresponds to the point at which the journey reaches that stage.
+  const thresholds = [0.035, 0.28, 0.52, 0.74, 0.88];
+
+  function update() {
+    const rect = section.getBoundingClientRect();
+    const distance = Math.max(1, section.offsetHeight - innerHeight);
+    const progress = Math.max(0, Math.min(1, -rect.top / distance));
+
+    // The ORIGINAL route fills continuously from its actual left endpoint
+    // to its actual final arrowhead.
+    journey.style.clipPath =
+      `inset(0 ${(1 - progress) * 100}% 0 0)`;
+
+    // Stages are revealed only when the red journey has reached them.
+    stages.forEach((stage, index) => {
+      stage.classList.toggle('show', progress >= thresholds[index]);
+    });
+  }
+
+  addEventListener('scroll', update, { passive:true });
+  addEventListener('resize', update);
+  update();
+})();
+</script>
+</body>
+</html>

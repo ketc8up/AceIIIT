@@ -1,0 +1,344 @@
+// /home/arco/Documents/AceIIIT/api/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING_PAYMENT
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  MANUAL_UPI
+  RAZORPAY
+}
+
+enum EntitlementStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+enum ProvisioningStatus {
+  PENDING_PROVISIONING
+  PROVISIONED
+  PROVISIONING_FAILED
+}
+
+model User {
+  id             String   @id @default(uuid())
+  authProviderId String?  @unique // Supabase Auth ID
+  firstName      String
+  lastName       String
+  email          String   @unique
+  phone          String
+  college        String?
+  year           String?
+  password       String?  // Nullable because of Supabase Auth
+  role           Role     @default(STUDENT)
+  
+  orders            Order[]
+  couponRedemptions CouponRedemption[]
+  studentIdentities StudentIdentity[]
+  entitlements      Entitlement[]
+  courseEnrollments CourseEnrollment[]
+  auditLogs         AuditLog[]         @relation("Actor")
+  mockAttempts      MockAttempt[]
+  interviewBookings InterviewBooking[]
+  referrals         Referral[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  price       Int      
+  currency    String   @default("INR")
+  taxConfig   Int      
+  status      String   @default("ACTIVE") 
+  metadata    String?  // JSON string
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id           String      @id @default(uuid())
+  orderNumber  String      @unique
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  
+  subtotal     Int
+  discount     Int         @default(0)
+  tax          Int
+  total        Int
+  currency     String      @default("INR")
+  status       OrderStatus @default(PENDING)
+  
+  items             OrderItem[]
+  payments          Payment[]
+  couponRedemptions CouponRedemption[]
+  entitlements      Entitlement[]
+  courseEnrollments CourseEnrollment[]
+  auditLogs         AuditLog[]
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model OrderItem {
+  id               String   @id @default(uuid())
+  orderId          String
+  order            Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String
+  
+  productName      String
+  unitPrice        Int
+  quantity         Int
+  taxSnapshot      Int
+  discountSnapshot Int      @default(0)
+  lineTotal        Int
+}
+
+model Coupon {
+  id                 String   @id @default(uuid())
+  code               String   @unique
+  discountType       String   
+  discountValue      Int
+  status             String   @default("ACTIVE") 
+  startDate          DateTime?
+  endDate            DateTime?
+  usageLimit         Int?
+  productRestriction String?  
+  
+  redemptions        CouponRedemption[]
+  
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model CouponRedemption {
+  id        String   @id @default(uuid())
+  couponId  String
+  coupon    Coupon   @relation(fields: [couponId], references: [id])
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([couponId, userId, orderId])
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  orderId           String
+  order             Order         @relation(fields: [orderId], references: [id])
+  
+  paymentMethod     PaymentMethod 
+  status            PaymentStatus @default(PENDING_PAYMENT)
+  utr               String?       @unique
+  amount            Int
+  currency          String        @default("INR")
+  receiptReference  String?  
+  
+  verifiedBy        String?  
+  verifiedAt        DateTime?
+  rejectionReason   String?
+  
+  idempotencyKey    String?       @unique
+  
+  auditLogs         AuditLog[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model AuditLog {
+  id              String   @id @default(uuid())
+  actorId         String
+  actor           User     @relation("Actor", fields: [actorId], references: [id])
+  paymentId       String?
+  payment         Payment? @relation(fields: [paymentId], references: [id])
+  orderId         String?
+  order           Order?   @relation(fields: [orderId], references: [id])
+  
+  action          String
+  previousState   String?
+  newState        String?
+  rejectionReason String?
+  metadata        String?  // JSON string
+  
+  createdAt       DateTime @default(now())
+}
+
+model Entitlement {
+  id                 String             @id @default(uuid())
+  userId             String
+  user               User               @relation(fields: [userId], references: [id])
+  orderId            String
+  order              Order              @relation(fields: [orderId], references: [id])
+  
+  resourceCode       String
+  status             EntitlementStatus  @default(ACTIVE)
+  
+  provisioningStatus ProvisioningStatus @default(PENDING_PROVISIONING)
+  
+  provisioningJobs   ProvisioningJob[]
+  
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model ProvisioningJob {
+  id            String   @id @default(uuid())
+  entitlementId String
+  entitlement   Entitlement @relation(fields: [entitlementId], references: [id])
+  jobType       String   // PROVISION, REVOKE
+  status        String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  attempts      Int      @default(0)
+  nextRunAt     DateTime @default(now())
+  errorLogs     String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model WebhookEvent {
+  id             String   @id @default(uuid())
+  provider       String   // e.g. RAZORPAY
+  eventId        String   @unique
+  eventType      String
+  payload        String   // JSON string
+  status         String   @default("PENDING") // PENDING, PROCESSED, FAILED
+  
+  createdAt      DateTime @default(now())
+  processedAt    DateTime?
+}
+
+model CourseEnrollment {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  
+  courseCode  String
+  status      String   @default("ACTIVE")
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StudentIdentity {
+  id             String   @id @default(uuid())
+  commerceUserId String
+  user           User     @relation(fields: [commerceUserId], references: [id])
+  mockUserId     String   @unique
+  email          String
+  metadata       String?
+  
+  linkedAt       DateTime @default(now())
+  
+  @@unique([commerceUserId, mockUserId])
+}
+
+model MockAttempt {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  testId         String
+  testName       String
+  totalScore     Float
+  sectionScores  String   // JSON string mapping section to score
+  accuracy       Float
+  timeSpent      Int      // In seconds
+  
+  attemptedAt    DateTime @default(now())
+}
+
+model NoteAsset {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  resourceCode String  // Entitlement required to access this note
+  
+  versions    NoteVersion[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model NoteVersion {
+  id          String   @id @default(uuid())
+  noteAssetId String
+  noteAsset   NoteAsset @relation(fields: [noteAssetId], references: [id])
+  versionName String
+  storageUrl  String   // Supabase Storage URL
+  
+  createdAt   DateTime @default(now())
+}
+
+model LiveSession {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  resourceCode String  // Entitlement required to access this session
+  joinLink    String
+  recordingLink String?
+  scheduledFor DateTime
+  
+  createdAt   DateTime @default(now())
+}
+
+model InterviewBooking {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  mentorId       String?
+  scheduledFor   DateTime
+  status         String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED
+  feedback       String?
+  sopUrl         String?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Referral {
+  id          String   @id @default(uuid())
+  referrerId  String
+  referrer    User     @relation(fields: [referrerId], references: [id])
+  code        String   @unique
+  discount    Int      // Fixed amount or percentage depending on logic
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

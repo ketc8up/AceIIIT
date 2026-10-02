@@ -1,0 +1,9 @@
+{
+  "name": "aceiiit-platform",
+  "private": true,
+  "workspaces": [
+    "api",
+    "web",
+    "packages/*"
+  ]
+}

@@ -1,0 +1,116 @@
+/* ==========================================================================
+   PHASE 7: START HERE (FINAL CONVERSION)
+   ========================================================================== */
+
+.start-here-section {
+  background-color: var(--ink);
+  color: var(--surface);
+  padding: 4.5rem 0;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.sh-container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.sh-header {
+  margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.sh-headline {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-weight: 900;
+  line-height: 1.0;
+  color: var(--surface);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.sh-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.sh-option {
+  background-color: var(--ink);
+  padding: 2.5rem 1.75rem;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sh-option:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.sh-option::after {
+  content: "→";
+  position: absolute;
+  right: 1.5rem;
+  bottom: 2.2rem;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  color: var(--gold);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sh-option:hover::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sh-state {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: rgba(255,250,240,0.4);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.sh-action {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  color: var(--surface);
+  font-weight: 500;
+  line-height: 1.3;
+  padding-right: 1rem;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .sh-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .sh-grid {
+    grid-template-columns: 1fr;
+  }
+  .sh-option {
+    padding: 2rem 1.5rem;
+  }
+  .sh-option::after {
+    opacity: 1;
+    transform: translateX(0);
+    right: 1.5rem;
+  }
+}

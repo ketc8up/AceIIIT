@@ -1,0 +1,53 @@
+<section class="aceiiit-method" data-aceiiit-method>
+  <div class="aceiiit-method__sticky">
+    <div class="aceiiit-method__frame">
+
+      <img data-method-journey
+           src="/assets/aceiiit-method/existing-journey-red.png"
+           alt="" aria-hidden="true">
+
+      <img data-method-stage="1"
+           src="/assets/aceiiit-method/stages/01.png"
+           alt="ACEIIIT and Prepare: build the right foundation.">
+
+      <img data-method-stage="2"
+           src="/assets/aceiiit-method/stages/02.png"
+           alt="Practice: work through realistic UGEE-style problems.">
+
+      <img data-method-stage="3"
+           src="/assets/aceiiit-method/stages/03.png"
+           alt="Analyse: understand your performance and where to improve.">
+
+      <img data-method-stage="4"
+           src="/assets/aceiiit-method/stages/04.png"
+           alt="Interview: prepare for the stage beyond the test.">
+
+      <img data-method-stage="5"
+           src="/assets/aceiiit-method/stages/05.png"
+           alt="Same questions. A brighter you.">
+
+    </div>
+  </div>
+</section>
+
+<style>
+.aceiiit-method{height:340vh;position:relative}
+.aceiiit-method__sticky{position:sticky;top:0;height:100vh;display:grid;place-items:center;overflow:hidden}
+.aceiiit-method__frame{position:relative;width:min(96vw,1500px);aspect-ratio:2171/724}
+.aceiiit-method__frame>img{position:absolute;top:0;height:100%;display:block;object-fit:fill}
+.aceiiit-method__frame>[data-method-journey]{left:0;width:100%;clip-path:inset(0 100% 0 0);z-index:2}
+.aceiiit-method__frame>[data-method-stage]{opacity:0;transform:translateY(12px);transition:opacity .65s cubic-bezier(.2,.75,.25,1),transform .65s cubic-bezier(.2,.75,.25,1);z-index:3}
+.aceiiit-method__frame>[data-method-stage].is-visible{opacity:1;transform:none}
+.aceiiit-method__frame>[data-method-stage="1"]{left:0;width:23.03%}
+.aceiiit-method__frame>[data-method-stage="2"]{left:23.03%;width:25.56%}
+.aceiiit-method__frame>[data-method-stage="3"]{left:48.82%;width:23.95%}
+.aceiiit-method__frame>[data-method-stage="4"]{left:72.55%;width:11.06%}
+.aceiiit-method__frame>[data-method-stage="5"]{left:83.37%;width:16.63%}
+@media(max-width:700px){.aceiiit-method{height:280vh}.aceiiit-method__frame{width:145vw}}
+@media(prefers-reduced-motion:reduce){.aceiiit-method{height:auto}.aceiiit-method__sticky{position:relative;height:auto;padding:8vh 0}.aceiiit-method__frame>[data-method-stage]{opacity:1!important;transform:none!important;transition:none}.aceiiit-method__frame>[data-method-journey]{clip-path:none!important}}
+</style>
+
+<script type="module">
+import {initAceIIITMethod} from '/js/method-scroll.js';
+initAceIIITMethod(document.querySelector('[data-aceiiit-method]'));
+</script>

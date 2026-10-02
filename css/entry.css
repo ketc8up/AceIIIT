@@ -1,0 +1,314 @@
+/* State-Machine Driven Entry Sequence */
+
+.entry-layer {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  will-change: clip-path;
+}
+
+/* LAYER 3: PAPER (Top) */
+.paper-layer {
+  z-index: 9999;
+  background-color: var(--paper);
+  clip-path: ellipse(250% 200% at 50% 180%);
+  transition: clip-path 2.8s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+body.state-ink-reveal .paper-layer,
+body.state-statement .paper-layer,
+body.state-product .paper-layer,
+body.state-hero-reveal .paper-layer,
+body.state-hero-active .paper-layer {
+  clip-path: ellipse(250% 200% at 50% -280%);
+}
+
+.paper-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.struck-wrapper {
+  position: absolute;
+  bottom: 90%;
+  left: 3%;
+  z-index: 10;
+  transform: rotate(-3deg);
+  pointer-events: none;
+}
+
+.struck {
+  position: relative;
+  display: inline-block;
+  font-size: 0.6em;
+  font-weight: 800;
+  color: #625e57;
+  line-height: 1;
+}
+
+.struck::after {
+  content: "";
+  position: absolute;
+  left: -0.2em;
+  right: -0.25em;
+  top: 50%;
+
+  height: 0.15em;
+  background: var(--red, #a9154d);
+  border-radius: 8px;
+
+  transform: translateY(-50%) rotate(-1.5deg);
+
+  /* gives the ends a slightly organic shape */
+  clip-path: polygon(0% 18%,
+      2% 5%,
+      98% 0%,
+      100% 18%,
+      99% 82%,
+      3% 100%,
+      0% 80%);
+}
+
+.seq-text {
+  position: absolute;
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Top Layer States */
+body.state-entry-init #seq-opening {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+body.state-word-1 #seq-ready {
+  opacity: 1;
+  transform: translateY(0) scale(1.02);
+}
+
+body.state-word-2 #seq-focused {
+  opacity: 1;
+  transform: translateY(0) scale(1.02);
+}
+
+body.state-word-3 #seq-prepared {
+  opacity: 1;
+  transform: translateY(0) scale(1.02);
+}
+
+@keyframes text-glaze {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.seq-opening {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.875rem;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.seq-word {
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+
+/* LAYER 2: INK (Middle) */
+.ink-layer {
+  z-index: 9998;
+  background-color: var(--ink);
+  color: var(--paper);
+  clip-path: ellipse(250% 200% at 50% 180%);
+  transition: clip-path 2.2s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+body.state-hero-reveal .ink-layer,
+body.state-hero-active .ink-layer {
+  clip-path: ellipse(250% 200% at 50% -280%);
+}
+
+.ink-content {
+  text-align: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Middle Layer States */
+body.state-statement .ink-content,
+body.state-product .ink-content,
+body.state-hero-reveal .ink-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.editorial-statement {
+  margin-bottom: 2rem;
+}
+
+.statement-main {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  /* Premium Glaze */
+  background: linear-gradient(110deg, var(--paper) 30%, #ffffff 50%, var(--paper) 70%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-glaze 3s linear infinite;
+}
+
+.statement-sub {
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  background: linear-gradient(110deg, rgba(243, 236, 223, 0.4) 20%, #ffffff 50%, rgba(243, 236, 223, 0.4) 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-glaze 3s linear infinite;
+}
+
+.product-micro-frames {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+body.state-product .product-micro-frames,
+body.state-hero-reveal .product-micro-frames {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.micro-frame {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid rgba(243, 236, 223, 0.2);
+  border-radius: var(--radius-xs);
+  color: var(--gold);
+}
+
+
+/* LAYER 1: HERO (Bottom) */
+/* The hero physically exists on the page at z-index 10 underneath the fixed overlays.
+   Note: do NOT reset .site-header here — it must remain fixed (sticky). */
+.hero-section {
+  position: relative;
+  z-index: 10;
+}
+
+
+/* Skip Button */
+.entry-skip {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: transparent;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  z-index: 10000;
+  /* Above all */
+  transition: color 0.2s, opacity 0.4s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.state-entry-init .entry-skip,
+body.state-word-1 .entry-skip,
+body.state-word-2 .entry-skip,
+body.state-word-3 .entry-skip {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.entry-skip:hover {
+  color: var(--ink);
+}
+
+body.state-ink-reveal .entry-skip,
+body.state-statement .entry-skip,
+body.state-product .entry-skip {
+  opacity: 1;
+  pointer-events: auto;
+  color: rgba(243, 236, 223, 0.6);
+  /* Adjust for ink background */
+}
+
+body.state-hero-reveal .entry-skip,
+body.state-hero-active .entry-skip {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── SVG Branded Loading Screen ── */
+.aceiiit-loader {
+  width: 220px;
+  stroke-width: 6px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ace-part {
+  --pathlength: 1;
+  stroke-dashoffset: var(--pathlength);
+  stroke-dasharray: 0 var(--pathlength);
+  fill-opacity: 0;
+}
+.ace-g1 { animation: loader1 3s cubic-bezier(0.5, 0.1, 0.5, 1) infinite both; }
+.ace-g2 { animation: loader2 3s cubic-bezier(0.5, 0.1, 0.5, 1) infinite both; }
+.ace-g3 { animation: loader3 3s cubic-bezier(0.5, 0.1, 0.5, 1) infinite both; }
+.ace-g4 { animation: loader4 3s cubic-bezier(0.5, 0.1, 0.5, 1) infinite both; }
+
+@keyframes loader1 {
+  0% { stroke-dashoffset: 1; stroke-dasharray: 0 1; fill-opacity: 0; }
+  45% { stroke-dashoffset: 0; stroke-dasharray: 1 0; fill-opacity: 0; }
+  60%, 100% { stroke-dashoffset: 0; stroke-dasharray: 1 0; fill-opacity: 1; }
+}
+@keyframes loader2 {
+  0%, 20% { stroke-dashoffset: 1; stroke-dasharray: 0 1; fill-opacity: 0; }
+  60% { stroke-dashoffset: 0; stroke-dasharray: 1 0; fill-opacity: 0; }
+  72%, 100% { stroke-dashoffset: 0; stroke-dasharray: 1 0; fill-opacity: 1; }
+}
+@keyframes loader3 {
+  0%, 40% { stroke-dashoffset: 1; stroke-dasharray: 0 1; fill-opacity: 0; }
+  75% { stroke-dashoffset: 0; stroke-dasharray: 1 0; fill-opacity: 0; }
+  84%, 100% { stroke-dashoffset: 0; stroke-dasharray: 1 0; fill-opacity: 1; }
+}
+@keyframes loader4 {
+  0%, 60% { stroke-dashoffset: 1; stroke-dasharray: 0 1; fill-opacity: 0; }
+  90% { stroke-dashoffset: 0; stroke-dasharray: 1 0; fill-opacity: 0; }
+  96%, 100% { stroke-dashoffset: 0; stroke-dasharray: 1 0; fill-opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ace-part { animation: none; stroke-dasharray: 1 0; stroke-dashoffset: 0; fill-opacity: 1; }
+}

@@ -1,0 +1,159 @@
+/* ==========================================================================
+   PAGE STYLES (Privacy, Terms, About, Contact, Refund)
+   ========================================================================== */
+
+.page-main {
+  background-color: var(--paper);
+  color: var(--ink);
+  padding: 10rem 0 6rem; /* Extra padding to account for fixed navbar */
+  min-height: 70vh;
+}
+
+.page-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.page-header {
+  margin-bottom: 4rem;
+  text-align: center;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 4.5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.page-subtitle {
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+  color: var(--ink-soft);
+  margin-top: 1rem;
+}
+
+.page-content {
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--ink-soft);
+}
+
+.page-content h2 {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 4rem 0 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.page-content h3 {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 2.5rem 0 1rem;
+}
+
+.page-content p {
+  margin-bottom: 1.5rem;
+}
+
+.page-content ul {
+  margin-bottom: 2rem;
+  padding-left: 1.5rem;
+}
+
+.page-content li {
+  margin-bottom: 0.75rem;
+}
+
+.page-content a {
+  color: var(--wine);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.page-content a:hover {
+  color: var(--red);
+}
+
+.page-section {
+  margin-bottom: 4rem;
+}
+
+/* Contact page specific styles */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-top: 3rem;
+}
+
+.contact-card {
+  background: var(--surface);
+  padding: 3rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(20, 17, 15, 0.05);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow);
+}
+
+.contact-card:last-child {
+  grid-column: span 2;
+}
+
+.contact-card h3 {
+  margin-top: 0;
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.contact-card p {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.contact-card a {
+  display: inline-block;
+  margin-top: 1rem;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--wine);
+  border-bottom: 2px solid var(--wine);
+  padding-bottom: 2px;
+}
+
+@media (max-width: 768px) {
+  .page-main {
+    padding-top: 8rem;
+  }
+  .page-title {
+    font-size: 3rem;
+  }
+  .page-content h2 {
+    font-size: 2rem;
+  }
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .contact-card:last-child {
+    grid-column: span 1;
+  }
+}

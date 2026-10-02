@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AceIIIT testimonials</title>
+<style>
+:root{
+  --page:#FFFBF0; --card:#FFFDF6; --tile:#F4ECD8; --ink:#1A1A1A; --muted:#8C8471;
+  --gold:#C9A227; --line:rgba(120,90,20,.14);
+  --dur:900ms; --ease:cubic-bezier(.7,0,.2,1);
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--page);min-height:100vh;display:grid;place-items:center;padding:24px;
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
+
+.tm-card{position:relative;display:flex;width:100%;max-width:822px;height:320px;overflow:hidden;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 10px 30px rgba(120,90,20,.07)}
+
+/* ---------- mosaic ---------- */
+.mosaic{position:relative;flex:0 0 373px;height:100%;overflow:hidden}
+.mosaic::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;
+  background:
+    linear-gradient(90deg,var(--card) 0,transparent 9%,transparent 88%,var(--card) 100%),
+    linear-gradient(180deg,rgba(255,253,246,.55) 0,transparent 14%,transparent 86%,rgba(255,253,246,.55) 100%)}
+.strip{position:absolute;top:0;height:100%;will-change:transform}
+.strip.l{left:13px;width:107px}
+.strip.c{left:130px;width:121px}
+.strip.r{left:263px;width:107px}
+.tile{position:absolute;left:0;width:100%;border-radius:16px;background:linear-gradient(180deg,#F0E6CC,var(--tile) 40%);
+  box-shadow:inset 0 2px 6px rgba(120,90,20,.10),inset 0 -1px 0 rgba(255,255,255,.7),0 0 0 1px rgba(120,90,20,.05)}
+.l .tile,.r .tile{height:119px}
+.c .tile{height:121px}
+
+.ph{position:absolute;left:0;width:121px;height:121px;border-radius:18px;overflow:hidden;z-index:2;
+  box-shadow:0 6px 14px rgba(60,40,0,.28),0 0 0 1px rgba(0,0,0,.06)}
+.ph img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.05)}
+.ph i{position:absolute;inset:0;mix-blend-mode:color;
+  background:linear-gradient(120deg,transparent 28%,rgba(222,170,20,.95) 46%,rgba(222,170,20,.95) 54%,transparent 72%);
+  background-size:260% 100%;animation:streak 3s ease-in-out infinite alternate}
+@keyframes streak{from{background-position:100% 0}to{background-position:0 0}}
+
+/* ---------- text side ---------- */
+.body{flex:1;display:flex;flex-direction:column;padding:56px 48px 36px 38px;min-width:0}
+.mark{width:40px;height:30px;color:var(--gold);opacity:.55;margin-bottom:14px}
+.q{font-size:21px;line-height:1.38;font-weight:450;letter-spacing:-.005em;transition:opacity .22s,filter .22s}
+.q.out{opacity:0;filter:blur(5px)}
+.q .w{display:inline-block;opacity:0;filter:blur(7px);transform:translateY(3px);
+  animation:wIn .55s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--i)*42ms)}
+@keyframes wIn{to{opacity:1;filter:blur(0);transform:none}}
+.who{margin-top:26px;font-size:13.5px;color:var(--muted);opacity:0}
+.who.in{animation:fade .5s ease forwards;animation-delay:var(--d,0ms)}
+.who.show{opacity:1}
+@keyframes fade{to{opacity:1}}
+.nav{margin-top:auto;display:flex;gap:6px}
+.nav button{all:unset;box-sizing:border-box;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+  cursor:pointer;color:var(--ink);border:1px solid transparent;opacity:.55;transition:border-color .2s,opacity .2s,background .2s}
+.nav button:hover{border-color:rgba(26,26,26,.35);opacity:1;background:rgba(201,162,39,.12)}
+.nav button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.nav svg{width:12px;height:12px}
+
+@media (max-width:720px){
+  .tm-card{flex-direction:column;height:auto}
+  .mosaic{flex:0 0 240px;align-self:center}
+  .body{padding:24px 24px 28px;min-height:230px}
+}
+@media (prefers-reduced-motion:reduce){:root{--dur:1ms}.ph i{animation:none}.q .w{animation-duration:1ms}}
+</style>
+</head>
+<body>
+
+<section class="tm-card" aria-roledescription="carousel" aria-label="Student testimonials">
+  <div class="mosaic" id="mosaic">
+    <div class="strip l" id="sl"></div>
+    <div class="strip c" id="sc"></div>
+    <div class="strip r" id="sr"></div>
+  </div>
+  <div class="body">
+    <svg class="mark" viewBox="0 0 40 30" fill="currentColor" aria-hidden="true"><path d="M0 18.5C0 8.6 5 2.6 14 0l1.6 3.6C10.6 5.6 8.4 8.6 8.2 12.4H15V30H0V18.5Zm22.5 0C22.5 8.6 27.5 2.6 36.5 0L38 3.6c-5 2-7.2 5-7.4 8.8h6.8V30H22.5V18.5Z"/></svg>
+    <p class="q" id="q" aria-live="polite"></p>
+    <p class="who" id="who"></p>
+    <div class="nav">
+      <button id="prev" aria-label="Previous testimonial"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 2.5 4 6l3.5 3.5"/></svg></button>
+      <button id="next" aria-label="Next testimonial"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 2.5 8 6 4.5 9.5"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ===== Edit your testimonials here. `img` = photo URL (falls back to a silhouette). ===== */
+const DATA = [
+  { text: "The mentorship gave me clarity on what to prioritize in the last 30 days. The linguistics approach is unmatched.", name: "Placeholder Student 1", img: "" },
+  { text: "AceIIIT's portal felt exactly like the real UGEE interface. No surprises on exam day, which removed so much anxiety.", name: "Placeholder Student 2", img: "" },
+  { text: "The mocks matched the real UGEE pattern, and every solution explained the reasoning, not just the answer.", name: "Placeholder Student 3", img: "" }
+];
+
+const P = 131, TOP = 99, STEP = 3 * P;           // pitch, active photo top, photo spacing in strip
+const $ = id => document.getElementById(id);
+const sl = $('sl'), sc = $('sc'), sr = $('sr'), q = $('q'), who = $('who');
+let cur = 0, busy = false;
+
+const avatar = n => "data:image/svg+xml;utf8," + encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+   <stop offset='0' stop-color='#d9d9d9'/><stop offset='1' stop-color='${['#8a8a8a','#a8a8a8','#6e6e6e'][n%3]}'/></linearGradient></defs>
+   <rect width='120' height='120' fill='url(#g)'/><circle cx='60' cy='46' r='19' fill='#3a3a3a'/>
+   <path d='M18 120c2-28 18-40 42-40s40 12 42 40z' fill='#2a2a2a'/></svg>`);
+
+/* placeholder tiles (identical spacing, so strips can reset seamlessly after each move) */
+function tiles(strip, offset, from, to){
+  for(let k = from; k <= to; k++){
+    const t = document.createElement('div'); t.className = 'tile'; t.style.top = (offset + k * P) + 'px'; strip.append(t);
+  }
+}
+tiles(sl, 36, -8, 8); tiles(sr, 36, -8, 8); tiles(sc, TOP, -8, 8);
+
+function photo(n, top){
+  const d = document.createElement('div'); d.className = 'ph'; d.style.top = top + 'px';
+  d.innerHTML = `<img alt="${DATA[n].name}" src="${DATA[n].img || avatar(n)}"><i></i>`; return d;
+}
+
+function setText(n, animate){
+  const words = DATA[n].text.split(' ');
+  q.innerHTML = words.map((w, i) => `<span class="w" style="--i:${i}">${w}</span>`).join(' ');
+  if(!animate) q.querySelectorAll('.w').forEach(w => { w.style.animation = 'none'; w.style.opacity = 1; w.style.filter = 'none'; w.style.transform = 'none'; });
+  who.textContent = DATA[n].name;
+  who.classList.remove('in', 'show'); void who.offsetWidth;
+  if(animate){ who.style.setProperty('--d', (words.length * 42 + 250) + 'ms'); who.classList.add('in'); }
+  else who.classList.add('show');
+}
+
+function go(dir){
+  if(busy) return; busy = true;
+  const n = (cur + dir + DATA.length) % DATA.length;
+  const old = sc.querySelector('.ph');
+  const inc = photo(n, TOP - dir * STEP); sc.append(inc);
+
+  q.classList.add('out'); who.classList.remove('in', 'show'); who.style.opacity = 0;
+  const opts = { duration: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--dur')) || 900, easing: getComputedStyle(document.documentElement).getPropertyValue('--ease') || 'ease-in-out', fill: 'forwards' };
+  const mv = (el, dist) => el.animate([{ transform: 'translateY(0)' }, { transform: `translateY(${dir * dist}px)` }], opts);
+  const a = mv(sc, STEP), b = mv(sl, 2 * P), c = mv(sr, 4 * P);
+
+  setTimeout(() => { q.classList.remove('out'); who.style.opacity = ''; setText(n, true); }, opts.duration * .33);
+
+  Promise.all([a.finished, b.finished, c.finished]).then(() => {
+    old.remove(); inc.style.top = TOP + 'px';
+    [a, b, c].forEach(x => x.cancel());
+    cur = n; busy = false;
+  });
+}
+
+sc.append(photo(0, TOP)); setText(0, false);
+$('next').onclick = () => go(1);
+$('prev').onclick = () => go(-1);
+document.addEventListener('keydown', e => { if(e.key === 'ArrowRight') go(1); if(e.key === 'ArrowLeft') go(-1); });
+</script>
+</body>
+</html>

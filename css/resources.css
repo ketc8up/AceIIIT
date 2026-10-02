@@ -1,0 +1,469 @@
+/* ==========================================================================
+   PHASE 4: RESOURCES / WHAT ACEIIIT PUTS IN YOUR HANDS
+   ========================================================================== */
+
+.resources-section {
+  position: relative;
+  background-color: var(--surface);
+  color: var(--ink);
+  overflow: hidden;
+  padding: 1rem 0;
+}
+
+.res-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-top: 0.75rem;
+  margin-bottom: 2rem;
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.res-top-line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: var(--line);
+}
+
+
+
+.res-grid {
+  display: grid;
+  grid-template-columns: 31fr 23fr 46fr;
+  gap: 2rem;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ── LEFT COLUMN ── */
+.res-copy-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.res-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  font-weight: 400;
+}
+
+.res-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  line-height: 1.05;
+  color: var(--ink);
+  margin-bottom: 2rem;
+  max-width: 380px;
+}
+
+.res-hl-mock {
+  position: relative;
+  display: inline-block;
+}
+
+/* Hand-drawn SVG underline */
+.res-hl-svg {
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+  width: 100%;
+  height: 20px;
+  overflow: visible;
+}
+
+.res-sub {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink);
+  max-width: 360px;
+  margin-bottom: 2rem;
+}
+
+/* ── HANDWRITING STYLES ── */
+.res-handwriting {
+  font-family: 'Caveat', cursive;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  color: var(--ink-soft);
+  opacity: 0.85;
+  position: relative;
+}
+
+.hw-red {
+  color: var(--red);
+  position: relative;
+}
+
+.hw-red::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--red);
+  transform: rotate(-2deg);
+}
+
+.hw-arrow {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  overflow: visible;
+}
+
+.arrow-1 { top: 0; right: -90px; }
+.arrow-2 { top: -20px; left: -70px; }
+.arrow-3 { top: 50px; left: -20px; }
+
+/* ── MIDDLE COLUMN: TABS ── */
+.res-tab-col {
+  position: relative;
+  padding-top: 4rem;
+  padding-left: 2rem;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.res-tab-state {
+  display: none;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.res-tab-state.active {
+  display: block;
+}
+
+.res-tab-header {
+  position: relative;
+  display: inline-block;
+}
+
+.res-tab-num {
+  font-family: var(--font-mono);
+  color: var(--red);
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.res-tab-name {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+
+.res-tab-divider {
+  width: 40px;
+  height: 2px;
+  background-color: var(--red);
+  margin-bottom: 2rem;
+}
+
+.res-tab-title {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  color: var(--ink);
+  margin-bottom: 0.75rem;
+}
+
+.res-tab-desc {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  max-width: 250px;
+}
+
+.res-tab-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 2px;
+  transition: opacity 0.2s;
+}
+
+.res-tab-link:hover {
+  opacity: 0.7;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── RIGHT COLUMN: CANVAS (CLICK DECK) ── */
+.res-visual-col {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 2000px; /* Deep perspective for the stack */
+}
+
+.res-deck-scaler {
+  transform: scale(0.85) translateX(40px); /* Scale up for legibility and shift slightly right */
+  transform-origin: center left;
+  /* Keep its layout space contained so it doesn't bleed into other grid cols */
+}
+
+.click-deck {
+  position: relative;
+  width: 650px;
+  height: 500px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* This transform will be manipulated by JS for hover parallax */
+}
+
+/* Tactile feedback class added via JS on mousedown */
+.click-deck.click-compress {
+  transform: scale(0.98) translateZ(-20px) !important;
+}
+
+
+
+/* ── DECK ITEMS (THE PHYSICAL CARDS) ── */
+.res-deck-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  /* Spring physics matching framer-motion stiffness: 300, damping: 25 */
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              opacity 0.5s ease,
+              filter 0.6s ease;
+  will-change: transform, opacity;
+  pointer-events: none; /* Only the deck container receives clicks/pointer events */
+  transform-style: preserve-3d;
+}
+
+/* Disable transitions while dragging so physics follow cursor perfectly */
+.res-deck-item.dragging {
+  transition: none !important;
+  animation: none !important;
+  cursor: grabbing !important;
+}
+
+.res-asset-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 15px 30px rgba(0,0,0,0.15));
+}
+
+.res-item-content {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 2;
+}
+
+/* ── STACK STATES ── */
+/* Base closed state (in the stack, waiting to be pulled) */
+.res-deck-item[data-state="stack"] {
+  opacity: 1;
+  filter: brightness(0.95);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.6s ease;
+}
+
+/* 1st card behind the active card (2nd card overall): sneaks out to the LEFT */
+.res-deck-item[data-state="stack"][data-relative-index="1"] {
+  transform: translate3d(-70px, 20px, -30px) rotateZ(-6deg);
+  z-index: 40;
+}
+
+/* 2nd card behind the active card (3rd card overall): sneaks out to the RIGHT */
+.res-deck-item[data-state="stack"][data-relative-index="2"] {
+  transform: translate3d(70px, 40px, -50px) rotateZ(8deg);
+  z-index: 30;
+}
+
+/* 3rd card behind the active card: sits slightly further down/back */
+.res-deck-item[data-state="stack"][data-relative-index="3"] {
+  transform: translate3d(-20px, 60px, -70px) rotateZ(-2deg);
+  z-index: 20;
+}
+
+/* Active State (The card being read) */
+.res-deck-item[data-state="active"] {
+  opacity: 1;
+  transform: translate3d(0, -30px, 40px) rotateZ(0deg) scale(1.05);
+  filter: brightness(1);
+  z-index: 50; /* Bring to very front */
+}
+
+/* Passed State (The card has been read and thrown left) */
+.res-deck-item[data-state="passed-left"] {
+  opacity: 0;
+  transform: translate3d(-300px, -50px, 0) rotateZ(-15deg);
+  pointer-events: none;
+}
+
+/* Passed State (The card has been read and thrown right) */
+.res-deck-item[data-state="passed-right"] {
+  opacity: 0;
+  transform: translate3d(300px, 50px, 0) rotateZ(15deg);
+  pointer-events: none;
+}
+
+/* Affordance Hint: Wiggle on hover to show it's draggable */
+.click-deck:hover .res-deck-item[data-state="active"]:not(.dragging) {
+  animation: wiggleHint 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes wiggleHint {
+  0%   { transform: translate3d(0, -30px, 40px) rotateZ(0deg) scale(1.05); }
+  30%  { transform: translate3d(-20px, -30px, 40px) rotateZ(-2deg) scale(1.05); }
+  60%  { transform: translate3d(20px, -30px, 40px) rotateZ(2deg) scale(1.05); }
+  100% { transform: translate3d(0, -30px, 40px) rotateZ(0deg) scale(1.05); }
+}
+
+/* ── ASSET SIZING ── */
+.res-asset-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+/* Base state for inactive images to ensure they reverse gracefully */
+.res-deck-item:not([data-state="active"]) .res-asset-img {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* ── INDIVIDUAL ENTRANCE ANIMATIONS & SCALES ── */
+
+/* Custom base scales to counteract built-in PNG whitespace */
+.res-deck-item[data-index="1"] .res-asset-img { transform: scale(1.25); }
+.res-deck-item[data-index="2"] .res-asset-img { transform: scale(1.25); }
+.res-deck-item[data-index="3"] .res-asset-img { transform: scale(1.15); }
+
+/* 01 Preparation (Notebook) */
+.res-deck-item[data-state="active"][data-index="0"] .res-asset-img {
+  animation: entranceCard01 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+@keyframes entranceCard01 {
+  0% { transform: translateY(15px) rotateZ(-2deg); opacity: 0; }
+  100% { transform: translateY(0) rotateZ(0deg); opacity: 1; }
+}
+
+/* 02 Practice (Mock Portal) */
+.res-deck-item[data-state="active"][data-index="1"] .res-asset-img {
+  animation: entranceCard02 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+@keyframes entranceCard02 {
+  0% { transform: translateX(20px) scale(1.1); opacity: 0; }
+  100% { transform: translateX(0) scale(1.25); opacity: 1; }
+}
+
+/* 03 Analysis (Diagnostic Report) */
+.res-deck-item[data-state="active"][data-index="2"] .res-asset-img {
+  animation: entranceCard03 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+@keyframes entranceCard03 {
+  0% { transform: translateZ(-30px) rotateZ(3deg) scale(1.1); opacity: 0; }
+  100% { transform: translateZ(0) rotateZ(0deg) scale(1.25); opacity: 1; }
+}
+
+/* 04 Interview (Interview Brief) */
+.res-deck-item[data-state="active"][data-index="3"] .res-asset-img {
+  animation: entranceCard04 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+@keyframes entranceCard04 {
+  0% { transform: translate(10px, -10px) scale(1.05); opacity: 0; }
+  100% { transform: translate(0, 0) scale(1.15); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resources-section * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ── RESPONSIVE BREAKPOINTS ── */
+@media (max-width: 1440px) and (min-width: 1281px) {
+  .res-visual-col {
+    justify-content: flex-start;
+  }
+  .res-deck-scaler {
+    transform: scale(0.75) translateX(20px);
+  }
+}
+
+@media (max-width: 1280px) {
+  .res-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 3rem;
+  }
+  
+  .res-tab-col {
+    padding-left: 0;
+    padding-top: 0;
+    border-left: none;
+    border-top: 1px solid var(--line);
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 2rem;
+  }
+
+  .res-tab-state {
+    flex: 1 1 calc(50% - 2rem);
+    margin-bottom: 0;
+    min-width: 250px;
+  }
+  
+  .res-visual-col {
+    min-height: 500px;
+    align-items: flex-start;
+  }
+
+  .res-deck-scaler {
+    width: 650px;
+    margin-left: calc(50% - 325px);
+    transform: scale(0.7) !important;
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 768px) {
+  .res-deck-scaler {
+    transform: scale(0.55) !important;
+  }
+  .res-tab-state {
+    flex: 1 1 100%;
+  }
+}

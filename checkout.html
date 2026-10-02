@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — AceIIIT</title>
+  <meta name="description" content="Complete your AceIIIT order. Secure payment. Instant access to your UGEE preparation resources.">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon-round.svg">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <link href="css/design-system.css" rel="stylesheet">
+  <link href="css/components.css" rel="stylesheet">
+  <link href="css/footer.css" rel="stylesheet">
+  <link href="css/checkout.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+
+  <!-- ── HEADER ─────────────────────────────────────────────────── -->
+  <header class="co-header">
+    <a href="index.html" class="co-logo nav-brand footer-logo" aria-label="Back to AceIIIT">
+      <span class="logo-ace">Ace</span><span class="logo-iiit">IIIT<svg class="logo-arrow" viewBox="840 260 115 145" fill="none"><path class="arrow-part-1" d="M 951.77 263.19 C951.28,264.65 949.61,265.28 948.69,264.35 C947.38,263.05 948.01,262.00 950.08,262.00 C951.25,262.00 951.99,262.52 951.77,263.19 ZM 894.36 291.50 C894.05,292.33 893.16,293.00 892.39,293.00 C891.63,293.00 891.00,292.33 891.00,291.50 C891.00,290.67 891.89,290.00 892.97,290.00 C894.31,290.00 894.75,290.48 894.36,291.50 ZM 940.78 401.15 C940.54,401.89 939.53,402.66 938.55,402.85 C937.41,403.07 936.93,402.71 937.22,401.85 C937.46,401.11 938.47,400.34 939.45,400.15 C940.59,399.93 941.07,400.29 940.78,401.15 ZM 936.00 395.50 C936.00,396.33 935.33,397.00 934.50,397.00 C933.67,397.00 933.00,396.33 933.00,395.50 C933.00,394.67 933.67,394.00 934.50,394.00 C935.33,394.00 936.00,394.67 936.00,395.50 Z" fill="rgb(167,167,167)" /><path class="arrow-part-2" d="M 901.00 382.26 C901.00,384.25 900.57,386.15 900.04,386.47 C898.81,387.24 895.76,381.39 895.36,377.50 C894.12,365.49 892.65,361.39 888.87,359.43 C886.82,358.37 886.07,357.37 886.44,356.19 C887.24,353.67 883.61,348.41 879.12,345.57 C876.94,344.20 874.85,342.12 874.48,340.95 C873.96,339.31 873.31,338.98 871.65,339.50 C870.47,339.88 868.26,340.42 866.74,340.71 C863.02,341.41 862.63,342.38 864.53,346.06 C866.41,349.69 866.23,350.02 862.37,350.30 C859.51,350.50 859.50,350.49 859.74,345.00 C859.88,341.98 860.03,338.38 860.08,337.02 C860.14,335.63 859.37,333.99 858.34,333.31 C852.41,329.37 852.29,329.17 854.69,327.14 C855.90,326.11 858.82,324.97 861.19,324.59 C863.56,324.22 867.24,322.71 869.36,321.24 C872.78,318.88 874.06,318.60 880.46,318.79 C886.52,318.97 888.46,318.60 892.40,316.50 C897.81,313.63 901.83,313.35 906.09,315.55 C910.02,317.58 910.69,319.64 911.45,332.07 C911.80,337.81 912.58,344.19 913.20,346.25 C914.20,349.60 914.04,350.52 911.66,354.88 C910.20,357.57 909.00,360.62 909.00,361.65 C909.00,364.74 905.21,374.15 903.03,376.47 C901.76,377.82 901.00,379.99 901.00,382.26 Z" fill="rgb(168,36,40)" /><path class="arrow-part-3" d="M 925.91 395.61 C923.87,398.06 922.00,397.05 922.00,393.50 C922.00,392.31 921.70,391.03 921.33,390.66 C920.96,390.29 920.61,388.92 920.55,387.62 C920.46,385.65 920.72,385.44 922.12,386.31 C924.87,388.02 927.29,393.95 925.91,395.61 ZM 940.87 305.34 C941.71,306.36 941.44,307.14 939.74,308.64 C937.12,310.93 932.51,310.71 933.42,308.34 C933.74,307.51 934.00,306.20 934.00,305.42 C934.00,303.58 939.36,303.52 940.87,305.34 ZM 859.93 310.35 C859.70,310.56 856.35,311.02 852.50,311.38 C844.73,312.10 845.13,310.89 853.32,308.92 C856.85,308.08 858.46,308.06 859.26,308.86 C859.87,309.47 860.17,310.14 859.93,310.35 ZM 924.00 301.12 C924.00,302.28 921.89,302.22 920.00,301.00 C919.17,300.47 917.49,300.02 916.25,300.02 C913.26,299.99 913.37,298.20 916.41,297.43 C918.82,296.83 924.00,299.34 924.00,301.12 ZM 868.32 299.75 C868.55,300.16 868.47,301.26 868.12,302.18 C867.65,303.46 867.08,303.63 865.75,302.88 C863.40,301.56 863.52,299.00 865.94,299.00 C867.01,299.00 868.08,299.34 868.32,299.75 ZM 883.00 302.00 C882.17,302.53 880.38,302.97 879.00,302.97 C877.02,302.97 876.81,302.77 878.00,302.00 C878.83,301.47 880.62,301.03 882.00,301.03 C883.98,301.03 884.19,301.23 883.00,302.00 Z" fill="rgb(194,84,83)" /></svg></span>
+    </a>
+    <div class="co-steps">
+      <div class="co-step active" id="step-indicator-details">
+        <span class="co-step-num">1</span>
+        <span class="co-step-label">Details</span>
+      </div>
+      <div class="co-step-line"></div>
+      <div class="co-step" id="step-indicator-payment">
+        <span class="co-step-num">2</span>
+        <span class="co-step-label">Payment</span>
+      </div>
+      <div class="co-step-line"></div>
+      <div class="co-step" id="step-indicator-confirm">
+        <span class="co-step-num">3</span>
+        <span class="co-step-label">Confirm</span>
+      </div>
+    </div>
+    <div class="co-secure-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Secured by SSL
+    </div>
+  </header>
+
+  <!-- ── MAIN ───────────────────────────────────────────────────── -->
+  <main class="co-main">
+
+    <!-- LEFT: FORM PANEL -->
+    <div class="co-form-panel">
+
+      <!-- Step 1: Details -->
+      <section class="co-section" id="section-details">
+        <div class="co-section-header">
+          <div class="co-section-num">01</div>
+          <h2 class="co-section-title">Your Details</h2>
+        </div>
+
+        <form id="detailsForm" novalidate>
+          <div class="co-field-row">
+            <div class="co-field">
+              <label class="co-label" for="firstName">First Name</label>
+              <input class="co-input" type="text" id="firstName" name="firstName" autocomplete="given-name" placeholder="Arjun" required>
+              <span class="co-err" id="err-firstName"></span>
+            </div>
+            <div class="co-field">
+              <label class="co-label" for="lastName">Last Name</label>
+              <input class="co-input" type="text" id="lastName" name="lastName" autocomplete="family-name" placeholder="Sharma" required>
+              <span class="co-err" id="err-lastName"></span>
+            </div>
+          </div>
+
+          <div class="co-field">
+            <label class="co-label" for="email">Email Address</label>
+            <input class="co-input" type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" required>
+            <span class="co-hint">Access credentials will be sent here</span>
+            <span class="co-err" id="err-email"></span>
+          </div>
+
+          <div class="co-field" id="otp-field-container" style="display: none; margin-top: -10px;">
+            <label class="co-label" for="otp" style="color: var(--gold);">Verification Code</label>
+            <input class="co-input" type="text" id="otp" name="otp" autocomplete="off" placeholder="Enter 6-digit code" maxlength="6" style="border-color: var(--gold);">
+            <span class="co-hint" style="color: #4ade80;">OTP sent! Please check your inbox/spam.</span>
+            <span class="co-err" id="err-otp"></span>
+          </div>
+
+          <div class="co-field">
+            <label class="co-label" for="phone">Phone Number</label>
+            <div class="co-phone-wrap">
+              <span class="co-phone-prefix">+91</span>
+              <input class="co-input co-phone-input" type="tel" id="phone" name="phone" autocomplete="tel" placeholder="9876543210" maxlength="10" required>
+            </div>
+            <span class="co-err" id="err-phone"></span>
+          </div>
+
+
+
+          <button type="submit" class="co-btn-primary" id="btn-to-payment">
+            Continue to Payment
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </form>
+      </section>
+
+      <!-- Step 2: Payment (hidden initially) -->
+      <section class="co-section co-section--hidden" id="section-payment">
+        <div class="co-section-header">
+          <div class="co-section-num">02</div>
+          <h2 class="co-section-title">Payment</h2>
+        </div>
+
+        <!-- UPI form (Only Manual UPI Supported) -->
+        <div class="co-pay-panel" id="pay-upi">
+          <div class="co-field">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+              <div style="flex: 0 0 auto; background: white; padding: 10px; border-radius: 8px;">
+                <img id="payment-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3Daceiiit%40upi%26pn%3DAceIIIT%26cu%3DINR" alt="UPI QR Code" style="width: 120px; height: 120px; display: block;" />
+              </div>
+              <div style="flex: 1; min-width: 200px;">
+                <h3 style="color: var(--ink); margin-top: 0; margin-bottom: 12px; font-size: 1.1rem;">Scan to Pay</h3>
+                <p style="margin-bottom: 12px; line-height: 1.6; color: var(--text-muted); font-size: 0.95rem;">
+                  1. Scan the QR code or send exactly <strong id="qr-amount-text" style="color: var(--primary);">₹0</strong> to <strong style="color: var(--ink);">aceiiit@upi</strong>.<br>
+                  2. Enter the 12-digit UTR number generated by your app.<br>
+                  3. Upload a screenshot of the successful transaction.
+                </p>
+                <div style="display: flex; gap: 10px;">
+                  <button type="button" onclick="navigator.clipboard.writeText('aceiiit@upi'); alert('UPI ID copied to clipboard!')" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: var(--ink); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    Copy UPI ID
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="co-field">
+            <label class="co-label" for="utr">
+              12-digit UTR Number
+              <span id="utr-loading" style="display: none; font-size: 0.85em; color: var(--primary); margin-left: 8px;">(Reading from image...)</span>
+            </label>
+            <div class="co-upi-id-wrap">
+              <input class="co-input" type="text" id="utr" name="utr" placeholder="e.g. 312345678901" required>
+            </div>
+            <span id="utr-error" class="co-hint" style="color: #ef4444; display: none; margin-top: 4px;"></span>
+          </div>
+
+          <div class="co-field">
+            <label class="co-label" for="receipt">Payment Screenshot</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input class="co-input" type="file" id="receipt" name="receipt" accept="image/png, image/jpeg, image/webp" required style="flex: 1; padding: 12px;">
+              <button type="button" id="btn-remove-receipt" style="display: none; height: 48px; width: 48px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; cursor: pointer; align-items: center; justify-content: center; transition: all 0.2s;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              </button>
+            </div>
+            <span class="co-hint">Upload screenshot—UTR will be auto-read. Only images (Max 5MB).</span>
+          </div>
+        </div>
+
+
+
+        <div class="co-btn-row">
+          <button class="co-btn-ghost" type="button" id="btn-back-details">← Back</button>
+          <button class="co-btn-primary" type="button" id="btn-pay-now">
+            <span id="pay-btn-label">Submit Details</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 3: Confirmation -->
+      <section class="co-section co-section--hidden" id="section-confirm">
+        <div class="co-confirm-card">
+          <div class="co-confirm-anim" id="confirmAnim">
+            <div class="co-tick-circle">
+              <svg class="co-tick-svg" viewBox="0 0 52 52" fill="none">
+                <circle class="co-tick-bg" cx="26" cy="26" r="25"/>
+                <polyline class="co-tick-mark" points="14,27 22,35 38,19"/>
+              </svg>
+            </div>
+          </div>
+          <h2 class="co-confirm-title">Order Packed & Confirmed!</h2>
+          <p class="co-confirm-sub" style="margin-bottom: 12px;">Your UGEE preparation kit is ready. Access details have been sent to <strong id="confirm-email">—</strong></p>
+          <p style="font-size: 13px; color: #777; margin: 0 0 32px 0; font-weight: 400; letter-spacing: 0.2px;">(If you don't see it in your inbox, please quickly check your spam folder)</p>
+
+          <div class="co-confirm-actions">
+
+            <button id="btn-download-receipt" class="co-btn-ghost co-btn--full" type="button" onclick="generateReceiptPDF()">
+              Download Receipt
+            </button>
+          </div>
+
+          <div class="co-confirm-ref">
+            Order reference: <strong id="confirm-ref">—</strong>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT: ORDER SUMMARY -->
+    <aside class="co-summary-panel" id="co-summary-panel">
+      <div class="co-summary-sticky">
+        <div class="co-summary-header">
+          <h3 class="co-summary-title">Order Summary</h3>
+          <a href="index.html#packages" class="co-summary-edit">Edit</a>
+        </div>
+
+        <div class="co-summary-items" id="co-summary-items">
+          <!-- filled by JS -->
+        </div>
+
+        <div class="co-summary-free-row">
+          <span>📚 Study Material</span>
+          <span class="co-free-pill">FREE</span>
+        </div>
+
+        <div class="co-summary-divider"></div>
+
+        <div class="co-summary-total-row">
+          <span>Subtotal</span>
+          <span id="co-subtotal">₹0</span>
+        </div>
+        <div class="co-summary-total-row">
+          <span>GST (18%)</span>
+          <span id="co-gst">₹0</span>
+        </div>
+        <div class="co-summary-divider"></div>
+        <div class="co-summary-total-row co-summary-grand">
+          <span>Total</span>
+          <span id="co-grand">₹0</span>
+        </div>
+
+        <div class="co-coupon-wrap">
+          <input class="co-coupon-input" type="text" id="couponCode" placeholder="Coupon code">
+          <button class="co-coupon-btn" type="button" id="applyCoupon">Apply</button>
+        </div>
+        <div class="co-coupon-status" id="coupon-status"></div>
+
+
+      </div>
+    </aside>
+
+  </main>
+
+  <script src="js/checkout.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+[
+  {
+    "file": "element-01.svg",
+    "id": "element-01",
+    "fill": "rgb(1,1,1)",
+    "editable": "path"
+  },
+  {
+    "file": "element-02.svg",
+    "id": "element-02",
+    "fill": "rgb(167,167,167)",
+    "editable": "path"
+  },
+  {
+    "file": "element-03.svg",
+    "id": "element-03",
+    "fill": "rgb(168,36,40)",
+    "editable": "path"
+  },
+  {
+    "file": "element-04.svg",
+    "id": "element-04",
+    "fill": "rgb(194,84,83)",
+    "editable": "path"
+  },
+  {
+    "file": "element-05.svg",
+    "id": "element-05",
+    "fill": "rgb(196,150,57)",
+    "editable": "path"
+  },
+  {
+    "file": "element-06.svg",
+    "id": "element-06",
+    "fill": "rgb(200,148,44)",
+    "editable": "path"
+  },
+  {
+    "file": "element-07.svg",
+    "id": "element-07",
+    "fill": "rgb(205,51,51)",
+    "editable": "path"
+  },
+  {
+    "file": "element-08.svg",
+    "id": "element-08",
+    "fill": "rgb(217,59,57)",
+    "editable": "path"
+  },
+  {
+    "file": "element-09.svg",
+    "id": "element-09",
+    "fill": "rgb(227,65,70)",
+    "editable": "path"
+  },
+  {
+    "file": "element-10.svg",
+    "id": "element-10",
+    "fill": "rgb(203,88,90)",
+    "editable": "path"
+  },
+  {
+    "file": "element-11.svg",
+    "id": "element-11",
+    "fill": "rgb(224,137,140)",
+    "editable": "path"
+  },
+  {
+    "file": "element-12.svg",
+    "id": "element-12",
+    "fill": "rgb(234,219,205)",
+    "editable": "path"
+  },
+  {
+    "file": "element-13.svg",
+    "id": "element-13",
+    "fill": "rgb(223,195,156)",
+    "editable": "path"
+  },
+  {
+    "file": "element-14.svg",
+    "id": "element-14",
+    "fill": "rgb(254,254,254)",
+    "editable": "path"
+  }
+]
