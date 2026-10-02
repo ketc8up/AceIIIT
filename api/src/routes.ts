@@ -438,9 +438,10 @@ router.post('/auth/send-otp', async (req, res) => {
   }
 
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-  otpCache.set(email.toLowerCase(), {
-    code,
-    expiresAt: Date.now() + 10 * 60 * 1000 // 10 mins
+  await prisma.otp.upsert({
+    where: { email: email.toLowerCase() },
+    update: { code, expiresAt: new Date(Date.now() + 10 * 60 * 1000) },
+    create: { email: email.toLowerCase(), code, expiresAt: new Date(Date.now() + 10 * 60 * 1000) }
   });
 
   try {
@@ -460,11 +461,11 @@ router.post('/auth/guest', async (req, res) => {
   }
   const { firstName, lastName, email, phone, college, year, otp } = parsed.data;
 
-  const cached = otpCache.get(email.toLowerCase());
-  if (!cached || cached.code !== otp || Date.now() > cached.expiresAt) {
+  const cached = await prisma.otp.findUnique({ where: { email: email.toLowerCase() } });
+  if (!cached || cached.code !== otp || Date.now() > cached.expiresAt.getTime()) {
     return res.status(400).json({ error: 'Invalid or expired OTP' });
   }
-  otpCache.delete(email.toLowerCase());
+  await prisma.otp.delete({ where: { email: email.toLowerCase() } });
 
   try {
     let user = await prisma.user.findUnique({ where: { email } });

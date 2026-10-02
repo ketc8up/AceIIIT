@@ -79,7 +79,10 @@
           </div>
 
           <div class="co-field" id="otp-field-container" style="display: none; margin-top: -10px;">
-            <label class="co-label" for="otp" style="color: var(--gold);">Verification Code</label>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <label class="co-label" for="otp" style="color: var(--gold);">Verification Code</label>
+              <button type="button" id="btn-resend-otp" style="background: none; border: none; color: var(--gold); font-size: 0.8rem; cursor: pointer; text-decoration: underline; padding: 0;">Resend Code</button>
+            </div>
             <input class="co-input" type="text" id="otp" name="otp" autocomplete="off" placeholder="Enter 6-digit code" maxlength="6" style="border-color: var(--gold);">
             <span class="co-hint" style="color: #4ade80;">OTP sent! Please check your inbox/spam.</span>
             <span class="co-err" id="err-otp"></span>

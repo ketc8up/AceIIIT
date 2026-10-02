@@ -332,6 +332,35 @@ document.getElementById("detailsForm").addEventListener("submit", async function
     return;
   }
 
+  const resendBtn = document.getElementById("btn-resend-otp");
+  if (resendBtn && !resendBtn.dataset.bound) {
+    resendBtn.dataset.bound = "true";
+    resendBtn.addEventListener("click", async function() {
+      resendBtn.disabled = true;
+      resendBtn.textContent = "Sending...";
+      try {
+        const res = await fetch("/api/auth/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: document.getElementById("email").value.trim() })
+        });
+        if (res.ok) {
+          resendBtn.textContent = "Sent!";
+          setTimeout(() => {
+            resendBtn.textContent = "Resend Code";
+            resendBtn.disabled = false;
+          }, 30000);
+        } else {
+          resendBtn.textContent = "Failed";
+          resendBtn.disabled = false;
+        }
+      } catch (err) {
+        resendBtn.textContent = "Error";
+        resendBtn.disabled = false;
+      }
+    });
+  }
+
   const otp = otpInput.value.trim();
   if (!otp || otp.length !== 6) {
     setError("otp", "Please enter the 6-digit OTP");
