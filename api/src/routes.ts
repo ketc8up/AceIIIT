@@ -438,11 +438,16 @@ router.post('/auth/send-otp', async (req, res) => {
   }
 
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-  await prisma.otp.upsert({
-    where: { email: email.toLowerCase() },
-    update: { code, expiresAt: new Date(Date.now() + 10 * 60 * 1000) },
-    create: { email: email.toLowerCase(), code, expiresAt: new Date(Date.now() + 10 * 60 * 1000) }
-  });
+  try {
+    await prisma.otp.upsert({
+      where: { email: email.toLowerCase() },
+      update: { code, expiresAt: new Date(Date.now() + 10 * 60 * 1000) },
+      create: { email: email.toLowerCase(), code, expiresAt: new Date(Date.now() + 10 * 60 * 1000) }
+    });
+  } catch (dbErr: any) {
+    console.error("Prisma OTP error:", dbErr);
+    return res.status(500).json({ error: 'Database error: ' + (dbErr.message || 'unknown') });
+  }
 
   try {
     await EmailService.sendOtpEmail(email, code);
@@ -461,11 +466,22 @@ router.post('/auth/guest', async (req, res) => {
   }
   const { firstName, lastName, email, phone, college, year, otp } = parsed.data;
 
-  const cached = await prisma.otp.findUnique({ where: { email: email.toLowerCase() } });
+  let cached;
+  try {
+    cached = await prisma.otp.findUnique({ where: { email: email.toLowerCase() } });
+  } catch (dbErr: any) {
+    return res.status(500).json({ error: 'Database read error: ' + (dbErr.message || 'unknown') });
+  }
+  
   if (!cached || cached.code !== otp || Date.now() > cached.expiresAt.getTime()) {
     return res.status(400).json({ error: 'Invalid or expired OTP' });
   }
-  await prisma.otp.delete({ where: { email: email.toLowerCase() } });
+  
+  try {
+    await prisma.otp.delete({ where: { email: email.toLowerCase() } });
+  } catch (e) {
+    // ignore
+  }
 
   try {
     let user = await prisma.user.findUnique({ where: { email } });
