@@ -5,5 +5,8 @@
     "api",
     "web",
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "build": "cd api && npx prisma generate"
+  }
 }
