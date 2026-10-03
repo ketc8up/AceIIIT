@@ -220,7 +220,7 @@ export class CommerceService {
       });
     });
 
-    EmailService.sendOrderPendingEmail(order.user.email, order.user.firstName, order.orderNumber, payment.amount, receiptPdfBase64).catch(console.error);
+    await EmailService.sendOrderPendingEmail(order.user.email, order.user.firstName, order.orderNumber, payment.amount, receiptPdfBase64).catch(console.error);
 
     return payment;
   }
@@ -296,11 +296,11 @@ export class CommerceService {
       return p;
     });
 
-    // Fire provisioning async
-    this.provisionEntitlements(updatedPayment.orderId).catch(console.error);
+    // Fire provisioning (await to prevent serverless termination)
+    await this.provisionEntitlements(updatedPayment.orderId).catch(console.error);
 
     const hasMock = payment.order.items.some(item => item.productId === 'mock');
-    EmailService.sendPaymentVerifiedEmail(payment.order.user.email, payment.order.user.firstName, payment.order.orderNumber, hasMock).catch(console.error);
+    await EmailService.sendPaymentVerifiedEmail(payment.order.user.email, payment.order.user.firstName, payment.order.orderNumber, hasMock).catch(console.error);
 
     return updatedPayment;
   }

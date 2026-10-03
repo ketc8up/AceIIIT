@@ -64,8 +64,10 @@ export class EmailService {
 
       const attachments = [];
       if (receiptPdfBase64) {
-        // Strip the data URI prefix if present
-        const base64Data = receiptPdfBase64.replace(/^data:application\/pdf;filename=generated\.pdf;base64,/, '').replace(/^data:application\/pdf;base64,/, '');
+        // Reliably strip any data URI prefix
+        const base64Data = receiptPdfBase64.includes('base64,') 
+          ? receiptPdfBase64.split('base64,')[1] 
+          : receiptPdfBase64;
         attachments.push({
           filename: `AceIIIT_Receipt_${orderNumber}.pdf`,
           content: Buffer.from(base64Data, 'base64')
