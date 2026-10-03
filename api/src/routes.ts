@@ -91,6 +91,25 @@ router.post('/receipts/upload', authenticateToken, (req: AuthRequest, res) => {
   });
 });
 
+router.get('/coupons/:code', async (req, res) => {
+  try {
+    const coupon = await prisma.coupon.findUnique({
+      where: { code: req.params.code.toUpperCase() }
+    });
+    if (!coupon || coupon.status !== 'ACTIVE') {
+      return res.status(404).json({ error: 'Coupon not found or inactive' });
+    }
+    res.json({
+      code: coupon.code,
+      type: coupon.discountType,
+      value: coupon.discountValue,
+      productRestriction: coupon.productRestriction
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 router.post('/orders', authenticateToken, async (req: AuthRequest, res) => {
   try {
     const { items, couponCode } = req.body;
@@ -258,6 +277,50 @@ router.get('/admin/audit-logs', authenticateToken, requireAdmin, async (req: Aut
     res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 });
+
+router.get('/admin/coupons', authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const coupons = await prisma.coupon.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(coupons);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Internal Server Error' });
+  }
+});
+
+router.post('/admin/coupons', authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { code, discountType, discountValue, productRestriction } = req.body;
+    if (!code || !discountType || !discountValue) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const coupon = await prisma.coupon.create({
+      data: {
+        code: code.toUpperCase(),
+        discountType,
+        discountValue: parseInt(discountValue, 10),
+        productRestriction: productRestriction || null,
+        status: 'ACTIVE'
+      }
+    });
+    res.json(coupon);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Internal Server Error' });
+  }
+});
+
+router.post('/admin/coupons/:id/delete', authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    await prisma.coupon.delete({
+      where: { id: req.params.id }
+    });
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Internal Server Error' });
+  }
+});
+
 
 router.post('/admin/payments/:id/verify', authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
   try {

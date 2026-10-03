@@ -157,3 +157,283 @@
     grid-column: span 1;
   }
 }
+
+/* ==========================================================================
+   RICH CONTENT PAGES (Prepare, Interview, Guides, About)
+   ========================================================================== */
+
+/* Page Hero */
+.pg-hero {
+  text-align: center;
+  margin-bottom: 5rem;
+  padding-bottom: 4rem;
+  border-bottom: 1px solid rgba(20, 17, 15, 0.08);
+}
+.pg-hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink-soft);
+  margin-bottom: 1.5rem;
+}
+.pg-hero h1 {
+  font-family: var(--font-display);
+  font-size: 4.5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: var(--ink);
+  margin: 0 0 1.5rem;
+}
+.pg-hero h1 em {
+  font-style: italic;
+  color: var(--wine);
+}
+.pg-hero-sub {
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Section Blocks */
+.pg-section {
+  margin-bottom: 5rem;
+}
+.pg-section-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  margin-bottom: 0.75rem;
+}
+.pg-section h2 {
+  font-family: var(--font-display);
+  font-size: 2.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin: 0 0 1rem;
+}
+.pg-section h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 2rem 0 0.75rem;
+}
+.pg-section p {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--ink-soft);
+  margin-bottom: 1.25rem;
+}
+
+/* Feature Grid */
+.pg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+.pg-card {
+  background: var(--surface);
+  border: 1px solid rgba(20, 17, 15, 0.06);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.pg-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(20, 17, 15, 0.08);
+}
+.pg-card-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--ink);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  color: var(--paper);
+}
+.pg-card-icon svg { width: 22px; height: 22px; }
+.pg-card h4 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--ink);
+}
+.pg-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin: 0;
+}
+.pg-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+}
+.pg-card ul li {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(20, 17, 15, 0.04);
+}
+.pg-card ul li:last-child { border-bottom: none; }
+
+/* Flow / Pipeline */
+.pg-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 2.5rem 0;
+}
+.pg-flow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 2rem 0;
+  border-bottom: 1px solid rgba(20, 17, 15, 0.06);
+}
+.pg-flow-step:last-child { border-bottom: none; }
+.pg-flow-num {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 900;
+  color: rgba(20, 17, 15, 0.08);
+  line-height: 1;
+  flex-shrink: 0;
+  width: 60px;
+}
+.pg-flow-body h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--ink);
+}
+.pg-flow-body p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+/* Belief List */
+.pg-beliefs {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0;
+}
+.pg-beliefs li {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: var(--ink);
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(20, 17, 15, 0.06);
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+.pg-beliefs li::before {
+  content: '→';
+  color: var(--wine);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Category Grid (for Guides) */
+.pg-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 3rem;
+}
+.pg-cat-tag {
+  background: var(--surface);
+  border: 1px solid rgba(20, 17, 15, 0.06);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: center;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+.pg-cat-tag:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* CTA Banner */
+.pg-cta {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--ink);
+  border-radius: 16px;
+  margin: 4rem 0 0;
+}
+.pg-cta h2 {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--paper);
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.03em;
+}
+.pg-cta p {
+  color: rgba(255,255,255,0.6);
+  font-size: 1.1rem;
+  margin: 0 0 2rem;
+}
+.pg-cta a {
+  display: inline-block;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 14px 36px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+.pg-cta a:hover {
+  transform: translateY(-2px);
+}
+
+/* Separator */
+.pg-divider {
+  height: 1px;
+  background: rgba(20, 17, 15, 0.06);
+  margin: 4rem 0;
+  border: none;
+}
+
+/* Wider container for rich pages */
+.page-container.wide {
+  max-width: 960px;
+}
+
+@media (max-width: 768px) {
+  .pg-hero h1 { font-size: 2.75rem; }
+  .pg-section h2 { font-size: 2rem; }
+  .pg-grid { grid-template-columns: 1fr; }
+  .pg-flow-step { flex-direction: column; gap: 0.5rem; }
+  .pg-flow-num { font-size: 2rem; width: auto; }
+  .pg-cta { padding: 3rem 1.5rem; }
+  .pg-cta h2 { font-size: 1.75rem; }
+  .pg-cat-grid { grid-template-columns: 1fr 1fr; }
+}

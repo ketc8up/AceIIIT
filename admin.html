@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ACEIIIT - Admin Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -290,6 +291,26 @@
       border-radius: var(--radius-md);
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
     }
+
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; padding: 1rem 1.5rem; border-right: none; border-bottom: 1px solid var(--border); box-sizing: border-box; flex-shrink: 0; }
+      .brand { margin-bottom: 1rem; }
+      .sidebar nav { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 4px; }
+      .sidebar nav::-webkit-scrollbar { display: none; }
+      .nav-item { margin-bottom: 0; white-space: nowrap; }
+      .header { padding: 0 1rem; height: 56px; }
+      .content-area { padding: 1rem; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .table-header { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1rem; }
+      .table-header div:last-child { width: 100%; }
+      .table-header select { width: 100%; box-sizing: border-box; }
+      .table-container { overflow-x: auto; }
+      th, td { padding: 10px 1rem; }
+      .receipt-drawer { width: 100%; right: -100%; }
+      .action-group { flex-direction: column; gap: 4px; }
+      .action-group .btn-sm { width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -321,6 +342,10 @@
       <a class="nav-item" onclick="switchTab('users', this)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         Users
+      </a>
+      <a class="nav-item" onclick="switchTab('coupons', this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path></svg>
+        Coupons
       </a>
     </nav>
   </aside>
@@ -408,6 +433,52 @@
         </div>
       </div>
       
+      
+      <!-- VIEW: COUPONS -->
+      <div id="view-coupons" class="view-section">
+        <div class="table-card" style="padding: 1.5rem; margin-bottom: 2rem;">
+          <h2 class="table-title">Create Coupon</h2>
+          <form id="create-coupon-form" onsubmit="createCoupon(event)" style="display: grid; gap: 1rem; margin-top: 1rem;">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <input type="text" id="coupon-code" placeholder="Code (e.g. DIWALI50)" required style="flex:1; min-width:150px; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
+              <select id="coupon-type" required style="padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
+                <option value="PERCENTAGE">Percentage (%)</option>
+                <option value="FIXED">Fixed Amount (₹)</option>
+              </select>
+              <input type="number" id="coupon-value" placeholder="Value (e.g. 50)" required style="flex:1; min-width:100px; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
+            </div>
+            <input type="text" id="coupon-restriction" placeholder="Specific Course Code restriction (optional, e.g. PKG_UGEE_CRASH)" style="padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
+            <button type="submit" class="btn" id="create-coupon-btn">Create Coupon</button>
+          </form>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <div>
+              <h2 class="table-title">Manage Coupons</h2>
+              <p class="table-desc">Active and inactive discount codes.</p>
+            </div>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Discount</th>
+                  <th>Restriction</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="coupons-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- VIEW: USERS -->
       <div id="view-users" class="view-section">
         <div class="table-card">
@@ -461,6 +532,7 @@
     let allPayments = [];
     let allUsers = [];
     let allLogs = [];
+    let allCoupons = [];
 
     // Auto-login on refresh
     const storedToken = localStorage.getItem('adminToken');
@@ -533,6 +605,11 @@
         res = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${token}` } });
         if (res.ok) allUsers = await res.json();
         
+        
+        // Fetch Coupons
+        res = await fetch('/api/admin/coupons', { headers: { 'Authorization': `Bearer ${token}` } });
+        if (res.ok) allCoupons = await res.json();
+
         // Fetch Logs
         res = await fetch('/api/admin/audit-logs', { headers: { 'Authorization': `Bearer ${token}` } });
         if (res.ok) allLogs = await res.json();
@@ -541,6 +618,7 @@
         renderPayments();
         renderUsers();
         renderLogs();
+        renderCoupons();
       } catch (e) {
         console.error(e);
       }
@@ -628,6 +706,85 @@
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    
+    function renderCoupons() {
+      const tbody = document.getElementById('coupons-tbody');
+      tbody.innerHTML = '';
+      allCoupons.forEach(c => {
+        const tr = document.createElement('tr');
+        const date = new Date(c.createdAt).toLocaleDateString();
+        const discountText = c.discountType === 'PERCENTAGE' ? `${c.discountValue}%` : `₹${c.discountValue}`;
+        tr.innerHTML = `
+          <td style="font-weight:700;">${c.code}</td>
+          <td>${discountText}</td>
+          <td style="font-family: monospace;">${c.productRestriction || 'None'}</td>
+          <td><span class="badge badge-verified">${c.status}</span></td>
+          <td style="color:var(--text-muted);">${date}</td>
+          <td>
+            <div class="action-group">
+              <button class="btn-sm btn-reject" onclick="deleteCoupon('${c.id}', this)">Delete</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function createCoupon(e) {
+      e.preventDefault();
+      const btn = document.getElementById('create-coupon-btn');
+      btn.innerText = "Creating...";
+      btn.disabled = true;
+
+      try {
+        const payload = {
+          code: document.getElementById('coupon-code').value,
+          discountType: document.getElementById('coupon-type').value,
+          discountValue: document.getElementById('coupon-value').value,
+          productRestriction: document.getElementById('coupon-restriction').value
+        };
+
+        const res = await fetch('/api/admin/coupons', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || "Failed to create coupon");
+        }
+        
+        document.getElementById('create-coupon-form').reset();
+        await loadDashboardData();
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.innerText = "Create Coupon";
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteCoupon(id, btn) {
+      if (!confirm("Are you sure you want to delete this coupon?")) return;
+      const originalText = btn.innerText;
+      btn.innerText = "Deleting...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/admin/coupons/${id}/delete`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error("Failed to delete coupon");
+        await loadDashboardData();
+      } catch (err) {
+        alert(err.message);
+        btn.innerText = originalText;
+        btn.disabled = false;
+      }
     }
 
     function renderLogs() {

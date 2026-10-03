@@ -12,11 +12,6 @@ const COURSES = [
 ];
 
 // ── VALID COUPONS ─────────────────────────────────────────────────────────
-const COUPONS = {
-  "UGEE10":   { type: "percent",  value: 10, label: "10% off" },
-  "FIRST200":  { type: "flat",    value: 200, label: "₹200 off" },
-  "EARLYBIRD": { type: "percent", value: 15, label: "15% off" }
-};
 
 // ── STATE ─────────────────────────────────────────────────────────────────
 let selected = [];
@@ -190,25 +185,38 @@ function validateDetails() {
 }
 
 // ── COUPON ────────────────────────────────────────────────────────────────
-document.getElementById("applyCoupon").addEventListener("click", function () {
-  const code   = document.getElementById("couponCode").value.trim().toUpperCase();
+document.getElementById("applyCoupon").addEventListener("click", async function () {
+  const code = document.getElementById("couponCode").value.trim().toUpperCase();
   const status = document.getElementById("coupon-status");
   if (!code) { status.textContent = ""; return; }
 
-  if (COUPONS[code]) {
-    const coup = COUPONS[code];
+  status.innerHTML = "Validating...";
+  status.className = "co-coupon-status";
+
+  try {
+    const res = await fetch(`/api/coupons/${code}`);
+    if (!res.ok) throw new Error("Invalid coupon code");
+    const coup = await res.json();
+    
+    if (coup.productRestriction) {
+       if (!selectedPackages.includes(coup.productRestriction)) {
+          throw new Error("Coupon is not valid for the selected products");
+       }
+    }
+
     appliedCoupon = code;
-    if (coup.type === "percent") {
+    if (coup.type === "PERCENTAGE") {
       discount = Math.round(subtotal * coup.value / 100);
     } else {
       discount = Math.min(coup.value, subtotal);
     }
-    status.innerHTML = `✓ "${code}" applied — ${coup.label} <a href="javascript:void(0)" onclick="window.removeCoupon()" style="color: #ef4444; margin-left: 10px; text-decoration: underline; font-size: 0.9em;">Remove</a>`;
+    const label = coup.type === "PERCENTAGE" ? `${coup.value}% off` : `₹${coup.value} off`;
+    status.innerHTML = `✓ "${code}" applied — ${label} <a href="javascript:void(0)" onclick="window.removeCoupon()" style="color: #ef4444; margin-left: 10px; text-decoration: underline; font-size: 0.9em;">Remove</a>`;
     status.className = "co-coupon-status success";
-  } else {
+  } catch (err) {
     discount = 0;
     appliedCoupon = null;
-    status.textContent = "Invalid coupon code";
+    status.textContent = err.message || "Invalid coupon code";
     status.className = "co-coupon-status error";
   }
   renderSummary();
