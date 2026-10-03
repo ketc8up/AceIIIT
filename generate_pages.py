@@ -13,7 +13,7 @@ header_match = re.search(r'<header class="site-header">.*?</header>', index_html
 header_content = header_match.group(0) if header_match else ''
 # add styling to header to make it visible on light pages
 header_content = header_content.replace('<header class="site-header">', '<header class="site-header" style="background: var(--ink);">')
-header_content = header_content.replace('href="#" class="nav-login"', 'href="#" class="nav-login" style="color: var(--surface);"')
+
 header_content = header_content.replace('class="nav-links"', 'class="nav-links" style="--nav-link-color: var(--surface);"')
 
 # We will just inject some inline CSS in the new page head for the nav-links

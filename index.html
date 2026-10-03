@@ -43,7 +43,7 @@
 
 <body>
 
-  
+
 
   <!-- Layer 2: Ink Layer -->
   <div id="entry-layer-ink" class="entry-layer ink-layer">
@@ -116,32 +116,39 @@
   </div>
 
   <!-- SVG Loader -->
-  <div id="entry-layer-svg" class="entry-layer svg-layer" style="display: flex; align-items: center; justify-content: center; background-color: var(--paper); z-index: 10000; position: fixed; inset: 0;">
+  <div id="entry-layer-svg" class="entry-layer svg-layer"
+    style="display: flex; align-items: center; justify-content: center; background-color: var(--paper); z-index: 10000; position: fixed; inset: 0;">
     <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
-      <svg
-        viewBox="110 250 880 400"
-        class="aceiiit-loader"
-        role="img"
-        aria-label="Loading"
-      >
-        <path d="M132 623L152 383H238L260 623H216L211 585H186L178 623Z M187 545H207L197 425Z" pathLength="1" class="ace-part ace-g1" stroke="#000" fill="#000" fill-rule="evenodd" />
-        <path d="M335 413C300 413 275 440 275 480V560C275 600 300 625 335 625C370 625 395 605 395 580V545H350V570C350 580 342 585 335 585C328 585 322 580 322 570V470C322 460 328 455 335 455C342 455 350 460 350 470V490H395V460C395 430 370 413 335 413Z" pathLength="1" class="ace-part ace-g1" stroke="#000" fill="#000" fill-rule="evenodd" />
-        <path d="M475 413C440 413 415 435 415 470V570C415 605 440 625 475 625C510 625 535 605 535 575V545H490V570C490 580 484 585 475 585C466 585 462 580 462 570V505H535V470C535 435 510 413 475 413Z M462 500V465C462 458 468 453 475 453C482 453 488 458 488 465V500Z" pathLength="1" class="ace-part ace-g1" stroke="#000" fill="#000" fill-rule="evenodd" />
-        
-        <path d="M555 383H607V623H555Z" pathLength="1" class="ace-part ace-g2" stroke="#C8982D" fill="#C8982D" fill-rule="evenodd" />
-        <path d="M618 383H663V623H618Z" pathLength="1" class="ace-part ace-g2" stroke="#C8982D" fill="#C8982D" fill-rule="evenodd" />
-        <path d="M683 383H727V623H683Z" pathLength="1" class="ace-part ace-g2" stroke="#C8982D" fill="#C8982D" fill-rule="evenodd" />
-        
-        <path d="M742 383H847V425H820V623H770V425H742Z" pathLength="1" class="ace-part ace-g3" stroke="#C8982D" fill="#C8982D" fill-rule="evenodd" />
-        
-        <path d="M800 335C820 322 860 305 900 292C925 292 940 305 938 318C930 340 925 360 920 385C915 405 910 425 898 440H888C888 420 885 410 880 400L868 360C860 350 850 345 830 342C815 342 805 340 800 335Z" pathLength="1" class="ace-part ace-g4" stroke="#E23B3B" fill="#E23B3B" fill-rule="evenodd" />
+      <svg viewBox="110 250 880 400" class="aceiiit-loader" role="img" aria-label="Loading">
+        <path d="M132 623L152 383H238L260 623H216L211 585H186L178 623Z M187 545H207L197 425Z" pathLength="1"
+          class="ace-part ace-g1" stroke="#000" fill="#000" fill-rule="evenodd" />
+        <path
+          d="M335 413C300 413 275 440 275 480V560C275 600 300 625 335 625C370 625 395 605 395 580V545H350V570C350 580 342 585 335 585C328 585 322 580 322 570V470C322 460 328 455 335 455C342 455 350 460 350 470V490H395V460C395 430 370 413 335 413Z"
+          pathLength="1" class="ace-part ace-g1" stroke="#000" fill="#000" fill-rule="evenodd" />
+        <path
+          d="M475 413C440 413 415 435 415 470V570C415 605 440 625 475 625C510 625 535 605 535 575V545H490V570C490 580 484 585 475 585C466 585 462 580 462 570V505H535V470C535 435 510 413 475 413Z M462 500V465C462 458 468 453 475 453C482 453 488 458 488 465V500Z"
+          pathLength="1" class="ace-part ace-g1" stroke="#000" fill="#000" fill-rule="evenodd" />
+
+        <path d="M555 383H607V623H555Z" pathLength="1" class="ace-part ace-g2" stroke="#C8982D" fill="#C8982D"
+          fill-rule="evenodd" />
+        <path d="M618 383H663V623H618Z" pathLength="1" class="ace-part ace-g2" stroke="#C8982D" fill="#C8982D"
+          fill-rule="evenodd" />
+        <path d="M683 383H727V623H683Z" pathLength="1" class="ace-part ace-g2" stroke="#C8982D" fill="#C8982D"
+          fill-rule="evenodd" />
+
+        <path d="M742 383H847V425H820V623H770V425H742Z" pathLength="1" class="ace-part ace-g3" stroke="#C8982D"
+          fill="#C8982D" fill-rule="evenodd" />
+
+        <path
+          d="M800 335C820 322 860 305 900 292C925 292 940 305 938 318C930 340 925 360 920 385C915 405 910 425 898 440H888C888 420 885 410 880 400L868 360C860 350 850 345 830 342C815 342 805 340 800 335Z"
+          pathLength="1" class="ace-part ace-g4" stroke="#E23B3B" fill="#E23B3B" fill-rule="evenodd" />
       </svg>
     </div>
   </div>
 
   <!-- Synchronous loader visibility to prevent flash -->
   <script>
-    (function() {
+    (function () {
       var seen = sessionStorage.getItem('aceiiit_seen_cinematic');
       if (seen) {
         var ink = document.getElementById('entry-layer-ink');
@@ -183,11 +190,10 @@
           <li><a href="#">About</a></li>
         </ul>
         <div class="nav-actions">
-          <a href="#" class="nav-login">Login</a>
         </div>
-          <a href="#packages" class="btn btn-primary">Get Started <span class="btn-arrow">&rarr;</span></a>
-        </div>
-      </nav>
+        <a href="#packages" class="btn btn-primary">Get Started <span class="btn-arrow">&rarr;</span></a>
+    </div>
+    </nav>
     </div>
   </header>
 
@@ -421,7 +427,8 @@
           </div>
           <h3 class="res-tab-title">Learn</h3>
           <p class="res-tab-desc">Master UGEE concepts through our structured live classes and problem sets.</p>
-          <a href="#packages" onclick="if(window.selectCourse) window.selectCourse('class');" class="res-tab-link">Register for Live Classes &rarr;</a>
+          <a href="#packages" onclick="if(window.selectCourse) window.selectCourse('class');"
+            class="res-tab-link">Register for Live Classes &rarr;</a>
         </article>
 
         <!-- Tab 02 -->
@@ -501,22 +508,31 @@
       <h2 class="tm-headline">From Preparation To Proof.</h2>
       <p class="tm-sub">They Took The Test.<br>What preparation looked like from their side.</p>
     </div>
-    
+
     <div class="tm-card" aria-roledescription="carousel" aria-label="Student testimonials">
       <div class="tm-mosaic" id="tm-mosaic">
-      <div class="tm-strip tm-l" id="tm-sl"></div>
-      <div class="tm-strip tm-c" id="tm-sc"></div>
-      <div class="tm-strip tm-r" id="tm-sr"></div>
-    </div>
-    <div class="tm-body">
-      <svg class="tm-mark" viewBox="0 0 40 30" fill="currentColor" aria-hidden="true"><path d="M0 18.5C0 8.6 5 2.6 14 0l1.6 3.6C10.6 5.6 8.4 8.6 8.2 12.4H15V30H0V18.5Zm22.5 0C22.5 8.6 27.5 2.6 36.5 0L38 3.6c-5 2-7.2 5-7.4 8.8h6.8V30H22.5V18.5Z"/></svg>
-      <p class="tm-q" id="tm-q" aria-live="polite"></p>
-      <p class="tm-who" id="tm-who"></p>
-      <div class="tm-nav">
-        <button id="tm-prev" aria-label="Previous testimonial"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 2.5 4 6l3.5 3.5"/></svg></button>
-        <button id="tm-next" aria-label="Next testimonial"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 2.5 8 6 4.5 9.5"/></svg></button>
+        <div class="tm-strip tm-l" id="tm-sl"></div>
+        <div class="tm-strip tm-c" id="tm-sc"></div>
+        <div class="tm-strip tm-r" id="tm-sr"></div>
       </div>
-    </div>
+      <div class="tm-body">
+        <svg class="tm-mark" viewBox="0 0 40 30" fill="currentColor" aria-hidden="true">
+          <path
+            d="M0 18.5C0 8.6 5 2.6 14 0l1.6 3.6C10.6 5.6 8.4 8.6 8.2 12.4H15V30H0V18.5Zm22.5 0C22.5 8.6 27.5 2.6 36.5 0L38 3.6c-5 2-7.2 5-7.4 8.8h6.8V30H22.5V18.5Z" />
+        </svg>
+        <p class="tm-q" id="tm-q" aria-live="polite"></p>
+        <p class="tm-who" id="tm-who"></p>
+        <div class="tm-nav">
+          <button id="tm-prev" aria-label="Previous testimonial"><svg viewBox="0 0 12 12" fill="none"
+              stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7.5 2.5 4 6l3.5 3.5" />
+            </svg></button>
+          <button id="tm-next" aria-label="Next testimonial"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor"
+              stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.5 2.5 8 6 4.5 9.5" />
+            </svg></button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -542,7 +558,7 @@
         <div class="trust-strip">🔒 Secure payment · ⚡ Instant access</div>
       </div>
     </div>
-    
+
     <!-- Mobile Bottom Bar -->
     <div class="mobile-bottom-bar" id="mobileBottomBar">
       <div class="mobile-bottom-info">
@@ -564,7 +580,8 @@
           <p class="trust-eyebrow">Our Team</p>
           <h2 id="trust-heading" class="trust-title">Built by IIIT<br>Hyderabad students.</h2>
         </div>
-        <p class="trust-subtitle">Mentors who cracked UGEE themselves, and an engineer who built the platform for you.</p>
+        <p class="trust-subtitle">Mentors who cracked UGEE themselves, and an engineer who built the platform for you.
+        </p>
       </header>
 
       <!-- Circular Testimonials -->
@@ -579,10 +596,14 @@
           <p class="ctc-quote"></p>
           <div class="ctc-nav">
             <button class="ctc-btn-prev" aria-label="Previous">
-              <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              <svg viewBox="0 0 24 24">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
             </button>
             <button class="ctc-btn-next" aria-label="Next">
-              <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <svg viewBox="0 0 24 24">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
             </button>
             <div class="ctc-dots"></div>
           </div>
@@ -590,11 +611,7 @@
       </div><!-- /.ctc-wrapper -->
 
       <div class="trust-footer">
-        <span class="trust-footer-text">Mentors &middot; Verified credentials &middot; August 2025</span>
-        <a href="/team" class="btn-dossier">
-          Meet the full team
-          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
+        <span class="trust-footer-text">Mentors &middot; Student-run &middot; August 2025</span>
       </div>
 
     </div>
@@ -1180,23 +1197,38 @@
                 fill="rgb(194,84,83)" />
             </svg></span>
         </a>
-        <p class="footer-tagline">Prepare for the exam that actually matters. Complete resources and mock tests for UGEE.</p>
+        <p class="footer-tagline">Prepare for the exam that actually matters. Complete resources and mock tests for
+          UGEE.</p>
         <div class="footer-socials">
           <a href="#" class="social-link" aria-label="YouTube">
-            <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 0 0-2.122 2.136C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.55 9.376.55 9.376.55s7.505 0 9.377-.55a3.016 3.016 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 0 0-2.122 2.136C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.55 9.376.55 9.376.55s7.505 0 9.377-.55a3.016 3.016 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+            </svg>
           </a>
           <a href="#" class="social-link" aria-label="Discord">
-            <svg viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
+            </svg>
           </a>
-          <a href="https://www.instagram.com/aceiiit" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Instagram">
-            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          <a href="https://www.instagram.com/aceiiit" target="_blank" rel="noopener noreferrer" class="social-link"
+            aria-label="Instagram">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+            </svg>
           </a>
-          <a href="https://linkedin.com/company/aceiiit" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn">
-            <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          <a href="https://linkedin.com/company/aceiiit" target="_blank" rel="noopener noreferrer" class="social-link"
+            aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+            </svg>
           </a>
         </div>
       </div>
-      
+
       <div class="footer-col">
         <h4 class="footer-col-title">Preparation</h4>
         <ul class="footer-links">
@@ -1226,7 +1258,7 @@
         </ul>
       </div>
     </div>
-    
+
     <div class="footer-bottom">
       <div class="copyright">&copy; 2026 AceIIIT. All rights reserved.</div>
       <div class="footer-bottom-links">
