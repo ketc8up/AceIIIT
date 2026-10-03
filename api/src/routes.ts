@@ -498,7 +498,17 @@ router.post('/auth/guest', async (req, res) => {
           college: college || '',
           year: year || '',
           role: 'STUDENT',
-          password: 'dummy-password' // Guests have no password login; this never matches a bcrypt hash
+          password: 'dummy-password'
+        }
+      });
+    } else {
+      // Update existing user with latest details from checkout
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          firstName: firstName || user.firstName,
+          lastName: lastName || user.lastName,
+          phone: phone || user.phone
         }
       });
     }

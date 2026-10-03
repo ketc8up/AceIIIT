@@ -678,12 +678,18 @@ window.generateReceiptPDF = async function() {
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
 
+  receipt.style.position = "absolute";
+  receipt.style.left = "-9999px";
+  receipt.style.top = "0";
+  document.body.appendChild(receipt);
+
   try {
     await html2pdf().set(opt).from(receipt).save();
   } catch(e) {
     console.error("PDF generation failed", e);
     alert("Failed to generate PDF. Please try again.");
   } finally {
+    document.body.removeChild(receipt);
     if (btn) btn.innerHTML = "Download Receipt";
   }
 };
@@ -795,9 +801,17 @@ window.generateReceiptBase64 = async function(ref, name, email, utr, selectedIte
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
 
+  receipt.style.position = "absolute";
+  receipt.style.left = "-9999px";
+  receipt.style.top = "0";
+  document.body.appendChild(receipt);
+
   try {
     const pdfStr = await html2pdf().set(opt).from(receipt).outputPdf('datauristring');
     return pdfStr;
+  } finally {
+    document.body.removeChild(receipt);
+  }
   } catch(e) {
     console.error("PDF generation for email failed", e);
     return null;
