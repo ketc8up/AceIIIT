@@ -198,17 +198,22 @@ document.getElementById("applyCoupon").addEventListener("click", async function 
     if (!res.ok) throw new Error("Invalid coupon code");
     const coup = await res.json();
     
+    let eligibleSubtotal = subtotal;
     if (coup.productRestriction) {
-       if (!selectedPackages.includes(coup.productRestriction)) {
+       if (!selected.includes(coup.productRestriction)) {
           throw new Error("Coupon is not valid for the selected products");
+       }
+       const restrictedCourse = COURSES.find(c => c.id === coup.productRestriction);
+       if (restrictedCourse) {
+         eligibleSubtotal = restrictedCourse.price;
        }
     }
 
     appliedCoupon = code;
     if (coup.type === "PERCENTAGE") {
-      discount = Math.round(subtotal * coup.value / 100);
+      discount = Math.round(eligibleSubtotal * coup.value / 100);
     } else {
-      discount = Math.min(coup.value, subtotal);
+      discount = Math.min(coup.value, eligibleSubtotal);
     }
     const label = coup.type === "PERCENTAGE" ? `${coup.value}% off` : `₹${coup.value} off`;
     status.innerHTML = `✓ "${code}" applied — ${label} <a href="javascript:void(0)" onclick="window.removeCoupon()" style="color: #ef4444; margin-left: 10px; text-decoration: underline; font-size: 0.9em;">Remove</a>`;

@@ -90,11 +90,21 @@ export class CommerceService {
         }
       }
 
+      let eligibleSubtotal = subtotal;
+
       // Check product restriction
       if (appliedCoupon.productRestriction) {
-        const hasRestrictedProduct = items.some(i => i.productId === appliedCoupon.productRestriction);
-        if (!hasRestrictedProduct) {
+        const restrictedItems = items.filter(i => i.productId === appliedCoupon.productRestriction);
+        if (restrictedItems.length === 0) {
           throw new Error('Coupon is not valid for the selected products');
+        }
+        
+        eligibleSubtotal = 0;
+        for (const item of restrictedItems) {
+          const product = dbProducts.find(p => p.id === item.productId);
+          if (product) {
+            eligibleSubtotal += product.price * item.quantity;
+          }
         }
       }
 
@@ -109,9 +119,9 @@ export class CommerceService {
 
       // Calculate discount
       if (appliedCoupon.discountType === 'PERCENTAGE') {
-        discount = Math.round((subtotal * appliedCoupon.discountValue) / 100);
+        discount = Math.round((eligibleSubtotal * appliedCoupon.discountValue) / 100);
       } else if (appliedCoupon.discountType === 'FLAT') {
-        discount = Math.min(appliedCoupon.discountValue, subtotal);
+        discount = Math.min(appliedCoupon.discountValue, eligibleSubtotal);
       }
     }
 
