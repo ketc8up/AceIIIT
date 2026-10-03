@@ -1,7 +1,9 @@
 import { Resend } from 'resend';
+import { config } from '../config';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM_EMAIL = 'ACE IIIT <support@aceiiit.in>';
+const FROM_SUPPORT = config.EMAIL_FROM_SUPPORT;
+const FROM_OTP = config.EMAIL_FROM_OTP;
 
 const wrapHtml = (content: string) => `
 <!DOCTYPE html>
@@ -71,7 +73,7 @@ export class EmailService {
       }
 
       await resend.emails.send({
-        from: FROM_EMAIL,
+        from: FROM_SUPPORT,
         to: email,
         subject: `Order Received - Pending Verification (#${orderNumber})`,
         html: wrapHtml(content),
@@ -110,7 +112,7 @@ export class EmailService {
       `;
 
       await resend.emails.send({
-        from: FROM_EMAIL,
+        from: FROM_SUPPORT,
         to: email,
         subject: `Payment Verified! Your Access is Granted 🚀`,
         html: wrapHtml(content)
@@ -140,7 +142,7 @@ export class EmailService {
       `;
 
       await resend.emails.send({
-        from: FROM_EMAIL,
+        from: FROM_SUPPORT,
         to: email,
         subject: `Action Required: Payment Rejected (#${orderNumber})`,
         html: wrapHtml(content)
@@ -164,7 +166,7 @@ export class EmailService {
       `;
 
       await resend.emails.send({
-        from: FROM_EMAIL,
+        from: FROM_OTP,
         to: email,
         subject: `Your AceIIIT Verification Code: ${code}`,
         html: wrapHtml(content)

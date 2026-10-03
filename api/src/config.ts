@@ -38,6 +38,8 @@ const ConfigSchema = z.object({
   INTERNAL_API_SECRET: strongSecret(16),
   AUTH_RATE_LIMIT_PER_MIN: z.coerce.number().int().positive().default(10),
   ADMIN_PORTAL_PATH: z.string().min(8).default('admin-secure-portal'),
+  EMAIL_FROM_SUPPORT: z.string().min(5).default('onboarding@resend.dev'),
+  EMAIL_FROM_OTP: z.string().min(5).default('onboarding@resend.dev'),
   CORS_ORIGINS: z
     .string()
     .optional()
