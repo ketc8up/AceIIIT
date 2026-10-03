@@ -80,12 +80,24 @@
       flex-direction: column;
       padding: 1.5rem;
     }
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text);
+    }
     .brand {
       font-family: 'Archivo', sans-serif;
       font-size: 1.5rem;
       font-weight: 900;
       letter-spacing: -0.04em;
-      margin-bottom: 2rem;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -294,11 +306,25 @@
 
     @media (max-width: 768px) {
       body { flex-direction: column; }
-      .sidebar { width: 100%; padding: 1rem 1.5rem; border-right: none; border-bottom: 1px solid var(--border); box-sizing: border-box; flex-shrink: 0; }
-      .brand { margin-bottom: 1rem; }
-      .sidebar nav { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 4px; }
-      .sidebar nav::-webkit-scrollbar { display: none; }
-      .nav-item { margin-bottom: 0; white-space: nowrap; }
+      .sidebar { width: 100%; padding: 1rem 1.5rem; border-right: none; border-bottom: 1px solid var(--border); box-sizing: border-box; flex-shrink: 0; position: relative; z-index: 20; }
+      .sidebar-header { margin-bottom: 0; }
+      .brand { margin-bottom: 0; }
+      .mobile-menu-btn { display: block; }
+      #sidebar-nav {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        gap: 8px;
+      }
+      #sidebar-nav.nav-open { display: flex; }
+      .nav-item { margin-bottom: 0; }
       .header { padding: 0 1rem; height: 56px; }
       .content-area { padding: 1rem; }
       .stats-grid { grid-template-columns: 1fr; }
@@ -327,10 +353,15 @@
 
   <!-- Dashboard Layout -->
   <aside class="sidebar">
-    <div class="brand">
-      <span>Ace</span><span>IIIT</span>
+    <div class="sidebar-header">
+      <div class="brand">
+        <span>Ace</span><span>IIIT</span>
+      </div>
+      <button class="mobile-menu-btn" onclick="toggleMobileNav()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
     </div>
-    <nav>
+    <nav id="sidebar-nav">
       <a class="nav-item active" onclick="switchTab('overview', this)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         Overview
@@ -447,7 +478,9 @@
               </select>
               <input type="number" id="coupon-value" placeholder="Value (e.g. 50)" required style="flex:1; min-width:100px; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
             </div>
-            <input type="text" id="coupon-restriction" placeholder="Specific Course Code restriction (optional, e.g. PKG_UGEE_CRASH)" style="padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
+            <select id="coupon-restriction" style="padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
+              <option value="">No Course Restriction (Applies to all)</option>
+            </select>
             <button type="submit" class="btn" id="create-coupon-btn">Create Coupon</button>
           </form>
         </div>
@@ -585,11 +618,16 @@
       document.getElementById('admin-password').value = '';
     }
 
+    function toggleMobileNav() {
+      document.getElementById('sidebar-nav').classList.toggle('nav-open');
+    }
+
     function switchTab(tabId, el) {
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       el.classList.add('active');
       document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
       document.getElementById('view-' + tabId).classList.add('active');
+      document.getElementById('sidebar-nav').classList.remove('nav-open');
     }
 
     async function loadDashboardData() {
@@ -613,6 +651,21 @@
         // Fetch Logs
         res = await fetch('/api/admin/audit-logs', { headers: { 'Authorization': `Bearer ${token}` } });
         if (res.ok) allLogs = await res.json();
+
+        // Fetch Products for Coupon Restriction
+        res = await fetch('/api/products');
+        if (res.ok) {
+          const products = await res.json();
+          const restrictionSelect = document.getElementById('coupon-restriction');
+          // Clear any existing options except the first one
+          restrictionSelect.innerHTML = '<option value="">No Course Restriction (Applies to all)</option>';
+          products.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.id;
+            option.textContent = p.name + ' (' + p.id + ')';
+            restrictionSelect.appendChild(option);
+          });
+        }
 
         updateStats();
         renderPayments();
