@@ -929,3 +929,104 @@ body {
   .co-ocr-spinner { animation-duration: 2.4s !important; animation-iteration-count: infinite !important; }
   .co-ocr-steps li.is-active::before { animation: none; }
 }
+
+/* ── ONE-TAP UPI (phones only; hidden on desktop) ────────────────────── */
+.co-upi-pay { margin-bottom: 1.5rem; }
+.co-upi-pay[hidden] { display: none; }
+.co-upi-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #facc15 0%, #d4af37 100%);
+  color: #000;
+  text-decoration: none;
+  box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.co-upi-btn:active { transform: scale(0.98); box-shadow: 0 4px 10px rgba(212, 175, 55, 0.2); }
+.co-upi-btn-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.co-upi-btn-label { font-size: 17px; font-weight: 800; letter-spacing: 0.2px; font-variant-numeric: tabular-nums; }
+.co-upi-btn-sub { font-size: 12px; font-weight: 500; color: rgba(0, 0, 0, 0.62); }
+.co-upi-stack { display: flex; flex-shrink: 0; }
+.co-upi-stack img {
+  box-sizing: content-box;
+  width: 20px;
+  height: 20px;
+  padding: 7px;
+  background: #fff;
+  border: 2px solid #e6c34a;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+.co-upi-stack img + img { margin-left: -10px; }
+.co-upi-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 12px;
+  font-size: 12px;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.co-upi-or::before,
+.co-upi-or::after { content: ""; flex: 1; height: 1px; background: rgba(255, 255, 255, 0.08); }
+.co-upi-apps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.co-upi-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 6px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e4e4e7;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.co-upi-app:active { transform: scale(0.96); border-color: rgba(212, 175, 55, 0.5); background: rgba(212, 175, 55, 0.06); }
+.co-upi-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: #fff;
+  border-radius: 12px;
+}
+.co-upi-app-icon img { width: 26px; height: 26px; }
+.co-upi-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #e4e4e7;
+  background: rgba(74, 222, 128, 0.07);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+}
+.co-upi-status[hidden] { display: none; }
+.co-upi-status.is-warn { background: rgba(250, 204, 21, 0.06); border-color: rgba(250, 204, 21, 0.25); }
+.co-upi-upload {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: var(--gold-strong);
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.co-upi-upload[hidden] { display: none; }

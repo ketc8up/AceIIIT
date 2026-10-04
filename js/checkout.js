@@ -40,7 +40,10 @@ const sections   = ["details", "payment", "confirm"];
 const stepEls    = sections.map(s => document.getElementById("step-indicator-" + s));
 const sectionEls = sections.map(s => document.getElementById("section-" + s));
 
+let currentStep = 0;
+
 function goToStep(index) {
+  currentStep = index;
   sectionEls.forEach((el, i) => {
     el.classList.toggle("co-section--hidden", i !== index);
     if (i !== index && !el.classList.contains("co-section--hidden")) {
@@ -163,6 +166,8 @@ function renderSummary() {
   if (qrEl) {
     qrEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3Daceiiit%40upi%26pn%3DAceIIIT%26am%3D${grand}%26cu%3DINR`;
   }
+  updateUpiLinks(grand);
+
   const qrAmtText = document.getElementById("qr-amount-text");
   if (qrAmtText) {
     qrAmtText.textContent = "₹" + grand;
@@ -170,6 +175,98 @@ function renderSummary() {
 
   // Confirmation items removed for minimal UI
 
+}
+
+// ── ONE-TAP UPI ───────────────────────────────────────────────────────────
+// On phones, "Pay now" opens the installed UPI app with the payee and amount
+// filled in (same details as the QR). Android gets the system chooser for the
+// main button and package-targeted intents for the app tiles; iOS has no UPI
+// chooser, so its tiles use each app's own URL scheme. Payment confirmation is
+// still the UTR + screenshot, so on return we point the user to that step.
+const UPI_PAYEE = { pa: "aceiiit@upi", pn: "AceIIIT" };
+const UPI_APPS = {
+  gpay:    { android: "com.google.android.apps.nbu.paisa.user", ios: "gpay://upi/pay" },
+  phonepe: { android: "com.phonepe.app",                        ios: "phonepe://pay" },
+  paytm:   { android: "net.one97.paytm",                        ios: "paytmmp://pay" }
+};
+const UA = navigator.userAgent;
+const isAndroid = /Android/i.test(UA);
+const isIOS = /iPhone|iPad|iPod/i.test(UA) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const upiEl = document.getElementById("co-upi-pay");
+if (upiEl && (isAndroid || isIOS)) upiEl.hidden = false;
+
+function upiQuery(amount) {
+  const params = { ...UPI_PAYEE, am: amount.toFixed(2), cu: "INR", tn: "AceIIIT course purchase" };
+  return Object.entries(params)
+    .map(([k, v]) => k + "=" + encodeURIComponent(v).replace(/%40/g, "@"))
+    .join("&");
+}
+
+function updateUpiLinks(amount) {
+  if (!upiEl) return;
+  const q = upiQuery(amount);
+  document.getElementById("co-upi-btn").href = "upi://pay?" + q;
+  upiEl.querySelectorAll("[data-upi-amount]").forEach(el => {
+    el.textContent = "₹" + amount.toLocaleString("en-IN");
+  });
+  upiEl.querySelectorAll("[data-upi-app]").forEach(a => {
+    const app = UPI_APPS[a.dataset.upiApp];
+    a.href = isAndroid
+      ? `intent://pay?${q}#Intent;scheme=upi;package=${app.android};end`
+      : isIOS ? `${app.ios}?${q}` : "upi://pay?" + q;
+  });
+}
+
+function showUpiStatus(message, { warn = false, upload = false } = {}) {
+  const box = document.getElementById("co-upi-status");
+  document.getElementById("co-upi-status-text").textContent = message;
+  document.getElementById("co-upi-upload").hidden = !upload;
+  box.classList.toggle("is-warn", warn);
+  box.hidden = false;
+}
+
+function hideUpiStatus() {
+  const box = document.getElementById("co-upi-status");
+  if (box) box.hidden = true;
+}
+
+let upiLaunchedAt = 0;   // set when a UPI link is tapped
+let upiLeftPage = false; // the UPI app actually came to the foreground
+
+if (upiEl) {
+  upiEl.addEventListener("click", function (e) {
+    const link = e.target.closest("a[href]");
+    if (!link) return;
+    upiLaunchedAt = Date.now();
+    upiLeftPage = false;
+    hideUpiStatus();
+    // App tiles have no chooser: if nothing opened, the app likely isn't installed.
+    if (link.dataset.upiApp) {
+      const launchedAt = upiLaunchedAt;
+      setTimeout(() => {
+        if (upiLaunchedAt === launchedAt && !upiLeftPage && !document.hidden) {
+          showUpiStatus("Couldn't open that app — it may not be installed. Try another UPI app, or scan the QR code below from another phone.", { warn: true });
+        }
+      }, 2500);
+    }
+  });
+
+  document.getElementById("co-upi-upload").addEventListener("click", function () {
+    const receipt = document.getElementById("receipt");
+    receipt.scrollIntoView({ behavior: "smooth", block: "center" });
+    receipt.click();
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (!upiLaunchedAt) return;
+    if (document.hidden) {
+      upiLeftPage = true;
+    } else if (upiLeftPage) {
+      upiLaunchedAt = 0;
+      upiLeftPage = false;
+      showUpiStatus("Paid? Upload the payment screenshot and we'll read the UTR for you.", { upload: true });
+    }
+  });
 }
 
 // ── VALIDATION ────────────────────────────────────────────────────────────
@@ -335,6 +432,17 @@ function closeOcrCard() {
   ocrEl.hidden = true;
   document.getElementById("utr").disabled = false;
   document.getElementById("btn-pay-now").disabled = ocrPayWasDisabled;
+  endBusy(); // the read is over (filled in, or the user chose to type it)
+}
+
+// Back pressed mid-read: stop OCR without touching history (Back already did).
+function cancelOcr() {
+  ocrRun++;
+  stopOcrWorker();
+  if (ocrEl && !ocrEl.hidden) {
+    ocrEl.hidden = true;
+    document.getElementById("utr").disabled = false;
+  }
 }
 
 function stopOcrWorker() {
@@ -366,6 +474,7 @@ function enterUtrManually() {
 
 async function readUtrFromScreenshot(file) {
   const run = ++ocrRun;
+  hideUpiStatus();
   stopOcrWorker();
   const utrInput = document.getElementById("utr");
   const utrError = document.getElementById("utr-error");
@@ -374,6 +483,7 @@ async function readUtrFromScreenshot(file) {
     utrError.textContent = "";
   }
 
+  if (!busy) beginBusy(resetPaymentStep);
   openOcrCard();
   const slowTimer = setTimeout(() => {
     if (run !== ocrRun || ocrEl.dataset.state !== "scanning") return;
@@ -456,6 +566,126 @@ if (phoneInput) {
   });
 }
 
+// ── BACK BUTTON / STEP HISTORY ────────────────────────────────────────────
+// Each visible step (details, payment, confirm) is a browser-history entry, so
+// Back always moves exactly one step and that step has to be done again.
+// While a step is busy (sending/verifying OTP, reading the screenshot,
+// submitting details) an extra "busy" entry absorbs Back instead: the work is
+// cancelled and the user stays on that step, which starts over. Once the order
+// is being created Back is held until the submission settles, so a half-made
+// order can never be left behind or duplicated.
+const DETAILS_BTN_HTML = document.getElementById("btn-to-payment").innerHTML;
+const PAY_BTN_HTML = document.getElementById("btn-pay-now").innerHTML;
+let busy = null;      // { controller, onCancel, locked }
+let skipPops = 0;     // popstates caused by our own history.back() calls
+let resendTimer = null;
+
+function beginBusy(onCancel) {
+  const controller = new AbortController();
+  busy = { controller, onCancel, locked: false };
+  history.pushState({ coStep: currentStep, busy: true }, "");
+  return controller.signal;
+}
+
+// Finish the running process: move on to `nextStep`, or (no argument) stay on
+// the current step and drop the busy entry so Back works normally again.
+function endBusy(nextStep) {
+  if (!busy) return;
+  busy = null;
+  if (nextStep !== undefined) {
+    history.replaceState({ coStep: nextStep }, "");
+    goToStep(nextStep);
+  } else {
+    skipPops++;
+    history.back();
+  }
+}
+
+function resetDetailsStep() {
+  globalAuthToken = null;
+  clearTimeout(resendTimer);
+  document.getElementById("otp-field-container").style.display = "none";
+  document.getElementById("otp").value = "";
+  document.getElementById("email").disabled = false;
+  clearErrors();
+  setError("otp", "");
+  const btn = document.getElementById("btn-to-payment");
+  btn.innerHTML = DETAILS_BTN_HTML;
+  btn.disabled = selected.length === 0;
+  const resendBtn = document.getElementById("btn-resend-otp");
+  if (resendBtn) {
+    resendBtn.textContent = "Resend Code";
+    resendBtn.disabled = false;
+  }
+}
+
+function resetPaymentStep() {
+  cancelOcr();
+  hideUpiStatus();
+  const utrInput = document.getElementById("utr");
+  utrInput.value = "";
+  utrInput.disabled = false;
+  utrInput.classList.remove("co-input--filled");
+  const receipt = document.getElementById("receipt");
+  if (receipt) receipt.value = "";
+  const removeBtn = document.getElementById("btn-remove-receipt");
+  if (removeBtn) removeBtn.style.display = "none";
+  const utrError = document.getElementById("utr-error");
+  if (utrError) {
+    utrError.style.display = "none";
+    utrError.textContent = "";
+  }
+  const payBtn = document.getElementById("btn-pay-now");
+  payBtn.innerHTML = PAY_BTN_HTML;
+  payBtn.disabled = false;
+}
+
+window.addEventListener("popstate", function (e) {
+  if (skipPops > 0) { skipPops--; return; }
+  const state = e.state || {};
+  const target = typeof state.coStep === "number" ? state.coStep : 0;
+
+  if (busy) {
+    if (busy.locked) {
+      history.pushState({ coStep: currentStep, busy: true }, "");
+      alert("Your payment is being submitted. Please wait a few seconds — going back now could create a duplicate order.");
+      return;
+    }
+    // Back mid-process: stop it and redo this step.
+    const cancelled = busy;
+    busy = null;
+    cancelled.controller.abort();
+    cancelled.onCancel();
+    return;
+  }
+
+  // Forward into a finished process's entry, or into a later step: not allowed.
+  if (state.busy || target > currentStep) {
+    skipPops++;
+    history.back();
+    return;
+  }
+  if (target === currentStep) return;
+
+  // The order is placed; never step back into payment.
+  if (currentStep === 2) {
+    location.replace("/");
+    return;
+  }
+
+  // Back one step: the step landed on (and everything after it) is redone.
+  resetPaymentStep();
+  if (target === 0) resetDetailsStep();
+  goToStep(target);
+});
+
+window.addEventListener("beforeunload", function (e) {
+  if (busy && busy.locked) {
+    e.preventDefault();
+    e.returnValue = "";
+  }
+});
+
 // ── STEP NAV ──────────────────────────────────────────────────────────────
 let globalAuthToken = null;
 
@@ -472,29 +702,37 @@ document.getElementById("detailsForm").addEventListener("submit", async function
   const otpContainer = document.getElementById("otp-field-container");
   const otpInput = document.getElementById("otp");
 
+  if (busy) return;
+
   if (otpContainer.style.display === "none") {
+    const signal = beginBusy(resetDetailsStep);
     btn.innerHTML = 'Sending OTP...';
     btn.disabled = true;
     try {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
+        signal
       });
       if (!res.ok) {
         setError("email", await apiError(res, "Failed to send OTP"));
-        btn.innerHTML = 'Continue to Payment';
+        btn.innerHTML = DETAILS_BTN_HTML;
         btn.disabled = false;
+        endBusy();
         return;
       }
       otpContainer.style.display = "block";
       btn.innerHTML = 'Verify OTP & Continue';
       btn.disabled = false;
       document.getElementById("email").disabled = true;
+      endBusy();
     } catch (err) {
+      if (signal.aborted) return; // Back pressed: the step was already reset
       setError("email", "Network error");
-      btn.innerHTML = 'Continue to Payment';
+      btn.innerHTML = DETAILS_BTN_HTML;
       btn.disabled = false;
+      endBusy();
     }
     return;
   }
@@ -503,17 +741,20 @@ document.getElementById("detailsForm").addEventListener("submit", async function
   if (resendBtn && !resendBtn.dataset.bound) {
     resendBtn.dataset.bound = "true";
     resendBtn.addEventListener("click", async function() {
+      if (busy) return;
+      const signal = beginBusy(resetDetailsStep);
       resendBtn.disabled = true;
       resendBtn.textContent = "Sending...";
       try {
         const res = await fetch("/api/auth/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: document.getElementById("email").value.trim() })
+          body: JSON.stringify({ email: document.getElementById("email").value.trim() }),
+          signal
         });
         if (res.ok) {
           resendBtn.textContent = "Sent!";
-          setTimeout(() => {
+          resendTimer = setTimeout(() => {
             resendBtn.textContent = "Resend Code";
             resendBtn.disabled = false;
           }, 30000);
@@ -521,9 +762,12 @@ document.getElementById("detailsForm").addEventListener("submit", async function
           resendBtn.textContent = "Failed";
           resendBtn.disabled = false;
         }
+        endBusy();
       } catch (err) {
+        if (signal.aborted) return;
         resendBtn.textContent = "Error";
         resendBtn.disabled = false;
+        endBusy();
       }
     });
   }
@@ -534,18 +778,21 @@ document.getElementById("detailsForm").addEventListener("submit", async function
     return;
   }
 
+  const signal = beginBusy(resetDetailsStep);
   btn.innerHTML = 'Verifying...';
   btn.disabled = true;
   try {
     const authRes = await fetch("/api/auth/guest", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ firstName, lastName, email, phone, otp })
+      body: JSON.stringify({ firstName, lastName, email, phone, otp }),
+      signal
     });
     if (!authRes.ok) {
       setError("otp", await apiError(authRes, "Invalid OTP"));
       btn.innerHTML = 'Verify OTP & Continue';
       btn.disabled = false;
+      endBusy();
       return;
     }
     const { token } = await authRes.json();
@@ -554,11 +801,13 @@ document.getElementById("detailsForm").addEventListener("submit", async function
     btn.innerHTML = 'Verify OTP & Continue';
     btn.disabled = false;
     
-    goToStep(1);
+    endBusy(1);
   } catch(e) {
+    if (signal.aborted) return;
     setError("otp", "Network error");
     btn.innerHTML = 'Verify OTP & Continue';
     btn.disabled = false;
+    endBusy();
   }
 });
 
@@ -566,15 +815,18 @@ document.getElementById("btn-to-payment").addEventListener("click", function () 
   document.getElementById("detailsForm").dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
 });
 
+// In-page Back behaves exactly like the browser's Back button.
 document.getElementById("btn-back-details").addEventListener("click", function () {
-  goToStep(0);
+  history.back();
 });
 
 document.getElementById("btn-pay-now").addEventListener("click", async function () {
+  if (busy) return;
   const btn = this;
   btn.disabled = true;
   btn.innerHTML = '<span>Processing…</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
 
+  let signal = null;
   try {
     // Collect Details
     const firstName = document.getElementById("firstName").value.trim();
@@ -595,6 +847,7 @@ document.getElementById("btn-pay-now").addEventListener("click", async function 
       throw new Error("Please go back and verify your email first.");
     }
     const token = globalAuthToken;
+    signal = beginBusy(resetPaymentStep);
 
     // 2. Upload Receipt
     const receiptInput = document.getElementById("receipt");
@@ -608,15 +861,19 @@ document.getElementById("btn-pay-now").addEventListener("click", async function 
     const uploadRes = await fetch("/api/receipts/upload", {
       method: "POST",
       headers: { "Authorization": "Bearer " + token },
-      body: formData
+      body: formData,
+      signal
     });
     
     if (!uploadRes.ok) {
        throw new Error(await apiError(uploadRes, "Failed to upload receipt."));
     }
     const { receiptReference } = await uploadRes.json();
+    if (signal.aborted) return;
 
-    // 3. Create Order
+    // 3. Create Order — from here the order exists server-side, so Back is
+    // held until the submission settles instead of leaving a half-made order.
+    busy.locked = true;
     const items = selected.map(id => ({ productId: id, quantity: 1 }));
     const orderRes = await fetch("/api/orders", {
       method: "POST",
@@ -682,7 +939,7 @@ document.getElementById("btn-pay-now").addEventListener("click", async function 
     
     // Update local summary logic to show real DB totals if needed, but the UI flow expects renderSummary()
     renderSummary();
-    goToStep(2);
+    endBusy(2);
 
     // Clear session on success
     try { 
@@ -691,6 +948,8 @@ document.getElementById("btn-pay-now").addEventListener("click", async function 
     } catch (e) {}
 
   } catch (error) {
+    if (signal && signal.aborted) return; // Back pressed: the step was already reset
+    endBusy();
     alert(error.message);
     btn.disabled = false;
     btn.innerHTML = '<span id="pay-btn-label">Submit Details</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
@@ -713,6 +972,7 @@ if (summaryToggle) {
 // ── INIT ──────────────────────────────────────────────────────────────────
 loadCourses();
 goToStep(0);
+history.replaceState({ coStep: 0 }, "");
 
 // Re-read the selection when the page is restored from the back/forward cache
 // (e.g. user went back to the homepage, changed courses, and returned).

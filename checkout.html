@@ -116,6 +116,31 @@
 
         <!-- UPI form (Only Manual UPI Supported) -->
         <div class="co-pay-panel" id="pay-upi">
+          <!-- One-tap UPI: phones only (shown by checkout.js); desktop keeps the QR flow -->
+          <div class="co-upi-pay" id="co-upi-pay" hidden>
+            <a class="co-upi-btn" id="co-upi-btn" href="upi://pay">
+              <span class="co-upi-btn-text">
+                <span class="co-upi-btn-label">Pay <span data-upi-amount>₹0</span> now</span>
+                <span class="co-upi-btn-sub">Opens your UPI app with the amount filled in</span>
+              </span>
+              <span class="co-upi-stack" aria-hidden="true">
+                <img src="/assets/upi/googlepay.svg" alt="" width="20" height="20">
+                <img src="/assets/upi/phonepe.svg" alt="" width="20" height="20">
+                <img src="/assets/upi/paytm.svg" alt="" width="20" height="20">
+              </span>
+            </a>
+            <div class="co-upi-or"><span>or pay with</span></div>
+            <div class="co-upi-apps">
+              <a class="co-upi-app" data-upi-app="gpay" href="upi://pay"><span class="co-upi-app-icon"><img src="/assets/upi/googlepay.svg" alt="" width="26" height="26"></span>Google Pay</a>
+              <a class="co-upi-app" data-upi-app="phonepe" href="upi://pay"><span class="co-upi-app-icon"><img src="/assets/upi/phonepe.svg" alt="" width="26" height="26"></span>PhonePe</a>
+              <a class="co-upi-app" data-upi-app="paytm" href="upi://pay"><span class="co-upi-app-icon"><img src="/assets/upi/paytm.svg" alt="" width="26" height="26"></span>Paytm</a>
+            </div>
+            <div class="co-upi-status" id="co-upi-status" role="status" hidden>
+              <span id="co-upi-status-text"></span>
+              <button type="button" class="co-upi-upload" id="co-upi-upload" hidden>Upload screenshot</button>
+            </div>
+          </div>
+
           <div class="co-field">
             <div class="co-qr-card">
               <div class="co-qr-code">
@@ -276,6 +301,6 @@
     </div>
   </div>
 
-  <script src="/js/checkout.js?v=5"></script>
+  <script src="/js/checkout.js?v=7"></script>
 </body>
 </html>

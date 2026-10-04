@@ -549,3 +549,40 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Links inside hub/guide sections use the site's content-link style
+   (same as .page-content a); card titles keep their ink colour. */
+.pg-section a:not(.btn),
+.pg-hero a:not(.btn) {
+  color: var(--wine);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+.pg-section a:not(.btn):hover,
+.pg-hero a:not(.btn):hover {
+  color: var(--red);
+}
+.pg-card h4 a {
+  color: inherit;
+  text-decoration-color: var(--wine);
+}
+
+/* Page CTAs reuse the header's gold "Get Started" button, at body size. */
+.page-main .btn-primary {
+  background: linear-gradient(135deg, #dcae44 0%, #c5a028 100%);
+  color: var(--ink);
+  border: 1px solid rgba(20, 17, 15, 0.1);
+  box-shadow: 0 0 10px rgba(220, 174, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  padding: 0.85rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.page-main .btn-primary:hover {
+  background: var(--ink);
+  color: #dcae44;
+  border-color: var(--red);
+  box-shadow: 0 6px 18px rgba(180, 35, 24, 0.3);
+  transform: translateY(-1px);
+}
