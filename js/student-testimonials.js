@@ -1,9 +1,9 @@
 // student-testimonials.js
 document.addEventListener('DOMContentLoaded', () => {
   const DATA = [
-    { text: "The mentorship gave me clarity on what to prioritize in the last 30 days. The linguistics approach is unmatched.", name: "Aspirant 2024", img: "assets/images/uman.jpg", video: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
-    { text: "AceIIIT's portal felt exactly like the real UGEE interface. No surprises on exam day, which removed so much anxiety.", name: "Selected Student", img: "assets/images/priyanshu.jpg", video: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
-    { text: "The mocks matched the real UGEE pattern, and every solution explained the reasoning, not just the answer.", name: "UGEE Aspirant", img: "assets/images/arkaprava.jpg", video: "https://www.youtube.com/embed/dQw4w9WgXcQ" }
+    { text: "The mentorship gave me clarity on what to prioritize in the last 30 days. The linguistics approach is unmatched.", name: "Aspirant 2024", img: "/assets/images/placeholders/student-01.svg", video: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { text: "AceIIIT's portal felt exactly like the real UGEE interface. No surprises on exam day, which removed so much anxiety.", name: "Selected Student", img: "/assets/images/placeholders/student-02.svg", video: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
+    { text: "The mocks matched the real UGEE pattern, and every solution explained the reasoning, not just the answer.", name: "UGEE Aspirant", img: "/assets/images/placeholders/student-03.svg", video: "https://www.youtube.com/embed/dQw4w9WgXcQ" }
   ];
 
   const P = 131, TOP = 99, STEP = 3 * P;
@@ -120,9 +120,17 @@ document.addEventListener('DOMContentLoaded', () => {
   $('tm-prev').onclick = () => go(-1, true);
 
   const wrapper = document.getElementById('student-testimonials');
+  // Phones always keep sliding: a tap there counts as "hover" and never ends.
+  const phone = window.matchMedia('(max-width: 767.98px)');
+  const pauseAuto = () => { if (!phone.matches) stopAuto(); };
   if (wrapper) {
-    wrapper.addEventListener('mouseenter', stopAuto);
+    wrapper.addEventListener('mouseenter', pauseAuto);
     wrapper.addEventListener('mouseleave', startAuto);
+    // Keyboard users: don't rotate the quote they are reading/tabbing through
+    wrapper.addEventListener('focusin', pauseAuto);
+    wrapper.addEventListener('focusout', (e) => {
+      if (!wrapper.contains(e.relatedTarget)) startAuto();
+    });
   }
   startAuto();
 });

@@ -19,10 +19,35 @@
   pointer-events: none;
 }
 
+/* Top bar (was inline styles in dashboard.html — values unchanged) */
+.dashboard-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(150,150,150,0.1);
+  background: var(--surface);
+  z-index: 9000;
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
 .dashboard-container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 4rem var(--gutter);
 }
 
 .dashboard-header {
@@ -57,7 +82,7 @@ html.dark .dashboard-title {
 
 .entitlements-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: 2rem;
 }
 
@@ -82,10 +107,12 @@ html.dark .access-card {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.access-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow);
-  border-color: rgba(212, 175, 55, 0.4);
+@media (hover: hover) {
+  .access-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+    border-color: rgba(212, 175, 55, 0.4);
+  }
 }
 
 /* Decorative glow inside card */
@@ -224,6 +251,7 @@ html.dark .btn-dashboard-gold {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .user-avatar {
@@ -241,6 +269,15 @@ html.dark .btn-dashboard-gold {
 .user-info {
   display: flex;
   flex-direction: column;
+  text-align: right;
+  min-width: 0;
+}
+
+.user-name,
+.user-email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .user-name {
@@ -252,4 +289,46 @@ html.dark .btn-dashboard-gold {
 .user-email {
   font-size: 0.85rem;
   color: var(--ink-soft);
+}
+
+/* ── Responsive ── */
+@media (max-width: 767.98px) {
+  .dashboard-container {
+    padding: 2.5rem var(--gutter) 3rem;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .entitlements-grid {
+    gap: 1.25rem;
+  }
+
+  .access-card {
+    padding: 1.75rem 1.5rem;
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-size: 0.9rem;
+  }
+
+  .user-email {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .user-email {
+    display: none;
+  }
 }

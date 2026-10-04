@@ -219,27 +219,92 @@ function handleCheckout() {
   continueBtn.textContent = "PACKING YOUR ORDER...";
   mobileContinueBtn.textContent = "PACKING...";
   
-  // Align page to show the packing animation properly
+  // Align page to show the packing animation properly. On phones the box may
+  // already be docked on screen — scrolling to the section centre would hide it.
   const packagesSec = document.getElementById("packages");
-  if (packagesSec) {
+  if (packagesSec && !(phoneQuery.matches && stageFullyVisible())) {
     packagesSec.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   window.BoxDemo.checkoutBox(function () {
     continueBtn.textContent = "ORDER PACKED ✓";
     mobileContinueBtn.textContent = "PACKED ✓";
-    // Real checkout flow
+    // Real checkout flow — checkout.js reads localStorage first, sessionStorage as fallback
+    saveSession();
     try {
       sessionStorage.setItem("aceiiit_selected_courses", JSON.stringify(selected));
     } catch (e) {
       console.warn("sessionStorage failed:", e);
     }
-    window.location.href = "checkout.html";
+    window.location.href = "/checkout";
   });
 }
 
+// Coming back from checkout via the browser's Back button restores this page
+// from the back/forward cache with the box still taped shut and the rows
+// locked — reopen it so the selection can be edited straight away.
+window.addEventListener("pageshow", function (e) {
+  if (!e.persisted || !window.BoxDemo) return;
+  if (window.BoxDemo.getBoxMode() === "closed") window.BoxDemo.reopenBox();
+  setLocked(false);
+  updateSummary();
+});
+
 continueBtn.addEventListener("click", handleCheckout);
 mobileContinueBtn.addEventListener("click", handleCheckout);
+
+// The phone bottom bar (packages.css) is fixed to the viewport — only slide it
+// in while the packages section is actually on screen.
+const mobileBottomBar = document.getElementById("mobileBottomBar");
+const packagesSection = document.getElementById("packages");
+if (mobileBottomBar && packagesSection && "IntersectionObserver" in window) {
+  new IntersectionObserver(function (entries) {
+    mobileBottomBar.classList.toggle("is-active", entries[0].isIntersecting);
+  }, { rootMargin: "0px 0px -30% 0px" }).observe(packagesSection);
+}
+
+// Phones (packages.css): the box docks under the header while the course list
+// scrolls beneath it. Mark the docked state so it gets a backdrop, and point
+// the caption at the list below.
+const phoneQuery = window.matchMedia("(max-width: 767.98px)");
+const stageWrap = document.getElementById("stageWrap");
+const CAPTION_DESKTOP = boxCaption ? boxCaption.textContent : "";
+const CAPTION_PHONE = "Tap a course below to pack it ↓";
+
+function stageFullyVisible() {
+  const r = stageWrap.getBoundingClientRect();
+  return r.top >= 0 && r.bottom <= window.innerHeight;
+}
+
+function updateDock() {
+  dockQueued = false;
+  const header = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-height")) || 44;
+  const docked = phoneQuery.matches &&
+    getComputedStyle(stageWrap).position === "sticky" &&
+    stageWrap.getBoundingClientRect().top <= header + 1 &&
+    packagesSection.getBoundingClientRect().bottom > header;
+  stageWrap.classList.toggle("is-docked", docked);
+}
+
+let dockQueued = false;
+function requestDock() {
+  if (!dockQueued) {
+    dockQueued = true;
+    requestAnimationFrame(updateDock);
+  }
+}
+
+function applyPhoneMode() {
+  if (boxCaption) boxCaption.textContent = phoneQuery.matches ? CAPTION_PHONE : CAPTION_DESKTOP;
+  requestDock();
+}
+
+if (stageWrap && packagesSection) {
+  window.addEventListener("scroll", requestDock, { passive: true });
+  window.addEventListener("resize", requestDock);
+  phoneQuery.addEventListener("change", applyPhoneMode);
+  applyPhoneMode();
+}
 
 // Start once logo is loaded
 const logoImage = new Image();

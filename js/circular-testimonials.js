@@ -36,6 +36,8 @@
     const maxWidth = 1400;
     const minGap = 55;
     const maxGap = 82;
+    // Phones show a smaller photo: keep the side cards' peek proportional.
+    if (width < 250) return width * 0.2;
     if (width <= minWidth) return minGap;
     if (width >= maxWidth) return maxGap;
     return minGap + (maxGap - minGap) * ((width - minWidth) / (maxWidth - minWidth));
@@ -126,7 +128,11 @@
   function next() { goTo(active + 1); }
   function prev() { goTo(active - 1); }
 
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let paused = false; // hovered or focused — the reader is looking at a slide
+
   function startAutoplay() {
+    if (reduceMotion || paused) return;
     autoplayTimer = setInterval(next, 5000);
   }
 
@@ -168,6 +174,19 @@
       if (e.key === "ArrowLeft") prev();
       if (e.key === "ArrowRight") next();
     });
+
+    // Pause rotation while the reader is hovering or tabbing through the section.
+    // Phones always keep sliding: a tap there counts as "hover" and never ends.
+    const phone = window.matchMedia("(max-width: 767.98px)");
+    const pause = () => { if (phone.matches) return; paused = true; stopAutoplay(); };
+    const resume = () => { paused = false; stopAutoplay(); startAutoplay(); };
+    section.addEventListener("mouseenter", pause);
+    section.addEventListener("mouseleave", resume);
+    section.addEventListener("focusin", pause);
+    section.addEventListener("focusout", (e) => {
+      if (!section.contains(e.relatedTarget)) resume();
+    });
+    phone.addEventListener("change", (e) => { if (e.matches && paused) resume(); });
 
     // Responsive
     window.addEventListener("resize", applyTransforms);

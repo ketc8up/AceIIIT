@@ -22,7 +22,7 @@
 
 .header-container {
   width: 100%;
-  padding: 0 2rem;
+  padding: 0 var(--gutter);
 }
 
 .site-nav {
@@ -178,6 +178,343 @@
 
 .nav-links a:hover {
   color: var(--ink);
+}
+
+/* ── Mobile navigation (toggle + curved menu built by js/nav.js) ── */
+.nav-toggle,
+.nav-menu,
+.nav-scrim {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .site-nav {
+    gap: 0.75rem;
+  }
+
+  .site-nav .nav-brand {
+    margin-right: auto;
+  }
+
+  /* Hamburger: one stroke folds from the top/bottom bars into an X */
+  .nav-toggle {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    margin-right: -8px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .nav-toggle:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+  }
+
+  .nav-toggle-icon {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.5s ease-in-out;
+  }
+
+  .nav-toggle-morph {
+    stroke-dasharray: 12 63;
+    transition: stroke-dasharray 0.5s ease-in-out, stroke-dashoffset 0.5s ease-in-out;
+  }
+
+  .nav-open .nav-toggle-icon {
+    transform: rotate(-45deg);
+  }
+
+  .nav-open .nav-toggle-morph {
+    stroke-dasharray: 20 300;
+    stroke-dashoffset: -32.42px;
+  }
+
+  /* Page dims behind the panel so its curved edge reads */
+  .nav-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 98;
+    background: rgba(20, 17, 15, 0.38);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s ease, visibility 0s linear 0.8s;
+  }
+
+  .nav-scrim.is-open {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.6s ease, visibility 0s;
+  }
+
+  /* The panel lives on <body> (the header's backdrop-filter would otherwise
+     trap a fixed child) and slides in under the header, which stays on top. */
+  .nav-menu {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 99;
+    width: min(100vw, 640px);
+    height: 100vh;
+    height: 100dvh;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(rgba(20, 17, 15, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(20, 17, 15, 0.03) 1px, transparent 1px);
+    background-size: 52px 52px;
+    transform: translateX(calc(100% + 100px));
+    visibility: hidden;
+    transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1), visibility 0s linear 0.8s;
+  }
+
+  .nav-menu.is-open {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1), visibility 0s;
+  }
+
+  .nav-menu-curve {
+    position: absolute;
+    top: 0;
+    left: -99px;
+    width: 100px;
+    height: 100%;
+    fill: var(--paper);
+    stroke: none;
+    pointer-events: none;
+  }
+
+  .nav-menu-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: calc(var(--header-height) + 1.75rem) var(--gutter) calc(1.25rem + env(safe-area-inset-bottom));
+    box-sizing: border-box;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .nav-menu-eyebrow {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(20, 17, 15, 0.2);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+
+  .nav-menu-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-menu-links li {
+    border-bottom: 1px solid rgba(20, 17, 15, 0.12);
+    opacity: 0;
+    transform: translateX(48px);
+    transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.2, 0.75, 0.25, 1);
+  }
+
+  .nav-menu.is-open .nav-menu-links li {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(0.32s + var(--i) * 0.06s);
+  }
+
+  .nav-menu-links a {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    min-height: 64px;
+    padding: 1.05rem 0 0.95rem;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .nav-menu-links a:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: -2px;
+  }
+
+  .nav-menu-num {
+    padding-top: 0.45em;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--red);
+  }
+
+  /* Letters rise into place as the panel lands, then ripple on hover/press */
+  .nav-menu-word {
+    display: inline-flex;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.3rem, 11vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .nav-menu-ch {
+    display: inline-block;
+    transform: translateY(105%);
+    transition: transform 0.55s cubic-bezier(0.2, 0.75, 0.25, 1);
+  }
+
+  .nav-menu.is-open .nav-menu-ch {
+    transform: none;
+    transition-delay: calc(0.4s + var(--i) * 0.06s + var(--c) * 0.022s);
+  }
+
+  .nav-menu.is-open .nav-menu-links a:active .nav-menu-word,
+  .nav-menu.is-open .nav-menu-links a:focus-visible .nav-menu-word {
+    transform: translateX(-10px);
+  }
+
+  .nav-menu.is-open .nav-menu-links a:active .nav-menu-ch,
+  .nav-menu.is-open .nav-menu-links a:focus-visible .nav-menu-ch {
+    transform: translateX(10px);
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--c) * 0.035s);
+  }
+
+  @media (hover: hover) {
+    .nav-menu.is-open .nav-menu-links a:hover .nav-menu-word {
+      transform: translateX(-16px);
+    }
+
+    .nav-menu.is-open .nav-menu-links a:hover .nav-menu-ch {
+      transform: translateX(16px);
+      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.1s + var(--c) * 0.045s);
+    }
+  }
+
+  .nav-menu-arrow {
+    margin-left: auto;
+    align-self: center;
+    font-size: 1.25rem;
+    color: var(--gold-strong);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .nav-menu-links a:active .nav-menu-arrow,
+  .nav-menu-links a:focus-visible .nav-menu-arrow,
+  .nav-menu-links a[aria-current="page"] .nav-menu-arrow {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (hover: hover) {
+    .nav-menu-links a:hover .nav-menu-arrow {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .nav-menu-links a[aria-current="page"] .nav-menu-num::after {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    margin: 0.5rem auto 0;
+    border-radius: 50%;
+    background: var(--red);
+  }
+
+  .nav-menu-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .nav-menu-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .nav-menu.is-open .nav-menu-foot {
+    opacity: 1;
+    transition-delay: 0.7s;
+  }
+
+  .nav-menu-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+
+  .nav-menu-socials {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .nav-menu-socials .social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--ink);
+  }
+
+  .nav-menu-socials svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+
+  html.nav-locked,
+  html.nav-locked body {
+    overflow: hidden;
+  }
+}
+
+/* Reduced motion: no travel or letter motion — the menu simply appears. */
+@media (max-width: 767.98px) and (prefers-reduced-motion: reduce) {
+  .nav-menu,
+  .nav-menu *,
+  .nav-scrim,
+  .nav-toggle-icon,
+  .nav-toggle-morph {
+    transition: none !important;
+  }
+  .nav-menu-links li,
+  .nav-menu-ch,
+  .nav-menu-foot {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 .nav-actions {

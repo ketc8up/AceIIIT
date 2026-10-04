@@ -12,7 +12,7 @@
 .page-container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--gutter);
 }
 
 .page-header {
@@ -22,7 +22,7 @@
 
 .page-title {
   font-family: var(--font-display);
-  font-size: 4.5rem;
+  font-size: clamp(2.25rem, 9vw, 4.5rem);
   font-weight: 900;
   letter-spacing: -0.04em;
   margin: 0;
@@ -47,7 +47,7 @@
 
 .page-content h2 {
   font-family: var(--font-display);
-  font-size: 2.5rem;
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
   font-weight: 800;
   color: var(--ink);
   margin: 4rem 0 1.5rem;
@@ -109,9 +109,11 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.contact-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow);
+@media (hover: hover) {
+  .contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+  }
 }
 
 .contact-card:last-child {
@@ -138,24 +140,7 @@
   color: var(--wine);
   border-bottom: 2px solid var(--wine);
   padding-bottom: 2px;
-}
-
-@media (max-width: 768px) {
-  .page-main {
-    padding-top: 8rem;
-  }
-  .page-title {
-    font-size: 3rem;
-  }
-  .page-content h2 {
-    font-size: 2rem;
-  }
-  .contact-grid {
-    grid-template-columns: 1fr;
-  }
-  .contact-card:last-child {
-    grid-column: span 1;
-  }
+  overflow-wrap: anywhere;
 }
 
 /* ==========================================================================
@@ -179,7 +164,7 @@
 }
 .pg-hero h1 {
   font-family: var(--font-display);
-  font-size: 4.5rem;
+  font-size: clamp(2.1rem, 8.5vw, 4.5rem);
   font-weight: 900;
   letter-spacing: -0.04em;
   line-height: 1.05;
@@ -213,7 +198,7 @@
 }
 .pg-section h2 {
   font-family: var(--font-display);
-  font-size: 2.75rem;
+  font-size: clamp(1.75rem, 6vw, 2.75rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--ink);
@@ -248,9 +233,11 @@
   padding: 2rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.pg-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(20, 17, 15, 0.08);
+@media (hover: hover) {
+  .pg-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(20, 17, 15, 0.08);
+  }
 }
 .pg-card-icon {
   width: 44px;
@@ -372,9 +359,11 @@
   transition: all 0.2s ease;
   cursor: default;
 }
-.pg-cat-tag:hover {
-  background: var(--ink);
-  color: var(--paper);
+@media (hover: hover) {
+  .pg-cat-tag:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
 }
 
 /* CTA Banner */
@@ -427,13 +416,136 @@
   max-width: 960px;
 }
 
-@media (max-width: 768px) {
-  .pg-hero h1 { font-size: 2.75rem; }
-  .pg-section h2 { font-size: 2rem; }
-  .pg-grid { grid-template-columns: 1fr; }
-  .pg-flow-step { flex-direction: column; gap: 0.5rem; }
-  .pg-flow-num { font-size: 2rem; width: auto; }
-  .pg-cta { padding: 3rem 1.5rem; }
-  .pg-cta h2 { font-size: 1.75rem; }
-  .pg-cat-grid { grid-template-columns: 1fr 1fr; }
+/* Two-column list that collapses on phones (used in long-form pages) */
+.pg-columns-2 {
+  column-count: 2;
+}
+
+/* Scroll container for data tables — the table keeps its natural width and
+   scrolls inside the page instead of widening it. */
+.table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrap:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 4px;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 767.98px) {
+  .page-main {
+    padding: 6.5rem 0 4rem;
+  }
+  .page-header {
+    margin-bottom: 2.5rem;
+  }
+  .page-subtitle {
+    font-size: 1.1rem;
+  }
+  .page-content {
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .page-content h2 {
+    margin: 3rem 0 1rem;
+  }
+  .page-content h3 {
+    font-size: 1.4rem;
+  }
+  .page-section {
+    margin-bottom: 3rem;
+  }
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+  .contact-card {
+    padding: 2rem 1.5rem;
+  }
+  .contact-card:last-child {
+    grid-column: span 1;
+  }
+  .contact-card a {
+    font-size: 1.25rem;
+  }
+
+  .pg-hero {
+    margin-bottom: 3rem;
+    padding-bottom: 2.5rem;
+  }
+  .pg-hero h1 {
+    hyphens: auto;
+  }
+  .pg-hero-sub {
+    font-size: 1.1rem;
+  }
+  .pg-section {
+    margin-bottom: 3.5rem;
+  }
+  .pg-section h3 {
+    font-size: 1.3rem;
+  }
+  .pg-section p {
+    font-size: 1.05rem;
+  }
+  .pg-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .pg-card {
+    padding: 1.5rem;
+  }
+  .pg-flow {
+    margin: 1.5rem 0;
+  }
+  .pg-flow-step {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.5rem 0;
+  }
+  .pg-flow-num {
+    font-size: 2rem;
+    width: auto;
+  }
+  .pg-flow-body h3 {
+    font-size: 1.3rem;
+  }
+  .pg-beliefs li {
+    font-size: 1.05rem;
+  }
+  .pg-cat-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .pg-cat-tag {
+    padding: 0.9rem 0.75rem;
+    font-size: 0.95rem;
+  }
+  .pg-cta {
+    padding: 3rem 1.5rem;
+    margin-top: 3rem;
+  }
+  .pg-cta h2 {
+    font-size: 1.75rem;
+  }
+  .pg-cta a {
+    display: block;
+    padding: 16px 24px;
+  }
+  .pg-divider {
+    margin: 2.5rem 0;
+  }
+  .pg-columns-2 {
+    column-count: 1;
+  }
+}
+
+@media (max-width: 360px) {
+  .pg-cat-grid {
+    grid-template-columns: 1fr;
+  }
 }

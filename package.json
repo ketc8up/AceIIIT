@@ -8,6 +8,10 @@
   ],
   "scripts": {
     "build": "cd api && npx prisma generate",
-    "postinstall": "cd api && npx prisma generate"
+    "postinstall": "cd api && npx prisma generate",
+    "dev:api": "npm run dev --workspace=api",
+    "dev:web": "npm run dev --workspace=web",
+    "dev:static": "npx --yes vite .",
+    "dev": "npx concurrently \"npm run dev:api\" \"npm run dev:static\""
   }
 }

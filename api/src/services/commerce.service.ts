@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import type { Coupon } from '@prisma/client';
 import crypto from 'crypto';
 import { config } from '../config';
 import mongoose from 'mongoose';
@@ -68,7 +69,7 @@ export class CommerceService {
     }
 
     let discount = 0;
-    let appliedCoupon = null;
+    let appliedCoupon: Coupon | null = null;
 
     // 4. Validate coupon & calculate discount
     if (couponCode) {
@@ -93,8 +94,9 @@ export class CommerceService {
       let eligibleSubtotal = subtotal;
 
       // Check product restriction
-      if (appliedCoupon.productRestriction) {
-        const restrictedItems = items.filter(i => i.productId === appliedCoupon.productRestriction);
+      const restriction = appliedCoupon.productRestriction;
+      if (restriction) {
+        const restrictedItems = items.filter(i => i.productId === restriction);
         if (restrictedItems.length === 0) {
           throw new Error('Coupon is not valid for the selected products');
         }

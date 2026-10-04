@@ -218,7 +218,7 @@
     .table-desc { color: var(--text-muted); font-size: 0.875rem; margin: 0; }
     
     table { width: 100%; border-collapse: collapse; }
-    .table-container { max-height: 500px; overflow-y: auto; }
+    .table-container { max-height: 500px; overflow: auto; -webkit-overflow-scrolling: touch; }
     th, td { padding: 12px 1.5rem; text-align: left; font-size: 0.875rem; }
     th { color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border); background: #f8fafc; position: sticky; top: 0; z-index: 1; }
     td { border-bottom: 1px solid var(--border); }
@@ -304,7 +304,7 @@
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 767.98px) {
       body { flex-direction: column; }
       .sidebar { width: 100%; padding: 1rem 1.5rem; border-right: none; border-bottom: 1px solid var(--border); box-sizing: border-box; flex-shrink: 0; position: relative; z-index: 20; }
       .sidebar-header { margin-bottom: 0; }
@@ -331,11 +331,15 @@
       .table-header { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1rem; }
       .table-header div:last-child { width: 100%; }
       .table-header select { width: 100%; box-sizing: border-box; }
-      .table-container { overflow-x: auto; }
-      th, td { padding: 10px 1rem; }
+      /* Data tables scroll horizontally inside their card; columns keep a
+         readable width instead of being crushed into the viewport. */
+      .table-container table { min-width: 640px; }
+      th, td { padding: 10px 1rem; white-space: nowrap; }
       .receipt-drawer { width: 100%; right: -100%; }
-      .action-group { flex-direction: column; gap: 4px; }
-      .action-group .btn-sm { width: 100%; }
+      .btn-sm { padding: 8px 12px; }
+      .nav-item { padding: 12px; }
+      .mobile-menu-btn { min-width: 44px; min-height: 44px; }
+      #create-coupon-form input, #create-coupon-form select { font-size: 16px; }
     }
   </style>
 </head>
@@ -345,9 +349,11 @@
   <div id="auth-screen">
     <div class="auth-card">
       <h2 style="font-family:'Archivo',sans-serif; margin-bottom:1.5rem;">Admin Login</h2>
-      <input type="email" id="admin-email" placeholder="admin@gmail.com" value="admin@gmail.com">
-      <input type="password" id="admin-password" placeholder="Password">
-      <button class="btn" style="width:100%" onclick="login()">Sign In</button>
+      <form onsubmit="event.preventDefault(); login();">
+        <input type="email" id="admin-email" placeholder="admin@gmail.com" value="admin@gmail.com" autocomplete="username" aria-label="Email">
+        <input type="password" id="admin-password" placeholder="Password" autocomplete="current-password" aria-label="Password">
+        <button type="submit" class="btn" style="width:100%">Sign In</button>
+      </form>
     </div>
   </div>
 
@@ -357,7 +363,7 @@
       <div class="brand">
         <span>Ace</span><span>IIIT</span>
       </div>
-      <button class="mobile-menu-btn" onclick="toggleMobileNav()">
+      <button class="mobile-menu-btn" onclick="toggleMobileNav()" aria-label="Menu" aria-controls="sidebar-nav" aria-expanded="false">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
     </div>
@@ -528,21 +534,23 @@
               </select>
             </div>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Role</th>
-                <th>Joined</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="users-tbody">
-              <!-- Populated via JS -->
-            </tbody>
-          </table>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       
@@ -619,7 +627,8 @@
     }
 
     function toggleMobileNav() {
-      document.getElementById('sidebar-nav').classList.toggle('nav-open');
+      const open = document.getElementById('sidebar-nav').classList.toggle('nav-open');
+      document.querySelector('.mobile-menu-btn').setAttribute('aria-expanded', String(open));
     }
 
     function switchTab(tabId, el) {
@@ -628,6 +637,7 @@
       document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
       document.getElementById('view-' + tabId).classList.add('active');
       document.getElementById('sidebar-nav').classList.remove('nav-open');
+      document.querySelector('.mobile-menu-btn').setAttribute('aria-expanded', 'false');
     }
 
     async function loadDashboardData() {

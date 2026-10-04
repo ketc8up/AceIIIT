@@ -25,7 +25,7 @@
 .trust-container {
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--gutter);
   position: relative;
   z-index: 1;
 }
@@ -79,10 +79,43 @@
   align-items: center;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .ctc-wrapper {
     grid-template-columns: 1fr;
     gap: 3.5rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .trust-section {
+    padding: 3rem 0 4rem;
+  }
+
+  .trust-header {
+    margin-bottom: 2.5rem;
+    gap: 1rem;
+  }
+
+  .trust-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-dossier {
+    min-height: 44px;
+  }
+}
+
+/* Larger invisible hit area for the 7px dots on touch screens */
+@media (pointer: coarse) {
+  .ctc-dot {
+    position: relative;
+  }
+
+  .ctc-dot::after {
+    content: '';
+    position: absolute;
+    inset: -12px -6px;
   }
 }
 
@@ -203,10 +236,12 @@
   flex-shrink: 0;
 }
 
-.ctc-btn-prev:hover,
-.ctc-btn-next:hover {
-  background: var(--gold);
-  transform: scale(1.06);
+@media (hover: hover) {
+  .ctc-btn-prev:hover,
+  .ctc-btn-next:hover {
+    background: var(--gold);
+    transform: scale(1.06);
+  }
 }
 
 .ctc-btn-prev svg,
@@ -292,4 +327,68 @@
   stroke-width: 2;
   stroke-linecap: square;
   stroke-linejoin: miter;
+}
+
+/* ── Phone: photo + details together (after the base rules so it wins) ── */
+@media (max-width: 767.98px) {
+  /* Photo and details read together: a smaller photo with the name and role
+     beside it, then the quote full width underneath */
+  .ctc-wrapper {
+    grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    column-gap: 1.25rem;
+    row-gap: 0;
+    align-items: start;
+    padding-top: 1rem; /* room for the side cards, which sit a little higher */
+  }
+
+  .ctc-content {
+    display: contents;
+  }
+
+  .ctc-images {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    max-width: none;
+    margin: 0;
+    align-self: center;
+  }
+
+  .ctc-img {
+    border-radius: 14px;
+    box-shadow: 0 10px 28px rgba(20, 17, 15, 0.18);
+  }
+
+  .ctc-name {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    font-size: clamp(1.25rem, 6vw, 1.6rem);
+    line-height: 1.05;
+    margin-bottom: 0.5rem;
+  }
+
+  .ctc-designation {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    font-size: 0.6rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+
+  .ctc-quote {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin: 1.5rem 0 1.25rem;
+    font-size: 1rem;
+    line-height: 1.65;
+    min-height: 9.9em; /* the longest quote, so the arrows don't jump per slide */
+  }
+
+  .ctc-nav {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin-top: 0;
+  }
 }

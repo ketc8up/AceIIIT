@@ -18,7 +18,7 @@
   align-items: center;
   justify-content: center;
   gap: 3rem;
-  padding: 0 2rem;
+  padding: 0 var(--gutter);
 }
 
 .tm-header {
@@ -109,11 +109,12 @@
 .tm-nav button:focus-visible { outline:2px solid var(--tm-gold); outline-offset:2px; }
 .tm-nav svg { width:12px; height:12px; }
 
-@media (max-width:960px) {
+@media (max-width:1024px) {
   .testimonials-wrapper {
     flex-direction: column;
     height: auto;
     gap: 1.5rem;
+    margin: 4rem auto;
   }
   .tm-header {
     text-align: center;
@@ -122,10 +123,21 @@
     max-width: 600px;
   }
 }
-@media (max-width:720px) {
+/* Phones: the photo mosaic becomes a full-width band above the quote.
+   The strips keep their native 373×320 geometry (driven by
+   student-testimonials.js) and are centred inside a shorter, clipped band. */
+@media (max-width:767.98px) {
+  .testimonials-wrapper { margin: 3rem auto; }
   .tm-card { flex-direction:column; height:auto; margin: 0; width: 100%; }
-  .tm-mosaic { flex:0 0 240px; align-self:center; }
-  .tm-body { padding:24px 24px 28px; min-height:230px; }
+  .tm-mosaic { flex:none; width:100%; height:240px; }
+  .tm-strip { top:-40px; height:320px; }
+  .tm-strip.tm-l { left:calc(50% - 173px); }
+  .tm-strip.tm-c { left:calc(50% - 56px); }
+  .tm-strip.tm-r { left:calc(50% + 77px); }
+  .tm-body { padding:24px 24px 20px; min-height:230px; }
+  .tm-q { font-size:19px; }
+  .tm-nav { margin-top:16px; margin-left:-9px; gap:0; }
+  .tm-nav button { width:44px; height:44px; }
 }
 @media (prefers-reduced-motion:reduce){
   :root{--tm-dur:1ms} .tm-ph i{animation:none} .tm-q .tm-w{animation-duration:1ms}
@@ -143,6 +155,10 @@
   pointer-events: none;
 }
 .tm-ph:hover .tm-play { opacity: 1; }
+/* No hover on touch screens: keep the play affordance visible */
+@media (hover: none) {
+  .tm-play { opacity: 0.9; background-size: 36px; }
+}
 
 .tm-pip-player {
   position: fixed;
@@ -193,10 +209,16 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 767.98px) {
   .tm-pip-player {
     width: 180px;
-    bottom: 20px;
-    right: 20px;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    right: calc(20px + env(safe-area-inset-right));
+  }
+  .tm-pip-close {
+    top: -16px;
+    right: -10px;
+    width: 40px;
+    height: 40px;
   }
 }
