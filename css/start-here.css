@@ -14,7 +14,7 @@
 .sh-container {
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--gutter);
 }
 
 .sh-header {
@@ -101,16 +101,30 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
+  .start-here-section {
+    padding: 3rem 0;
+  }
+  .sh-header {
+    margin-bottom: 1.75rem;
+  }
   .sh-grid {
     grid-template-columns: 1fr;
   }
   .sh-option {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1.25rem;
   }
   .sh-option::after {
     opacity: 1;
     transform: translateX(0);
     right: 1.5rem;
+  }
+}
+
+/* Touch screens have no hover: always show the arrow affordance */
+@media (hover: none) {
+  .sh-option::after {
+    opacity: 1;
+    transform: translateX(0);
   }
 }

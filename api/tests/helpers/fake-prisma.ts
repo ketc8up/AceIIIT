@@ -16,6 +16,7 @@ export const db = {
   enrollments: [] as Row[],
   identities: [] as Row[],
   products: [] as Row[],
+  otps: [] as Row[],
 };
 
 export function resetDb() {
@@ -73,14 +74,49 @@ export const fakePrisma: any = {
       db.users.push(row);
       return { ...row };
     },
+    update: async ({ where, data }: any) => {
+      const u = db.users.find((r) => matches(r, where))!;
+      Object.assign(u, data, { updatedAt: now() });
+      return { ...u };
+    },
+  },
+  // Email OTPs for guest checkout (one row per email).
+  otp: {
+    findUnique: async ({ where }: any) => {
+      const o = db.otps.find((r) => matches(r, where));
+      return o ? { ...o } : null;
+    },
+    upsert: async ({ where, update, create }: any) => {
+      const o = db.otps.find((r) => matches(r, where));
+      if (o) {
+        Object.assign(o, update);
+        return { ...o };
+      }
+      const row = { id: id(), ...create };
+      db.otps.push(row);
+      return { ...row };
+    },
+    delete: async ({ where }: any) => {
+      const i = db.otps.findIndex((r) => matches(r, where));
+      if (i === -1) throw new Error('Record to delete does not exist.');
+      return db.otps.splice(i, 1)[0];
+    },
   },
   product: {
     findMany: async ({ where }: any = {}) => db.products.filter((p) => matches(p, where)),
+    findUnique: async ({ where }: any) => {
+      const p = db.products.find((r) => matches(r, where));
+      return p ? { ...p } : null;
+    },
   },
   order: {
-    findUnique: async ({ where }: any) => {
+    findUnique: async ({ where, include }: any) => {
       const o = db.orders.find((r) => matches(r, where));
-      return o ? { ...o } : null;
+      if (!o) return null;
+      const out: Row = { ...o };
+      if (include?.user) out.user = withUser(o.userId, include.user);
+      if (include?.items) out.items = db.orderItems.filter((i) => i.orderId === o.id);
+      return out;
     },
     update: async ({ where, data }: any) => {
       const o = db.orders.find((r) => matches(r, where))!;
@@ -203,4 +239,11 @@ export function addOrder(userId: string, total = 1180): Row {
     lineTotal: total,
   });
   return row;
+}
+
+/** Stores a valid guest-checkout OTP for `email` and returns the code. */
+export function addOtp(email: string, code = '123456'): string {
+  db.otps = db.otps.filter((o) => o.email !== email.toLowerCase());
+  db.otps.push({ id: id(), email: email.toLowerCase(), code, expiresAt: new Date(Date.now() + 10 * 60 * 1000) });
+  return code;
 }

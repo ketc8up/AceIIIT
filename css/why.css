@@ -9,7 +9,7 @@
 
 .why-container {
   width: 100%;
-  padding: 0 2rem;
+  padding: 0 var(--gutter);
   display: flex;
   flex-direction: column;
   gap: 4rem;
@@ -22,13 +22,6 @@
   align-items: start;
 }
 
-@media (min-width: 1024px) {
-  .why-intro-content {
-    grid-template-columns: 1fr 1fr;
-    gap: 6rem;
-  }
-}
-
 .why-intro-left {
   max-width: 600px;
 }
@@ -39,16 +32,21 @@
 }
 
 @media (min-width: 1024px) {
+  .why-intro-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+  }
+
   .why-intro-right {
     padding-top: 3.5rem;
   }
 }
 
 .technical-label {
-  font-family: var(--font-mono, 'Space Mono', monospace);
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  color: var(--muted, #8e877d);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  color: var(--red);
   text-transform: uppercase;
   margin-bottom: 1.5rem;
   display: block;
@@ -97,52 +95,6 @@
   border-color: var(--red);
 }
 
-/* Methodology Line */
-.methodology-line {
-  display: flex;
-  align-items: stretch;
-  border-top: 1px solid rgba(20, 17, 15, 0.12);
-}
-
-.method-stage {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 2rem 1.5rem 0 0;
-  position: relative;
-}
-
-.method-stage:not(:first-child) {
-  padding-left: 1.5rem;
-}
-
-.stage-number {
-  font-family: var(--font-mono, 'Space Mono', monospace);
-  font-size: 0.75rem;
-  color: var(--red);
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-  opacity: 0.8;
-}
-
-.stage-title {
-  font-family: var(--font-mono, 'Space Mono', monospace);
-  font-size: 0.875rem;
-  color: var(--ink);
-  letter-spacing: 0.1em;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-}
-
-.stage-desc {
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  color: var(--ink-soft);
-  line-height: 1.5;
-  max-width: 200px;
-}
-
 /* Proof Element */
 .why-proof {
   display: flex;
@@ -159,25 +111,6 @@
   letter-spacing: 0.15em;
   text-transform: uppercase;
   font-weight: 700;
-}
-
-.proof-link {
-  font-family: var(--font-mono, 'Space Mono', monospace);
-  font-size: 0.7rem;
-  color: var(--ink);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-decoration: none;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: color 0.3s ease, transform 0.3s ease;
-}
-
-.proof-link:hover {
-  color: var(--red);
-  transform: translateX(4px);
 }
 
 /* Animation classes */
@@ -207,74 +140,6 @@
 .delay-4 { transition-delay: 0.35s; }
 .delay-5 { transition-delay: 0.45s; }
 .delay-6 { transition-delay: 0.55s; }
-
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-  .why-section {
-    padding: 3rem 0 3rem 0;
-    min-height: auto;
-  }
-  
-  .why-container {
-    gap: 3.5rem;
-  }
-  
-  .why-intro-content {
-    gap: 2rem;
-  }
-
-  .why-intro-right {
-    padding-top: 0;
-  }
-  
-  .methodology-line {
-    flex-direction: column;
-    border-top: none;
-  }
-  
-  .method-stage {
-    padding: 1.5rem 0;
-    border-bottom: 1px solid rgba(20, 17, 15, 0.12);
-  }
-  
-  .method-stage:not(:first-child) {
-    padding-left: 0;
-  }
-
-  .method-stage:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-  
-  .why-proof {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding-top: 1.5rem;
-    margin-top: 0;
-  }
-  
-  .aceiiit-method-mobile {
-    display: block !important;
-    position: relative;
-    padding-left: 1.5rem;
-    margin-top: 2rem;
-  }
-  
-  .vertical-journey-line {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 2px;
-    height: 100%;
-    background-color: var(--red);
-    clip-path: inset(0 0 100% 0); /* Hidden by default */
-  }
-}
-
-.aceiiit-method-mobile {
-  display: none;
-}
 
 /* Scroll Animation Visualization */
 .aceiiit-method {
@@ -323,14 +188,293 @@
 .aceiiit-method__frame > [data-method-stage="4"] { left: 72.547213%; width: 11.054813%; }
 .aceiiit-method__frame > [data-method-stage="5"] { left: 83.602026%; width: 16.397973%; }
 
-@media (max-width: 768px) {
+/* ── Vertical journey (phones & portrait tablets) ───────────────────────
+   The desktop illustrations on one rail: every stage shares a template
+   (illustration + keywords, number, title, line) so they line up on a single
+   edge. The red spine, its travelling tip and the reveal classes come from
+   js/method-journey.js. */
+.aceiiit-method-v {
+  display: none;
+}
+
+@media (max-width: 1024px) {
   .aceiiit-method {
     display: none !important;
+  }
+
+  .aceiiit-method-v {
+    display: block;
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+    padding-left: 48px;
+    box-sizing: border-box;
+  }
+
+  .method-v__spine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    color: var(--red);
+  }
+
+  .method-v__line path {
+    fill: none;
+    stroke: var(--red);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .method-v__line path.is-dashed {
+    stroke-dasharray: 6 7;
+  }
+
+  .method-v__dot {
+    fill: var(--red);
+  }
+
+  .method-v__arrow {
+    fill: none;
+    stroke: var(--red);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .method-v__mark {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .method-v__mark.is-visible {
+    opacity: 1;
+  }
+
+  /* Glowing tip riding the front of the line */
+  .method-v__tip {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .method-v__tip.is-visible {
+    opacity: 1;
+  }
+
+  .method-v__start {
+    margin-bottom: clamp(1.75rem, 7vw, 2.5rem);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .method-v__start.is-visible {
+    opacity: 1;
+  }
+
+  /* The navbar logo itself (same markup and shimmer), larger */
+  .method-v__logo {
+    position: relative;
+    display: inline-flex;
+    font-size: clamp(1.9rem, 9vw, 2.4rem);
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .method-v__logo .logo-arrow {
+    top: -0.6em;
+    right: -0.8em;
+    width: 0.9em;
+    height: 0.9em;
+  }
+
+  .method-v__tagline {
+    display: flex;
+    flex-direction: column;
+    margin: 0.75rem 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(0.72rem, 3vw, 0.82rem);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    line-height: 1.8;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+
+  .method-v__tagline span:first-child {
+    color: var(--ink-soft);
+  }
+
+  .method-v__stages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.25rem, 9vw, 3.25rem);
+  }
+
+  .method-v__art {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(0.75rem, 4vw, 1.5rem);
+    margin-bottom: 0.9rem;
+  }
+
+  .method-v__ill {
+    display: block;
+    height: clamp(100px, 30vw, 150px);
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .method-v__keys {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-display);
+    font-size: clamp(0.66rem, 2.9vw, 0.78rem);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    line-height: 1.95;
+    color: var(--ink-soft);
+  }
+
+  .method-v__keys::after {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 1.5px;
+    margin-top: 0.4rem;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  .method-v__num {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1rem, 4.2vw, 1.2rem);
+    line-height: 1.3;
+    color: var(--gray);
+    transition: color 0.45s ease;
+  }
+
+  .method-v__title {
+    margin: 0.3rem 0 0.25rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 4.6vw, 1.35rem);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+
+  .method-v__desc {
+    margin: 0;
+    max-width: 30ch;
+    font-family: var(--font-body);
+    font-size: clamp(0.98rem, 3.9vw, 1.1rem);
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+
+  /* Right of centre and about one station gap below 04, so the ending sweep
+     matches the size and rhythm of the arcs above it */
+  .method-v__end {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: clamp(4.5rem, 25vw, 9rem);
+    padding-right: 8%;
+  }
+
+  .method-v__end img {
+    display: block;
+    width: clamp(130px, 40vw, 172px);
+    height: auto;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.7s cubic-bezier(0.3, 0, 0.2, 1);
+  }
+
+  /* Hand-written as the arrow arrives */
+  .method-v__end.is-visible img {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* ── Stage reveal, in sequence, as the line reaches it ── */
+  .method-v__ill,
+  .method-v__keys li,
+  .method-v__num,
+  .method-v__title,
+  .method-v__desc {
+    opacity: 0;
+    transition-property: opacity, transform, color;
+    transition-duration: 0.6s, 0.6s, 0.45s;
+    transition-timing-function: cubic-bezier(0.2, 0.75, 0.25, 1);
+  }
+
+  .method-v__ill {
+    transform: translateY(14px) rotate(-2.5deg) scale(0.96);
+    transform-origin: 30% 80%;
+  }
+
+  .method-v__keys li {
+    transform: translateX(-6px);
+  }
+
+  .method-v__title,
+  .method-v__desc {
+    transform: translateY(8px);
+  }
+
+  .method-v__stage.is-visible .method-v__ill,
+  .method-v__stage.is-visible .method-v__keys li,
+  .method-v__stage.is-visible .method-v__num,
+  .method-v__stage.is-visible .method-v__title,
+  .method-v__stage.is-visible .method-v__desc {
+    opacity: 1;
+    transform: none;
+  }
+
+  .method-v__stage.is-visible .method-v__keys li:nth-child(1) { transition-delay: 0.12s; }
+  .method-v__stage.is-visible .method-v__keys li:nth-child(2) { transition-delay: 0.18s; }
+  .method-v__stage.is-visible .method-v__keys li:nth-child(3) { transition-delay: 0.24s; }
+  .method-v__stage.is-visible .method-v__title { transition-delay: 0.1s; }
+  .method-v__stage.is-visible .method-v__desc { transition-delay: 0.18s; }
+
+  /* The number lights up as the travelling tip passes its station */
+  .method-v__stage.is-reached .method-v__num {
+    color: var(--red);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .aceiiit-method { height: auto; }
+  .method-v__start,
+  .method-v__mark,
+  .method-v__ill,
+  .method-v__keys li,
+  .method-v__num,
+  .method-v__title,
+  .method-v__desc {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .method-v__num {
+    color: var(--red) !important;
+  }
+  .method-v__end img {
+    clip-path: none !important;
+    transition: none !important;
+  }
+  .method-v__tip {
+    display: none;
+  }
   .aceiiit-method__frame > [data-method-stage] {
     opacity: 1 !important;
     transform: none !important;
@@ -338,5 +482,27 @@
   }
   .aceiiit-method__frame > [data-method-journey] {
     clip-path: none !important;
+  }
+}
+
+/* ── Section rhythm on phones ── */
+@media (max-width: 767.98px) {
+  .why-section {
+    padding: 3rem 0;
+  }
+
+  .why-container {
+    gap: 2.5rem;
+  }
+
+  .why-intro-right {
+    padding-top: 0;
+  }
+
+  .why-proof {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin: 0;
   }
 }

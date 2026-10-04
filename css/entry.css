@@ -270,6 +270,35 @@ body.state-hero-active .entry-skip {
   pointer-events: none;
 }
 
+/* ── Phones ──
+   The cinematic words are split across two logo spans, so let them never wrap
+   mid-word ("WRO / NG EXAM.") and size them to the viewport instead. */
+@media (max-width: 767.98px) {
+  .seq-text.seq-word {
+    font-size: clamp(2rem, 11vw, 3rem);
+    white-space: nowrap;
+  }
+
+  .seq-opening {
+    padding: 0 var(--gutter);
+    text-align: center;
+  }
+
+  .seq-opening .dynamic-year {
+    white-space: nowrap;
+  }
+
+  .ink-content {
+    padding: 0 var(--gutter);
+  }
+
+  .entry-skip {
+    bottom: calc(1.25rem + env(safe-area-inset-bottom));
+    right: calc(1.25rem + env(safe-area-inset-right));
+    padding: 0.75rem;
+  }
+}
+
 /* ── SVG Branded Loading Screen ── */
 .aceiiit-loader {
   width: 220px;

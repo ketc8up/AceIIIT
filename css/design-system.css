@@ -27,12 +27,44 @@
   
   --container-max: calc(100% - 6rem);
   --header-height: 44px;
+
+  /* Horizontal page gutter used by every section container.
+     2rem on desktop/laptop/tablet (unchanged), tighter on phones. */
+  --gutter: 2rem;
 }
 
-@media (max-width: 768px) {
+/* ==========================================================================
+   Responsive scale — use these breakpoints site-wide:
+     ≤1280px   laptop        (max-width: 1280px)
+     ≤1024px   tablet        (max-width: 1024px)
+     ≤767.98px mobile        (max-width: 767.98px)   — pairs with min-width: 768px
+     ≤480px    small mobile  (max-width: 480px)
+     ≤360px    narrow mobile (max-width: 360px)      — tightening only
+   ========================================================================== */
+@media (max-width: 1024px) {
   :root {
     --container-max: calc(100% - 2rem);
   }
+}
+
+@media (max-width: 767.98px) {
+  :root {
+    --container-max: 100%;
+    --gutter: 1.25rem;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --gutter: 1rem;
+  }
+}
+
+/* Nothing may widen the page horizontally. `clip` (unlike `hidden`) does not
+   create a scroll container, so position: sticky keeps working. */
+html,
+body {
+  overflow-x: clip;
 }
 
 body {
@@ -50,6 +82,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   margin: 0;
   color: var(--ink);
+  overflow-wrap: break-word;
 }
 
 .display-large {
@@ -78,7 +111,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--gutter);
 }
 
 .flex-between {

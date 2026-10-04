@@ -7,6 +7,45 @@ jest.mock('@prisma/client', () => {
   return { PrismaClient: jest.fn(() => fakePrisma) };
 });
 
+// The Mock Portal's MongoDB is replaced in memory: provisioning upserts land here.
+jest.mock('mongoose', () => {
+  const mockUsers: Record<string, any>[] = [];
+  const MockUserModel = {
+    findOneAndUpdate: jest.fn(async (query: any, update: any) => {
+      let user: Record<string, any> | undefined = mockUsers.find((u) => u.email === query.email);
+      if (!user) {
+        const created: Record<string, any> = { _id: { toString: () => `mock-${query.email}` }, ...update.$setOnInsert };
+        mockUsers.push(created);
+        user = created;
+      }
+      Object.assign(user, update.$set);
+      return user;
+    }),
+  };
+  class Schema {
+    constructor(..._args: any[]) {}
+  }
+  const mongoose = {
+    Schema,
+    models: {} as Record<string, any>,
+    model: jest.fn(() => MockUserModel),
+    connect: jest.fn(async () => {}),
+    connection: { readyState: 1 },
+    __mockUsers: mockUsers,
+  };
+  return { __esModule: true, default: mongoose, ...mongoose };
+});
+
+// Emails are never sent from these tests.
+jest.mock('../src/services/email.service', () => ({
+  EmailService: {
+    sendOrderPendingEmail: jest.fn(async () => {}),
+    sendPaymentVerifiedEmail: jest.fn(async () => {}),
+    sendPaymentRejectedEmail: jest.fn(async () => {}),
+    sendOtpEmail: jest.fn(async () => {}),
+  },
+}));
+
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
@@ -16,7 +55,11 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import app from '../src/app';
 import { parseConfig } from '../src/config';
-import { db, resetDb, addUser, addOrder } from './helpers/fake-prisma';
+import { db, resetDb, addUser, addOrder, addOtp } from './helpers/fake-prisma';
+import mongoose from 'mongoose';
+
+// The in-memory Mock Portal user model from the mongoose mock above.
+const mockPortalUsers = (mongoose as any).model() as { findOneAndUpdate: jest.Mock };
 
 const API_ROOT = path.resolve(__dirname, '..');
 const REPO_ROOT = path.resolve(API_ROOT, '..');
@@ -97,8 +140,6 @@ describe('Static file exposure (TEST 1-4)', () => {
     ['/index.html'],
     ['/checkout.html'],
     ['/checkout'],
-    ['/admin'],
-    ['/admin.html'],
     ['/dashboard.html'],
     ['/about.html'],
     ['/privacy.html'],
@@ -112,6 +153,15 @@ describe('Static file exposure (TEST 1-4)', () => {
   ])('public frontend file %s is still served', async (url) => {
     const res = await request(app).get(url);
     expect(res.status).toBe(200);
+  });
+
+  it('the admin panel is served only at its private portal path', async () => {
+    const portal = await request(app).get(`/${parseConfig(process.env).ADMIN_PORTAL_PATH}`);
+    expect(portal.status).toBe(200);
+    for (const url of ['/admin', '/admin.html']) {
+      const res = await request(app).get(url);
+      expect(res.status).toBe(404);
+    }
   });
 
   it('unknown API routes return JSON 404', async () => {
@@ -183,13 +233,15 @@ describe('Admin authentication (TEST 5)', () => {
 describe('Guest authentication (TEST 6)', () => {
   it('guest login with an admin email is refused', async () => {
     addUser({ email: 'boss@example.com', role: 'ADMIN', password: bcrypt.hashSync('a-long-admin-password', 4) });
-    const res = await request(app).post('/api/auth/guest').send({ email: 'boss@example.com' });
+    const otp = addOtp('boss@example.com');
+    const res = await request(app).post('/api/auth/guest').send({ email: 'boss@example.com', otp });
     expect(res.status).toBe(403);
     expect(res.body.token).toBeUndefined();
   });
 
   it('guest token has guest scope, no role, and an expiry', async () => {
-    const res = await request(app).post('/api/auth/guest').send({ email: 'new@example.com', firstName: 'New' });
+    const otp = addOtp('new@example.com');
+    const res = await request(app).post('/api/auth/guest').send({ email: 'new@example.com', firstName: 'New', otp });
     expect(res.status).toBe(200);
     const decoded = jwt.decode(res.body.token) as jwt.JwtPayload;
     expect(decoded.scope).toBe('guest');
@@ -200,9 +252,10 @@ describe('Guest authentication (TEST 6)', () => {
   });
 
   it('a role in the guest payload is ignored', async () => {
+    const otp = addOtp('sneaky@example.com');
     const res = await request(app)
       .post('/api/auth/guest')
-      .send({ email: 'sneaky@example.com', role: 'ADMIN' });
+      .send({ email: 'sneaky@example.com', role: 'ADMIN', otp });
     expect(res.status).toBe(200);
     expect(db.users.find((u) => u.email === 'sneaky@example.com')!.role).toBe('STUDENT');
 
@@ -241,6 +294,20 @@ describe('Guest authentication (TEST 6)', () => {
   it('guest login requires a valid email', async () => {
     const res = await request(app).post('/api/auth/guest').send({});
     expect(res.status).toBe(400);
+  });
+
+  it('guest login requires the emailed OTP, and each OTP works only once', async () => {
+    addOtp('otp@example.com', '654321');
+    const missing = await request(app).post('/api/auth/guest').send({ email: 'otp@example.com' });
+    expect(missing.status).toBe(400);
+    const wrong = await request(app).post('/api/auth/guest').send({ email: 'otp@example.com', otp: '111111' });
+    expect(wrong.status).toBe(400);
+    expect(wrong.body.token).toBeUndefined();
+
+    const ok = await request(app).post('/api/auth/guest').send({ email: 'otp@example.com', otp: '654321' });
+    expect(ok.status).toBe(200);
+    const reused = await request(app).post('/api/auth/guest').send({ email: 'otp@example.com', otp: '654321' });
+    expect(reused.status).toBe(400);
   });
 });
 
@@ -366,7 +433,8 @@ describe('Configuration (TEST 9)', () => {
 // ---------------------------------------------------------------------------
 describe('Student access (TEST 10)', () => {
   it('guest login → own order → payment works; other users\' orders are refused', async () => {
-    const login = await request(app).post('/api/auth/guest').send({ email: 'buyer@example.com', firstName: 'Buy' });
+    const otp = addOtp('buyer@example.com');
+    const login = await request(app).post('/api/auth/guest').send({ email: 'buyer@example.com', firstName: 'Buy', otp });
     expect(login.status).toBe(200);
     const token = login.body.token;
     const me = db.users.find((u) => u.email === 'buyer@example.com')!;
@@ -477,9 +545,10 @@ describe('Admin access (TEST 11)', () => {
     }
   });
 
-  it('admin can verify a payment; provisioning still calls the Mock Portal with the configured secret', async () => {
+  it('admin can verify a payment; the student is provisioned as paid on the Mock Portal', async () => {
     const token = await login();
     const student = addUser({ email: 'learner@example.com' });
+    db.products.push({ id: 'mock', name: 'Paid Mock Series', metadata: JSON.stringify({ resourceCode: 'PAID_MOCK_SERIES' }) });
     const order = addOrder(student.id);
     db.payments.push({ id: 'p2', orderId: order.id, status: 'PENDING_VERIFICATION', utr: '555566667777' });
 
@@ -488,15 +557,13 @@ describe('Admin access (TEST 11)', () => {
     expect(res.body.status).toBe('VERIFIED');
     expect(db.orders[0].status).toBe('PAID');
 
-    // provisioning runs in the background; wait for it to settle
-    await new Promise((r) => setTimeout(r, 50));
-    expect(fetchSpy).toHaveBeenCalledWith(
-      'http://localhost:4000/api/internal/access/provision',
-      expect.objectContaining({
-        method: 'POST',
-        headers: expect.objectContaining({ 'x-internal-api-secret': process.env.INTERNAL_API_SECRET }),
-      })
+    // Provisioning upserts the student straight into the Mock Portal's user store.
+    expect(mockPortalUsers.findOneAndUpdate).toHaveBeenCalledWith(
+      { email: 'learner@example.com' },
+      expect.objectContaining({ $set: expect.objectContaining({ isPaid: true, status: 'active' }) }),
+      expect.objectContaining({ upsert: true })
     );
+    expect(db.entitlements[0].resourceCode).toBe('PAID_MOCK_SERIES');
     expect(db.entitlements[0].provisioningStatus).toBe('PROVISIONED');
   });
 

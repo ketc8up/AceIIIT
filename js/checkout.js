@@ -55,41 +55,31 @@ function goToStep(index) {
 }
 
 // ── LOAD SELECTED COURSES ─────────────────────────────────────────────────
-function loadCourses() {
-  selected = [];
-  
-  let stored = null;
-  try {
-    stored = sessionStorage.getItem("aceiiit_selected_courses");
-  } catch(e) {}
-  
-  if (!stored || stored === "[]") {
+// localStorage is written on every toggle on the homepage, so it is the
+// source of truth; sessionStorage is only a fallback (e.g. storage-restricted
+// browsers where the pack step still managed to write it).
+function readStoredSelection() {
+  const keys = [
+    () => localStorage.getItem("aceiiit_selected_courses"),
+    () => sessionStorage.getItem("aceiiit_selected_courses")
+  ];
+  for (const read of keys) {
+    let raw = null;
+    try { raw = read(); } catch (e) {}
+    if (!raw) continue;
     try {
-      stored = localStorage.getItem("aceiiit_selected_courses");
-    } catch(e) {}
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    } catch (e) {}
   }
+  return [];
+}
 
-  if (stored && stored !== "[]") {
-    try {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed)) {
-        selected = parsed;
-      } else {
-        selected = COURSES.map(c => c.id);
-      }
-    } catch(e) {
-      selected = COURSES.map(c => c.id);
-    }
-  } else {
-    // Default fallback if nothing was ever cached
-    selected = COURSES.map(c => c.id);
-  }
+function loadCourses() {
+  const known = new Set(COURSES.map(c => c.id));
+  selected = [...new Set(readStoredSelection())].filter(id => known.has(id));
 
   subtotal = 0;
-  
-  // Failsafe in case anything weird happened
-  if (!Array.isArray(selected)) selected = COURSES.map(c => c.id);
-
   selected.forEach(id => {
     const c = COURSES.find(x => x.id === id);
     if (c) subtotal += c.price;
@@ -102,6 +92,18 @@ function renderSummary() {
   // Left panel summary items
   const itemsEl = document.getElementById("co-summary-items");
   itemsEl.innerHTML = "";
+
+  const isEmpty = selected.length === 0;
+  document.getElementById("co-summary-panel").classList.toggle("is-empty", isEmpty);
+  const toPaymentBtn = document.getElementById("btn-to-payment");
+  if (toPaymentBtn) toPaymentBtn.disabled = isEmpty;
+  if (isEmpty) {
+    itemsEl.innerHTML = `
+      <div class="co-summary-empty">
+        <span>No courses selected yet.</span>
+        <a href="/#packages" class="co-summary-empty-link">Choose your courses &rarr;</a>
+      </div>`;
+  }
   selected.forEach(id => {
     const c = COURSES.find(x => x.id === id);
     if (!c) return;
@@ -126,6 +128,15 @@ function renderSummary() {
   document.getElementById("co-subtotal").textContent = "₹" + effectiveSubtotal;
   document.getElementById("co-gst").textContent      = "₹" + gst;
   document.getElementById("co-grand").textContent    = "₹" + grand;
+
+  const discountRow = document.getElementById("co-discount-row");
+  if (discountRow) {
+    discountRow.hidden = discount <= 0;
+    document.getElementById("co-discount").textContent = "−₹" + discount;
+    document.getElementById("co-discount-label").textContent = appliedCoupon ? `Discount (${appliedCoupon})` : "Discount";
+  }
+  const mobileTotal = document.getElementById("co-summary-toggle-total");
+  if (mobileTotal) mobileTotal.textContent = "₹" + grand;
   
   const payAmountEl = document.getElementById("pay-amount");
   if (payAmountEl) {
@@ -161,6 +172,18 @@ function setError(fieldId, msg) {
 
 function clearErrors() {
   ["firstName","lastName","email","phone"].forEach(id => setError(id, ""));
+}
+
+
+// Error message from a failed API response. Falls back to the HTTP status when
+// the body isn't JSON (e.g. an HTML 404/502 page from a proxy or dev server),
+// so the user sees what actually failed rather than a generic "Network error".
+async function apiError(res, fallback) {
+  try {
+    const data = await res.json();
+    if (data && data.error) return data.error;
+  } catch (e) {}
+  return fallback + " (" + res.status + ")";
 }
 
 function validateDetails() {
@@ -307,6 +330,7 @@ let globalAuthToken = null;
 
 document.getElementById("detailsForm").addEventListener("submit", async function (e) {
   e.preventDefault();
+  if (selected.length === 0) return;
   if (!validateDetails()) return;
 
   const btn = document.getElementById("btn-to-payment");
@@ -327,8 +351,7 @@ document.getElementById("detailsForm").addEventListener("submit", async function
         body: JSON.stringify({ email })
       });
       if (!res.ok) {
-        const err = await res.json();
-        setError("email", err.error || "Failed to send OTP");
+        setError("email", await apiError(res, "Failed to send OTP"));
         btn.innerHTML = 'Continue to Payment';
         btn.disabled = false;
         return;
@@ -389,8 +412,7 @@ document.getElementById("detailsForm").addEventListener("submit", async function
       body: JSON.stringify({ firstName, lastName, email, phone, otp })
     });
     if (!authRes.ok) {
-      const err = await authRes.json();
-      setError("otp", err.error || "Invalid OTP");
+      setError("otp", await apiError(authRes, "Invalid OTP"));
       btn.innerHTML = 'Verify OTP & Continue';
       btn.disabled = false;
       return;
@@ -459,8 +481,7 @@ document.getElementById("btn-pay-now").addEventListener("click", async function 
     });
     
     if (!uploadRes.ok) {
-       const errData = await uploadRes.json();
-       throw new Error(errData.error || "Failed to upload receipt.");
+       throw new Error(await apiError(uploadRes, "Failed to upload receipt."));
     }
     const { receiptReference } = await uploadRes.json();
 
@@ -476,8 +497,7 @@ document.getElementById("btn-pay-now").addEventListener("click", async function 
     });
     
     if (!orderRes.ok) {
-       const errData = await orderRes.json();
-       throw new Error(errData.error || "Failed to create order.");
+       throw new Error(await apiError(orderRes, "Failed to create order."));
     }
     const orderData = await orderRes.json();
 
@@ -514,8 +534,7 @@ document.getElementById("btn-pay-now").addEventListener("click", async function 
     });
     
     if (!payRes.ok) {
-       const errData = await payRes.json();
-       throw new Error(errData.error || "Failed to submit payment.");
+       throw new Error(await apiError(payRes, "Failed to submit payment."));
     }
 
     // Set confirmation data
@@ -540,9 +559,30 @@ document.getElementById("btn-pay-now").addEventListener("click", async function 
 });
 
 
+// ── MOBILE SUMMARY TOGGLE ─────────────────────────────────────────────────
+// The toggle is only displayed on small screens (see checkout.css); on wider
+// screens the summary body is always visible regardless of this state.
+const summaryToggle = document.getElementById("co-summary-toggle");
+if (summaryToggle) {
+  summaryToggle.addEventListener("click", function () {
+    const open = this.getAttribute("aria-expanded") !== "true";
+    this.setAttribute("aria-expanded", String(open));
+    document.getElementById("co-summary-panel").classList.toggle("is-open", open);
+  });
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────
 loadCourses();
 goToStep(0);
+
+// Re-read the selection when the page is restored from the back/forward cache
+// (e.g. user went back to the homepage, changed courses, and returned).
+window.addEventListener("pageshow", function (e) {
+  if (e.persisted) {
+    loadCourses();
+    if (appliedCoupon) window.removeCoupon();
+  }
+});
 
 // ── FILE UPLOAD LOGIC ──────────────────────────────────────────────────────
 const btnRemoveReceipt = document.getElementById("btn-remove-receipt");
@@ -822,11 +862,10 @@ window.generateReceiptBase64 = async function(ref, name, email, utr, selectedIte
   try {
     const pdfStr = await html2pdf().set(opt).from(receipt).outputPdf('datauristring');
     return pdfStr;
-  } finally {
-    document.body.removeChild(receipt);
-  }
   } catch(e) {
     console.error("PDF generation for email failed", e);
     return null;
+  } finally {
+    document.body.removeChild(receipt);
   }
 };

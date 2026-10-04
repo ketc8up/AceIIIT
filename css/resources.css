@@ -214,6 +214,11 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Stage rail (phones only, see the 767.98px block) */
+.res-steps {
+  display: none;
+}
+
 /* ── RIGHT COLUMN: CANVAS (CLICK DECK) ── */
 .res-visual-col {
   position: relative;
@@ -336,8 +341,10 @@
 }
 
 /* Affordance Hint: Wiggle on hover to show it's draggable */
-.click-deck:hover .res-deck-item[data-state="active"]:not(.dragging) {
-  animation: wiggleHint 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+@media (hover: hover) {
+  .click-deck:hover .res-deck-item[data-state="active"]:not(.dragging) {
+    animation: wiggleHint 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
 }
 
 @keyframes wiggleHint {
@@ -459,11 +466,271 @@
   }
 }
 
-@media (max-width: 768px) {
-  .res-deck-scaler {
-    transform: scale(0.55) !important;
+/* Tablet & phone: the deck becomes fluid (aspect-ratio) instead of a fixed
+   650×500 box shrunk with transform: scale(), which left a tall empty band and
+   pushed the cards past the gutters. Stack offsets shrink with it. */
+@media (max-width: 1024px) {
+  .res-visual-col {
+    min-height: 0;
+    justify-content: center;
+    padding: 1.5rem 0 2.5rem;
   }
+
+  .res-deck-scaler {
+    width: min(560px, 82%);
+    margin-left: 0;
+    transform: none !important;
+  }
+
+  .click-deck {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 650 / 500;
+    touch-action: pan-y; /* vertical swipes scroll the page, horizontal ones throw cards */
+  }
+
+  .res-deck-item[data-state="stack"][data-relative-index="1"] {
+    transform: translate3d(-9%, 3%, -30px) rotateZ(-6deg);
+  }
+
+  .res-deck-item[data-state="stack"][data-relative-index="2"] {
+    transform: translate3d(9%, 6%, -50px) rotateZ(8deg);
+  }
+
+  .res-deck-item[data-state="stack"][data-relative-index="3"] {
+    transform: translate3d(-3%, 9%, -70px) rotateZ(-2deg);
+  }
+
+  .res-deck-item[data-state="active"] {
+    transform: translate3d(0, -4%, 40px) rotateZ(0deg) scale(1.05);
+  }
+
+  .res-deck-item[data-state="passed-left"] {
+    transform: translate3d(-60%, -8%, 0) rotateZ(-15deg);
+  }
+
+  .res-deck-item[data-state="passed-right"] {
+    transform: translate3d(60%, 8%, 0) rotateZ(15deg);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .resources-section {
+    padding: 1rem 0 2rem;
+  }
+
+  .res-top-bar,
+  .res-grid {
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+  }
+
+  .res-top-bar {
+    margin-bottom: 1.5rem;
+  }
+
+  .res-grid {
+    gap: 1.5rem;
+  }
+
+  .res-headline,
+  .res-sub {
+    max-width: none;
+  }
+
+  /* Card first, then its caption (the active tab), so they read together */
+  .res-visual-col {
+    order: 2;
+    padding: 1rem 0 1.5rem;
+  }
+
+  .res-deck-scaler {
+    width: 88%;
+  }
+
+  /* The caption is the label of the card above it: a rail showing which of
+     the four stages is on top (and when the next one comes), then every
+     caption stacked in one grid cell so the height never jumps on a slide. */
+  .res-tab-col {
+    --res-i: 0; /* active stage, set by resources.js */
+    order: 3;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    gap: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  /* The caption panel stays put; only its text slides between stages */
+  .res-tab-col::after {
+    content: '';
+    grid-row: 2;
+    grid-column: 1;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+
+  /* Notch glides along under the active stage on the rail */
+  .res-tab-col::before {
+    content: '';
+    position: absolute;
+    grid-row: 2;
+    grid-column: 1;
+    z-index: 1;
+    top: -5px;
+    left: calc((100% - 24px) / 8 * (2 * var(--res-i) + 1) + 8px * var(--res-i) - 5px);
+    width: 10px;
+    height: 10px;
+    background: #fffcf7;
+    border-left: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    transform: rotate(45deg);
+    transition: left 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .res-steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    grid-row: 1;
+    margin-bottom: 4px;
+  }
+
+  .res-step {
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: 0;
+    margin: 0;
+    padding: 10px 0 12px;
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    transition: color 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .res-step.active {
+    color: var(--red);
+  }
+
+  .res-step.done {
+    color: var(--ink);
+  }
+
+  .res-step-bar {
+    display: block;
+    width: 100%;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--line);
+    overflow: hidden;
+  }
+
+  .res-step-bar i {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .res-step.done .res-step-bar i {
+    transform: scaleX(1);
+    opacity: 0.35;
+  }
+
+  /* Fills over the autoplay delay; paused while the deck is touched */
+  .res-step.active .res-step-bar i {
+    background: var(--red);
+    animation: resStepFill 3s linear forwards;
+    animation-play-state: paused;
+  }
+
+  .res-steps.is-running .res-step.active .res-step-bar i {
+    animation-play-state: running;
+  }
+
+  .res-step:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
   .res-tab-state {
-    flex: 1 1 100%;
+    grid-row: 2;
+    grid-column: 1;
+    display: block;
+    flex: none;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+    padding: 1.1rem 1.15rem 1.25rem;
+    animation: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(var(--res-x, 24px));
+    transition: opacity 0.16s ease, transform 0.22s ease-in, visibility 0s linear 0.22s;
+  }
+
+  .res-tab-state.active {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 0.3s ease 0.14s, transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s, visibility 0s;
+  }
+
+  .res-tab-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .res-tab-num,
+  .res-tab-name {
+    margin-bottom: 0;
+  }
+
+  .res-tab-divider {
+    order: -1;
+    width: 18px;
+    margin-bottom: 0;
+  }
+
+  .res-tab-title {
+    font-size: 1.6rem;
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+
+  .res-tab-desc {
+    max-width: none;
+    margin-bottom: 1rem;
+  }
+
+  .res-tab-link {
+    padding: 0.5rem 0 2px;
+  }
+}
+
+@keyframes resStepFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (max-width: 767.98px) and (prefers-reduced-motion: reduce) {
+  .res-step.active .res-step-bar i {
+    transform: scaleX(1);
   }
 }

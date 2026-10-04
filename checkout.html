@@ -38,9 +38,9 @@
         <span class="co-step-label">Confirm</span>
       </div>
     </div>
-    <div class="co-secure-badge">
+    <div class="co-secure-badge" aria-label="Secured by SSL">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Secured by SSL
+      <span class="co-secure-text">Secured by SSL</span>
     </div>
   </header>
 
@@ -116,11 +116,11 @@
         <!-- UPI form (Only Manual UPI Supported) -->
         <div class="co-pay-panel" id="pay-upi">
           <div class="co-field">
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
-              <div style="flex: 0 0 auto; background: white; padding: 10px; border-radius: 8px;">
-                <img id="payment-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3Daceiiit%40upi%26pn%3DAceIIIT%26cu%3DINR" alt="UPI QR Code" style="width: 120px; height: 120px; display: block;" />
+            <div class="co-qr-card">
+              <div class="co-qr-code">
+                <img id="payment-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3Daceiiit%40upi%26pn%3DAceIIIT%26cu%3DINR" alt="UPI QR Code" width="120" height="120" />
               </div>
-              <div style="flex: 1; min-width: 200px;">
+              <div class="co-qr-info">
                 <h3 style="color: var(--ink); margin-top: 0; margin-bottom: 12px; font-size: 1.1rem;">Scan to Pay</h3>
                 <p style="margin-bottom: 12px; line-height: 1.6; color: var(--text-muted); font-size: 0.95rem;">
                   1. Scan the QR code or send exactly <strong id="qr-amount-text" style="color: var(--primary);">₹0</strong> to <strong style="color: var(--ink);">aceiiit@upi</strong>.<br>
@@ -150,8 +150,8 @@
 
           <div class="co-field">
             <label class="co-label" for="receipt">Payment Screenshot</label>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <input class="co-input" type="file" id="receipt" name="receipt" accept="image/png, image/jpeg, image/webp" required style="flex: 1; padding: 12px;">
+            <div class="co-receipt-row">
+              <input class="co-input" type="file" id="receipt" name="receipt" accept="image/png, image/jpeg, image/webp" required>
               <button type="button" id="btn-remove-receipt" style="display: none; height: 48px; width: 48px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; cursor: pointer; align-items: center; justify-content: center; transition: all 0.2s;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
               </button>
@@ -202,8 +202,13 @@
     </div>
 
     <!-- RIGHT: ORDER SUMMARY -->
-    <aside class="co-summary-panel" id="co-summary-panel">
-      <div class="co-summary-sticky">
+    <aside class="co-summary-panel" id="co-summary-panel" aria-label="Order summary">
+      <button type="button" class="co-summary-toggle" id="co-summary-toggle" aria-expanded="false" aria-controls="co-summary-body">
+        <span class="co-summary-toggle-label">Order summary</span>
+        <span class="co-summary-toggle-total" id="co-summary-toggle-total">₹0</span>
+        <svg class="co-summary-toggle-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="co-summary-sticky" id="co-summary-body">
         <div class="co-summary-header">
           <h3 class="co-summary-title">Order Summary</h3>
           <a href="/#packages" class="co-summary-edit">Edit</a>
@@ -228,6 +233,10 @@
           <span>GST (18%)</span>
           <span id="co-gst">₹0</span>
         </div>
+        <div class="co-summary-total-row co-summary-discount" id="co-discount-row" hidden>
+          <span id="co-discount-label">Discount</span>
+          <span id="co-discount">−₹0</span>
+        </div>
         <div class="co-summary-divider"></div>
         <div class="co-summary-total-row co-summary-grand">
           <span>Total</span>
@@ -246,6 +255,6 @@
 
   </main>
 
-  <script src="/js/checkout.js?v=2"></script>
+  <script src="/js/checkout.js?v=3"></script>
 </body>
 </html>

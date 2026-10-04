@@ -313,7 +313,7 @@ router.post('/admin/coupons', authenticateToken, requireAdmin, async (req: AuthR
 router.post('/admin/coupons/:id/delete', authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
   try {
     await prisma.coupon.delete({
-      where: { id: req.params.id }
+      where: { id: String(req.params.id) }
     });
     res.json({ success: true });
   } catch (error: any) {
@@ -601,8 +601,8 @@ router.post('/auth/admin', async (req, res) => {
 
   try {
     const user = await prisma.user.findUnique({ where: { email } });
-    const hasHash = !!user && user.role === 'ADMIN' && /^\$2[aby]\$/.test(user.password);
-    const passwordOk = await bcrypt.compare(password, hasHash ? user!.password : DUMMY_BCRYPT_HASH);
+    const hasHash = !!user && user.role === 'ADMIN' && /^\$2[aby]\$/.test(user.password ?? '');
+    const passwordOk = await bcrypt.compare(password, hasHash ? (user!.password as string) : DUMMY_BCRYPT_HASH);
 
     if (!user || !hasHash || !passwordOk) {
       return res.status(401).json({ error: 'Invalid credentials' });
