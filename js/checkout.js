@@ -281,55 +281,170 @@ window.removeCoupon = function() {
 
 
 // ── OCR FOR UTR ───────────────────────────────────────────────────────────
+// Reading a screenshot takes a few seconds (longer on first use while the
+// language data downloads), so a progress card covers the payment step until
+// the UTR is filled in or the user chooses to type it.
+const OCR_SLOW_MS = 20000;
+const OCR_SUCCESS_HOLD_MS = 1400;
+
+const ocrEl = document.getElementById("co-ocr");
+const ocrCard = {
+  title: document.getElementById("co-ocr-title"),
+  text: document.getElementById("co-ocr-text"),
+  utr: document.getElementById("co-ocr-utr"),
+  scan: document.getElementById("co-ocr-scan"),
+  note: document.getElementById("co-ocr-note"),
+  manual: document.getElementById("co-ocr-manual"),
+  steps: ocrEl ? ocrEl.querySelectorAll(".co-ocr-steps li") : []
+};
+let ocrRun = 0;          // bumps on every new read or cancel; stale results are ignored
+let ocrWorker = null;
+let ocrPayWasDisabled = false;
+
+function setOcrStep(active) {
+  const order = ["added", "scan", "fill"];
+  const at = order.indexOf(active);
+  ocrCard.steps.forEach((li, i) => {
+    li.classList.toggle("is-done", i < at || active === "done");
+    li.classList.toggle("is-active", i === at);
+  });
+}
+
+function openOcrCard() {
+  ocrEl.dataset.state = "scanning";
+  ocrCard.title.textContent = "Reading your payment screenshot";
+  ocrCard.text.textContent = "We're finding the 12-digit UTR number for you, so you don't have to type it.";
+  ocrCard.utr.hidden = true;
+  ocrCard.scan.textContent = "Scanning the image…";
+  ocrCard.note.textContent = "Takes about 5–10 seconds. Please don't close this page.";
+  ocrCard.manual.hidden = true;
+  setOcrStep("scan");
+
+  const utrInput = document.getElementById("utr");
+  const payBtn = document.getElementById("btn-pay-now");
+  if (!ocrEl.hidden) return; // already open (new file picked mid-read)
+  ocrPayWasDisabled = payBtn.disabled;
+  utrInput.disabled = true;
+  payBtn.disabled = true;
+  ocrEl.hidden = false;
+  ocrEl.querySelector(".co-ocr-card").focus();
+}
+
+function closeOcrCard() {
+  if (!ocrEl || ocrEl.hidden) return;
+  ocrEl.hidden = true;
+  document.getElementById("utr").disabled = false;
+  document.getElementById("btn-pay-now").disabled = ocrPayWasDisabled;
+}
+
+function stopOcrWorker() {
+  if (ocrWorker) {
+    ocrWorker.terminate().catch(() => {});
+    ocrWorker = null;
+  }
+}
+
+function showOcrFailure(message) {
+  ocrEl.dataset.state = "failed";
+  ocrCard.title.textContent = "We couldn't read the UTR clearly";
+  ocrCard.text.textContent = "No problem — just type the 12-digit number from your payment app.";
+  ocrCard.manual.hidden = false;
+  ocrCard.manual.focus();
+  const utrError = document.getElementById("utr-error");
+  if (utrError) {
+    utrError.textContent = message;
+    utrError.style.display = "block";
+  }
+}
+
+function enterUtrManually() {
+  ocrRun++;          // abandon any read still in flight
+  stopOcrWorker();
+  closeOcrCard();
+  document.getElementById("utr").focus();
+}
+
+async function readUtrFromScreenshot(file) {
+  const run = ++ocrRun;
+  stopOcrWorker();
+  const utrInput = document.getElementById("utr");
+  const utrError = document.getElementById("utr-error");
+  if (utrError) {
+    utrError.style.display = "none";
+    utrError.textContent = "";
+  }
+
+  openOcrCard();
+  const slowTimer = setTimeout(() => {
+    if (run !== ocrRun || ocrEl.dataset.state !== "scanning") return;
+    ocrCard.note.textContent = "Still working… large screenshots take a bit longer.";
+    ocrCard.manual.hidden = false;
+  }, OCR_SLOW_MS);
+
+  let worker = null;
+  try {
+    worker = await Tesseract.createWorker("eng", 1, {
+      logger: m => {
+        if (run === ocrRun && m.status === "recognizing text") {
+          ocrCard.scan.textContent = `Scanning the image… ${Math.round(m.progress * 100)}%`;
+        }
+      }
+    });
+    if (run !== ocrRun) return;
+    ocrWorker = worker;
+
+    const { data } = await worker.recognize(file);
+    if (run !== ocrRun) return;
+
+    // Look for a 12-digit number (common for UPI UTRs)
+    const match = (data.text || "").match(/\b\d{12}\b/);
+    if (!match) {
+      showOcrFailure("Could not find a 12-digit UTR in the image. Please enter it manually.");
+      return;
+    }
+
+    setOcrStep("fill");
+    utrInput.value = match[0];
+    ocrEl.dataset.state = "success";
+    setOcrStep("done");
+    ocrCard.title.textContent = "UTR found";
+    ocrCard.text.textContent = "Please check it matches your payment app.";
+    ocrCard.utr.textContent = match[0].replace(/(\d{4})(?=\d)/g, "$1 ");
+    ocrCard.utr.hidden = false;
+    ocrCard.note.textContent = "";
+
+    setTimeout(() => {
+      if (run !== ocrRun) return;
+      closeOcrCard();
+      utrInput.classList.add("co-input--filled");
+      setTimeout(() => utrInput.classList.remove("co-input--filled"), 1500);
+    }, OCR_SUCCESS_HOLD_MS);
+  } catch (error) {
+    console.error("OCR failed:", error);
+    if (run === ocrRun) showOcrFailure("Auto-read failed. Please enter the UTR manually.");
+  } finally {
+    clearTimeout(slowTimer);
+    if (worker) {
+      if (ocrWorker === worker) ocrWorker = null;
+      worker.terminate().catch(() => {});
+    }
+  }
+}
+
+if (ocrEl) {
+  ocrCard.manual.addEventListener("click", enterUtrManually);
+  ocrEl.addEventListener("keydown", e => {
+    if (e.key === "Escape" && !ocrCard.manual.hidden) enterUtrManually();
+  });
+}
+
 const receiptInput = document.getElementById("receipt");
 if (receiptInput) {
-  receiptInput.addEventListener("change", async function(e) {
+  receiptInput.addEventListener("change", function(e) {
     const file = e.target.files[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) return; // Only process images
-
-    const utrLoading = document.getElementById("utr-loading");
-    const utrInput = document.getElementById("utr");
-    const utrError = document.getElementById("utr-error");
-    
-    if (utrLoading) utrLoading.style.display = "inline";
-    if (utrError) {
-      utrError.style.display = "none";
-      utrError.textContent = "";
-    }
-
-    try {
-      const result = await Tesseract.recognize(file, 'eng');
-      const text = result.data.text;
-      
-      // Look for a 12-digit number (common for UPI UTRs)
-      const match = text.match(/\b\d{12}\b/);
-      if (match) {
-        utrInput.value = match[0];
-        // Visual feedback
-        utrInput.style.transition = "border-color 0.3s, background-color 0.3s";
-        utrInput.style.borderColor = "var(--green, #22c55e)";
-        utrInput.style.backgroundColor = "rgba(34, 197, 94, 0.1)";
-        setTimeout(() => {
-          utrInput.style.borderColor = "";
-          utrInput.style.backgroundColor = "";
-        }, 1500);
-      } else {
-        // No match found
-        if (utrError) {
-          utrError.textContent = "Could not find a 12-digit UTR in the image. Please enter it manually.";
-          utrError.style.display = "block";
-        }
-      }
-    } catch (error) {
-      console.error("OCR failed:", error);
-      if (utrError) {
-        utrError.textContent = "Auto-read failed. Please enter the UTR manually.";
-        utrError.style.display = "block";
-      }
-    } finally {
-      if (utrLoading) utrLoading.style.display = "none";
-    }
+    readUtrFromScreenshot(file);
   });
 }
 

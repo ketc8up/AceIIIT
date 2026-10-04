@@ -68,7 +68,7 @@ const PUBLIC_PAGES = [
 
 const PUBLIC_DIRS = ['css', 'js', 'assets'];
 
-const PUBLIC_FILES = ['saas/logo.js'];
+const PUBLIC_FILES = ['saas/logo.js', 'favicon.ico'];
 
 const staticOptions = { dotfiles: 'deny' as const, index: false, redirect: false };
 

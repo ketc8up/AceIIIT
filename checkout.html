@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout — AceIIIT</title>
   <meta name="description" content="Complete your AceIIIT order. Secure payment. Instant access to your UGEE preparation resources.">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon-round.svg">
   <link
     href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap"
@@ -140,7 +141,6 @@
           <div class="co-field">
             <label class="co-label" for="utr">
               12-digit UTR Number
-              <span id="utr-loading" style="display: none; font-size: 0.85em; color: var(--primary); margin-left: 8px;">(Reading from image...)</span>
             </label>
             <div class="co-upi-id-wrap">
               <input class="co-input" type="text" id="utr" name="utr" placeholder="e.g. 312345678901" required>
@@ -255,6 +255,27 @@
 
   </main>
 
-  <script src="/js/checkout.js?v=4"></script>
+  <!-- UTR auto-read progress (fixed overlay; never affects page layout) -->
+  <div class="co-ocr" id="co-ocr" hidden>
+    <div class="co-ocr-card" role="dialog" aria-modal="true" aria-labelledby="co-ocr-title" aria-describedby="co-ocr-text" tabindex="-1">
+      <div class="co-ocr-icon" aria-hidden="true">
+        <span class="co-ocr-spinner"></span>
+        <svg class="co-ocr-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        <svg class="co-ocr-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5M12 16.5v.01"/><circle cx="12" cy="12" r="9.5"/></svg>
+      </div>
+      <h2 class="co-ocr-title" id="co-ocr-title">Reading your payment screenshot</h2>
+      <p class="co-ocr-text" id="co-ocr-text">We're finding the 12-digit UTR number for you, so you don't have to type it.</p>
+      <p class="co-ocr-utr" id="co-ocr-utr" hidden></p>
+      <ol class="co-ocr-steps" aria-live="polite">
+        <li data-step="added">Screenshot added</li>
+        <li data-step="scan"><span id="co-ocr-scan">Scanning the image…</span></li>
+        <li data-step="fill">Filling in your UTR</li>
+      </ol>
+      <p class="co-ocr-note" id="co-ocr-note">Takes about 5–10 seconds. Please don't close this page.</p>
+      <button class="co-btn-ghost co-ocr-manual" type="button" id="co-ocr-manual" hidden>Enter manually</button>
+    </div>
+  </div>
+
+  <script src="/js/checkout.js?v=5"></script>
 </body>
 </html>
