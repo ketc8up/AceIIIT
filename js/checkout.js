@@ -18,6 +18,22 @@ let selected = [];
 let subtotal  = 0;
 let discount  = 0;
 let appliedCoupon = null;
+let lastReceipt = null; // server-confirmed order data for the Download Receipt button
+
+// Mirrors CommerceService.createOrder: GST is rounded per item, then scaled
+// down proportionally when a discount applies (GST on the discounted price).
+const GST_RATE = 18;
+function computeTotals(ids, discount) {
+  let subtotal = 0, tax = 0;
+  ids.forEach(id => {
+    const c = COURSES.find(x => x.id === id);
+    if (!c) return;
+    subtotal += c.price;
+    tax += Math.round(c.price * GST_RATE / 100);
+  });
+  if (subtotal > 0) tax = Math.round(tax * (subtotal - discount) / subtotal);
+  return { subtotal, discount, tax, total: subtotal - discount + tax };
+}
 
 // ── STEP MANAGEMENT ───────────────────────────────────────────────────────
 const sections   = ["details", "payment", "confirm"];
@@ -121,11 +137,11 @@ function renderSummary() {
     itemsEl.appendChild(div);
   });
 
-  const effectiveSubtotal = subtotal;
-  const gst   = Math.round(effectiveSubtotal * 0.18);
-  const grand = effectiveSubtotal + gst - discount;
+  const totals = computeTotals(selected, discount);
+  const gst   = totals.tax;
+  const grand = totals.total;
 
-  document.getElementById("co-subtotal").textContent = "₹" + effectiveSubtotal;
+  document.getElementById("co-subtotal").textContent = "₹" + totals.subtotal;
   document.getElementById("co-gst").textContent      = "₹" + gst;
   document.getElementById("co-grand").textContent    = "₹" + grand;
 
@@ -506,16 +522,24 @@ document.getElementById("btn-pay-now").addEventListener("click", async function 
 
     // Generate receipt PDF silently
     btn.innerHTML = '<span>Generating Receipt...</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
-    const receiptPdfBase64 = await window.generateReceiptBase64(
-      orderData.orderNumber,
-      firstName + " " + lastName,
+    lastReceipt = {
+      orderNumber: orderData.orderNumber,
+      name: firstName + " " + lastName,
       email,
       utr,
-      selected,
-      subtotal,
-      discount,
-      appliedCoupon
-    );
+      coupon: appliedCoupon,
+      date: new Date(orderData.createdAt || Date.now()),
+      items: (orderData.items || []).map(it => ({
+        title: it.productName,
+        tag: (COURSES.find(c => c.id === it.productId) || {}).tag || "",
+        amount: it.unitPrice * it.quantity
+      })),
+      subtotal: orderData.subtotal,
+      discount: orderData.discount,
+      tax: orderData.tax,
+      total: orderData.total
+    };
+    const receiptPdfBase64 = await window.generateReceiptBase64(lastReceipt);
     btn.innerHTML = '<span>Processing Payment...</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
 
     const payRes = await fetch("/api/payments", {
@@ -611,53 +635,43 @@ if (receiptInput && btnRemoveReceipt) {
 }
 
 // ── GENERATE PDF RECEIPT ──────────────────────────────────────────────────
-window.generateReceiptPDF = async function() {
-  const btn = document.getElementById("btn-download-receipt");
-  if (btn) btn.innerHTML = "Generating PDF...";
-
-  if (typeof window.html2pdf === 'undefined') {
-    await new Promise((resolve, reject) => {
+let html2pdfReady = null;
+function loadHtml2pdf() {
+  if (typeof window.html2pdf !== 'undefined') return Promise.resolve();
+  if (!html2pdfReady) {
+    html2pdfReady = new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
       script.onload = resolve;
-      script.onerror = reject;
+      script.onerror = () => { html2pdfReady = null; reject(new Error("Failed to load PDF library")); };
       document.head.appendChild(script);
     });
   }
+  return html2pdfReady;
+}
 
-  const name = document.getElementById("firstName").value.trim() + " " + document.getElementById("lastName").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const ref = document.getElementById("confirm-ref").textContent;
-  const date = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
-  const utr = document.getElementById("utr").value.trim() || "N/A";
+function esc(value) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, ch => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[ch]);
+}
 
-  let itemsHtml = "";
-  selected.forEach(id => {
-    const c = COURSES.find(x => x.id === id);
-    if (c) {
-      itemsHtml += `
+function buildReceiptHtml(data) {
+  const date = data.date.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const itemsHtml = data.items.map(item => `
         <tr style="border-bottom: 1px solid #eee;">
-          <td style="padding: 12px 0; color: #333; font-size: 14px;">${c.title} <span style="font-size:10px; color:#888; margin-left:8px;">${c.tag}</span></td>
-          <td style="padding: 12px 0; text-align: right; color: #333; font-size: 14px;">₹${c.price}</td>
-        </tr>`;
-    }
-  });
+          <td style="padding: 12px 0; color: #333; font-size: 14px;">${esc(item.title)} <span style="font-size:10px; color:#888; margin-left:8px;">${esc(item.tag)}</span></td>
+          <td style="padding: 12px 0; text-align: right; color: #333; font-size: 14px;">₹${item.amount}</td>
+        </tr>`).join("");
 
-  const effectiveSubtotal = subtotal;
-  const gst = Math.round(effectiveSubtotal * 0.18);
-  const grand = effectiveSubtotal + gst - discount;
-  
-  let discountRow = "";
-  if (discount > 0) {
-    discountRow = `
-      <tr>
-        <td style="padding: 8px 0; color: #666; text-align: right; padding-right: 20px; font-size: 14px;">Discount (${appliedCoupon})</td>
-        <td style="padding: 8px 0; text-align: right; color: #ef4444; font-size: 14px;">-₹${discount}</td>
-      </tr>`;
-  }
+  const discountRow = data.discount > 0 ? `
+            <tr>
+              <td style="padding: 8px 0; color: #666; text-align: right; padding-right: 20px; font-size: 14px;">Discount${data.coupon ? ` (${esc(data.coupon)})` : ""}</td>
+              <td style="padding: 8px 0; text-align: right; color: #ef4444; font-size: 14px;">-₹${data.discount}</td>
+            </tr>` : "";
 
-  const receipt = document.createElement("div");
-  receipt.innerHTML = `
+  return `
     <div style="padding: 40px; font-family: 'Inter', sans-serif; background: #fff; color: #000; width: 800px; box-sizing: border-box;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 30px;">
         <div>
@@ -666,7 +680,7 @@ window.generateReceiptPDF = async function() {
         </div>
         <div style="text-align: right;">
           <h2 style="margin: 0; font-size: 24px; color: #111; letter-spacing: 1px;">RECEIPT</h2>
-          <p style="margin: 4px 0 0; color: #666; font-size: 14px;">Order # ${ref}</p>
+          <p style="margin: 4px 0 0; color: #666; font-size: 14px;">Order # ${esc(data.orderNumber)}</p>
           <p style="margin: 4px 0 0; color: #666; font-size: 14px;">Date: ${date}</p>
         </div>
       </div>
@@ -674,13 +688,13 @@ window.generateReceiptPDF = async function() {
       <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
         <div>
           <h3 style="margin: 0 0 8px; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px;">Billed To:</h3>
-          <p style="margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #333;">${name}</p>
-          <p style="margin: 0; color: #666; font-size: 14px;">${email}</p>
+          <p style="margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #333;">${esc(data.name)}</p>
+          <p style="margin: 0; color: #666; font-size: 14px;">${esc(data.email)}</p>
         </div>
         <div style="text-align: right;">
           <h3 style="margin: 0 0 8px; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px;">Payment Details:</h3>
           <p style="margin: 0 0 4px; font-size: 14px; color: #333;">Method: UPI</p>
-          <p style="margin: 0; color: #666; font-size: 14px;">UTR: ${utr}</p>
+          <p style="margin: 0; color: #666; font-size: 14px;">UTR: ${esc(data.utr || "N/A")}</p>
         </div>
       </div>
 
@@ -701,16 +715,16 @@ window.generateReceiptPDF = async function() {
           <tbody>
             <tr>
               <td style="padding: 8px 0; color: #666; text-align: right; padding-right: 20px; font-size: 14px;">Subtotal</td>
-              <td style="padding: 8px 0; text-align: right; color: #333; font-size: 14px;">₹${effectiveSubtotal}</td>
+              <td style="padding: 8px 0; text-align: right; color: #333; font-size: 14px;">₹${data.subtotal}</td>
             </tr>
             ${discountRow}
             <tr>
-              <td style="padding: 8px 0; color: #666; text-align: right; padding-right: 20px; font-size: 14px;">GST (18%)</td>
-              <td style="padding: 8px 0; text-align: right; color: #333; font-size: 14px;">₹${gst}</td>
+              <td style="padding: 8px 0; color: #666; text-align: right; padding-right: 20px; font-size: 14px;">GST (${GST_RATE}%)</td>
+              <td style="padding: 8px 0; text-align: right; color: #333; font-size: 14px;">₹${data.tax}</td>
             </tr>
             <tr style="border-top: 2px solid #333;">
               <td style="padding: 16px 0 12px; font-weight: bold; font-size: 18px; color: #111; text-align: right; padding-right: 20px;">Total Paid</td>
-              <td style="padding: 16px 0 12px; font-weight: bold; font-size: 18px; color: #111; text-align: right;">₹${grand}</td>
+              <td style="padding: 16px 0 12px; font-weight: bold; font-size: 18px; color: #111; text-align: right;">₹${data.total}</td>
             </tr>
           </tbody>
         </table>
@@ -722,150 +736,44 @@ window.generateReceiptPDF = async function() {
       </div>
     </div>
   `;
+}
 
-  const opt = {
+// Hand html2pdf the markup as a string so it builds and positions the node in
+// its own render container. Passing an element parked off-screen (left:-9999px)
+// made html2pdf clone that offset too, which rendered a blank page.
+// The html2pdf worker is itself thenable, so `finish` must run on it before
+// anything awaits it.
+async function renderReceipt(data, finish) {
+  await loadHtml2pdf();
+  const worker = html2pdf().set({
     margin:       0,
-    filename:     `AceIIIT_Receipt_${ref}.pdf`,
+    filename:     `AceIIIT_Receipt_${data.orderNumber}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
     html2canvas:  { scale: 2, useCORS: true },
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
+  }).from(buildReceiptHtml(data), 'string');
+  return finish(worker);
+}
 
-  receipt.style.position = "absolute";
-  receipt.style.left = "-9999px";
-  receipt.style.top = "0";
-  document.body.appendChild(receipt);
-
+window.generateReceiptPDF = async function() {
+  if (!lastReceipt) return;
+  const btn = document.getElementById("btn-download-receipt");
+  if (btn) btn.innerHTML = "Generating PDF...";
   try {
-    await html2pdf().set(opt).from(receipt).save();
+    await renderReceipt(lastReceipt, w => w.save());
   } catch(e) {
     console.error("PDF generation failed", e);
     alert("Failed to generate PDF. Please try again.");
   } finally {
-    document.body.removeChild(receipt);
     if (btn) btn.innerHTML = "Download Receipt";
   }
 };
 
-window.generateReceiptBase64 = async function(ref, name, email, utr, selectedItems, subtotal, discount, appliedCoupon) {
-  if (typeof window.html2pdf === 'undefined') {
-    await new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
-  }
-
-  const date = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
-  let itemsHtml = "";
-  selectedItems.forEach(id => {
-    const c = COURSES.find(x => x.id === id);
-    if (c) {
-      itemsHtml += `
-        <tr style="border-bottom: 1px solid #eee;">
-          <td style="padding: 12px 0; color: #333; font-size: 14px;">${c.title} <span style="font-size:10px; color:#888; margin-left:8px;">${c.tag}</span></td>
-          <td style="padding: 12px 0; text-align: right; color: #333; font-size: 14px;">₹${c.price}</td>
-        </tr>`;
-    }
-  });
-
-  const gst = Math.round(subtotal * 0.18);
-  const grand = subtotal + gst - discount;
-  
-  let discountRow = "";
-  if (discount > 0) {
-    discountRow = `
-      <tr>
-        <td style="padding: 8px 0; color: #666; text-align: right; padding-right: 20px; font-size: 14px;">Discount (${appliedCoupon})</td>
-        <td style="padding: 8px 0; text-align: right; color: #ef4444; font-size: 14px;">-₹${discount}</td>
-      </tr>`;
-  }
-
-  const receipt = document.createElement("div");
-  receipt.innerHTML = `
-    <div style="padding: 40px; font-family: 'Inter', sans-serif; background: #fff; color: #000; width: 800px; box-sizing: border-box;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 30px;">
-        <div>
-          <h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;"><span style="color: #111;">Ace</span><span style="color: #cda852;">IIIT</span></h1>
-          <p style="margin: 4px 0 0; color: #666; font-size: 14px;">The Ultimate UGEE Prep</p>
-        </div>
-        <div style="text-align: right;">
-          <h2 style="margin: 0; font-size: 24px; color: #111; letter-spacing: 1px;">RECEIPT</h2>
-          <p style="margin: 4px 0 0; color: #666; font-size: 14px;">Order # ${ref}</p>
-          <p style="margin: 4px 0 0; color: #666; font-size: 14px;">Date: ${date}</p>
-        </div>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
-        <div>
-          <h3 style="margin: 0 0 8px; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px;">Billed To:</h3>
-          <p style="margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #333;">${name}</p>
-          <p style="margin: 0; color: #666; font-size: 14px;">${email}</p>
-        </div>
-        <div style="text-align: right;">
-          <h3 style="margin: 0 0 8px; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px;">Payment Details:</h3>
-          <p style="margin: 0 0 4px; font-size: 14px; color: #333;">Method: UPI</p>
-          <p style="margin: 0; color: #666; font-size: 14px;">UTR: ${utr}</p>
-        </div>
-      </div>
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-        <thead>
-          <tr style="border-bottom: 2px solid #333;">
-            <th style="padding: 12px 0; text-align: left; font-size: 12px; color: #333; text-transform: uppercase; letter-spacing: 0.5px;">Description</th>
-            <th style="padding: 12px 0; text-align: right; font-size: 12px; color: #333; text-transform: uppercase; letter-spacing: 0.5px;">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${itemsHtml}
-        </tbody>
-      </table>
-      <div style="display: flex; justify-content: flex-end;">
-        <table style="width: 300px; border-collapse: collapse;">
-          <tbody>
-            <tr>
-              <td style="padding: 8px 0; color: #666; text-align: right; padding-right: 20px; font-size: 14px;">Subtotal</td>
-              <td style="padding: 8px 0; text-align: right; color: #333; font-size: 14px;">₹${subtotal}</td>
-            </tr>
-            ${discountRow}
-            <tr>
-              <td style="padding: 8px 0; color: #666; text-align: right; padding-right: 20px; font-size: 14px;">GST (18%)</td>
-              <td style="padding: 8px 0; text-align: right; color: #333; font-size: 14px;">₹${gst}</td>
-            </tr>
-            <tr style="border-top: 2px solid #333;">
-              <td style="padding: 16px 0 12px; font-weight: bold; font-size: 18px; color: #111; text-align: right; padding-right: 20px;">Total Paid</td>
-              <td style="padding: 16px 0 12px; font-weight: bold; font-size: 18px; color: #111; text-align: right;">₹${grand}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #888; font-size: 12px;">
-        <p style="margin: 0 0 4px;">Thank you for choosing AceIIIT!</p>
-        <p style="margin: 0;">This is a computer-generated receipt and does not require a signature.</p>
-      </div>
-    </div>
-  `;
-
-  const opt = {
-    margin:       0,
-    filename:     `AceIIIT_Receipt_${ref}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true },
-    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
-
-  receipt.style.position = "absolute";
-  receipt.style.left = "-9999px";
-  receipt.style.top = "0";
-  document.body.appendChild(receipt);
-
+window.generateReceiptBase64 = async function(data) {
   try {
-    const pdfStr = await html2pdf().set(opt).from(receipt).outputPdf('datauristring');
-    return pdfStr;
+    return await renderReceipt(data, w => w.outputPdf('datauristring'));
   } catch(e) {
     console.error("PDF generation for email failed", e);
     return null;
-  } finally {
-    document.body.removeChild(receipt);
   }
 };
