@@ -35,7 +35,10 @@ const ConfigSchema = z.object({
     .string()
     .regex(/^\d+[smhd]$/, { error: 'must look like 15m, 1h, 12h or 7d' })
     .default('1h'),
+  // Shared with the Mock Portal (its INTERNAL_API_SECRET); the portal requires 32+ chars.
   INTERNAL_API_SECRET: strongSecret(16),
+  // Base URL of the Mock Portal, e.g. https://mock.aceiiit.in (internal provisioning API).
+  MOCK_PORTAL_URL: z.string().url({ error: 'must be a URL' }).optional(),
   AUTH_RATE_LIMIT_PER_MIN: z.coerce.number().int().positive().default(10),
   ADMIN_PORTAL_PATH: z.string().min(8).default('admin-secure-portal'),
   EMAIL_FROM_SUPPORT: z.string().min(5).default('onboarding@resend.dev'),

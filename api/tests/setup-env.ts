@@ -12,10 +12,11 @@ process.env.AUTH_RATE_LIMIT_PER_MIN = process.env.AUTH_RATE_LIMIT_PER_MIN || '10
 // dotenv never overrides a variable that is already set, so pin a dummy key here:
 // no test can ever send a real email.
 process.env.RESEND_API_KEY = 're_test_disabled';
-// Same for the other external services the API reaches: the Mock Portal's MongoDB
-// (paid-access provisioning) and Supabase storage (receipts). The Mongo host can never
-// resolve, and Supabase is left unconfigured, so tests can't touch real data.
-process.env.MONGODB_URI = 'mongodb://test-guard.invalid:1/no-database';
+// Same for the other external services the API reaches: the Mock Portal's internal API
+// (paid-access provisioning; tests mock global fetch for it) and Supabase storage
+// (receipts). The portal host can never resolve, and Supabase is left unconfigured,
+// so tests can't touch real data.
+process.env.MOCK_PORTAL_URL = 'http://mock-portal.test.invalid';
 process.env.SUPABASE_URL = '';
 process.env.SUPABASE_SERVICE_ROLE_KEY = '';
 process.env.SUPABASE_ANON_KEY = '';

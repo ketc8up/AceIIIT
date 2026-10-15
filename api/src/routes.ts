@@ -1,5 +1,5 @@
 import { Router, Request } from 'express';
-import { CommerceService } from './services/commerce.service';
+import { CommerceService, PaymentStateError } from './services/commerce.service';
 import { authenticateToken, requireAdmin, signAccessToken, AuthRequest } from './middleware/auth.middleware';
 import multer from 'multer';
 import crypto from 'crypto';
@@ -10,6 +10,7 @@ import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import { EmailService } from './services/email.service';
 import { createClient } from '@supabase/supabase-js';
+import { config } from './config';
 
 const otpCache = new Map<string, { code: string, expiresAt: number }>();
 
@@ -20,6 +21,18 @@ const supabase = supabaseUrlValid ? createClient(supabaseUrl, supabaseKey) : nul
 
 const prisma = new PrismaClient();
 const router = Router();
+
+// A UPI UTR is exactly 12 digits; one digit repeated twelve times is a placeholder.
+const isValidUtr = (utr: unknown): utr is string =>
+  typeof utr === 'string' && /^\d{12}$/.test(utr) && !/^(\d)\1{11}$/.test(utr);
+
+// Payment actions refused because of the payment's status become 409 Conflict.
+function sendPaymentError(res: any, error: any) {
+  if (error instanceof PaymentStateError) return res.status(409).json({ error: error.message });
+  if (error?.message === 'Payment not found') return res.status(404).json({ error: 'Payment not found' });
+  console.error('Admin payment action failed:', error);
+  return res.status(500).json({ error: 'Internal Server Error' });
+}
 
 // User fields that are safe to return to clients (never the password hash).
 const safeUserSelect = {
@@ -36,6 +49,33 @@ const safeUserSelect = {
   deletedAt: true,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// Mock Portal lookups (server-to-server, read-only). The portal's admin "Details" window shows
+// a student's orders, payments and payment screenshot from here. Authenticated by the shared
+// INTERNAL_API_SECRET in the x-internal-api-secret header (the same secret this site sends
+// when it provisions access on the portal). An unset secret closes these routes.
+// ---------------------------------------------------------------------------------------
+function portalSecretMatches(provided: unknown): boolean {
+  const expected = config.INTERNAL_API_SECRET;
+  if (typeof expected !== 'string' || !expected || typeof provided !== 'string' || !provided) return false;
+  const a = crypto.createHash('sha256').update(provided).digest();
+  const b = crypto.createHash('sha256').update(expected).digest();
+  return crypto.timingSafeEqual(a, b);
+}
+
+function requirePortalSecret(req: Request, res: any, next: any) {
+  if (!portalSecretMatches(req.get('x-internal-api-secret'))) {
+    return res.status(401).json({ error: 'Unauthorized internal access' });
+  }
+  return next();
+}
+
+const portalEmailSchema = z.object({ email: z.string().trim().toLowerCase().email().max(254) });
+
+async function findPortalCustomer(email: string) {
+  return prisma.user.findUnique({ where: { email }, select: { id: true, firstName: true, lastName: true, email: true, phone: true, college: true, year: true, createdAt: true, deletedAt: true } });
+}
+
 // Used to keep admin-login timing constant when the account does not exist.
 const DUMMY_BCRYPT_HASH = bcrypt.hashSync(crypto.randomBytes(16).toString('hex'), 12);
 // Configure multer to use memory storage for Supabase upload
@@ -51,6 +91,104 @@ const upload = multer({
     } else {
       cb(new Error('Invalid file type'));
     }
+  }
+});
+
+router.get('/internal/portal/customer', requirePortalSecret, async (req, res) => {
+  const parsed = portalEmailSchema.safeParse(req.query);
+  if (!parsed.success) return res.status(400).json({ error: 'A valid email is required' });
+  try {
+    const user = await findPortalCustomer(parsed.data.email);
+    if (!user) return res.json({ found: false, orders: [] });
+    const [orders, entitlements] = await Promise.all([
+      prisma.order.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+        include: { items: true, payments: true },
+      }),
+      // Verified purchases (created when an admin verifies a payment): the portal maps
+      // configured resource codes to perks such as the mentor's enrolled allowance.
+      prisma.entitlement.findMany({ where: { userId: user.id } }),
+    ]);
+    res.set('Cache-Control', 'no-store');
+    return res.json({
+      found: true,
+      customer: {
+        name: [user.firstName, user.lastName].filter(Boolean).join(' '),
+        phone: user.phone || '',
+        college: user.college || '',
+        year: user.year || '',
+        createdAt: user.createdAt,
+        deleted: Boolean(user.deletedAt),
+      },
+      orders: orders.map((order: any) => ({
+        orderNumber: order.orderNumber,
+        status: order.status,
+        subtotal: order.subtotal,
+        discount: order.discount,
+        tax: order.tax,
+        total: order.total,
+        currency: order.currency,
+        createdAt: order.createdAt,
+        items: (order.items || []).map((item: any) => ({
+          productName: item.productName,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          lineTotal: item.lineTotal,
+        })),
+        payments: (order.payments || []).map((payment: any) => ({
+          id: payment.id,
+          method: payment.paymentMethod,
+          status: payment.status,
+          utr: payment.utr || '',
+          amount: payment.amount,
+          currency: payment.currency,
+          createdAt: payment.createdAt,
+          verifiedAt: payment.verifiedAt,
+          rejectionReason: payment.rejectionReason || '',
+          hasReceipt: Boolean(payment.receiptReference),
+          receiptType: payment.receiptReference ? path.extname(String(payment.receiptReference)).replace('.', '').toLowerCase() : '',
+        })),
+      })),
+      entitlements: entitlements.map((entitlement: any) => ({
+        resourceCode: entitlement.resourceCode,
+        status: entitlement.status,
+        createdAt: entitlement.createdAt,
+      })),
+    });
+  } catch (error) {
+    console.error('Portal customer lookup failed:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// The payment screenshot, only for a payment on that student's own order.
+router.get('/internal/portal/payments/:id/receipt', requirePortalSecret, async (req, res) => {
+  const parsed = portalEmailSchema.safeParse(req.query);
+  if (!parsed.success) return res.status(400).json({ error: 'A valid email is required' });
+  try {
+    const [user, payment] = await Promise.all([
+      findPortalCustomer(parsed.data.email),
+      prisma.payment.findUnique({ where: { id: String(req.params.id) }, include: { order: { select: { userId: true } } } }),
+    ]);
+    const ref = payment && (payment as any).receiptReference;
+    if (!user || !payment || (payment as any).order?.userId !== user.id || !ref) {
+      return res.status(404).json({ error: 'Receipt not found' });
+    }
+    if (typeof ref !== 'string' || !ref.startsWith('receipts/') || ref.includes('..')) {
+      return res.status(404).json({ error: 'Receipt not found' });
+    }
+    if (!supabase) return res.status(503).json({ error: 'Supabase storage is not configured' });
+    const { data, error } = await supabase.storage.from('private_uploads').download(ref);
+    if (error || !data) return res.status(404).json({ error: 'Receipt not found' });
+    res.set('Cache-Control', 'no-store');
+    res.set('Content-Type', data.type || 'application/octet-stream');
+    res.set('Content-Disposition', `inline; filename="${path.basename(ref)}"`);
+    return res.send(Buffer.from(await data.arrayBuffer()));
+  } catch (error) {
+    console.error('Portal receipt lookup failed:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
@@ -133,6 +271,9 @@ router.post('/payments', authenticateToken, async (req: AuthRequest, res) => {
 
     if (!orderId || !idempotencyKey) {
       return res.status(400).json({ error: 'orderId and idempotencyKey are required' });
+    }
+    if (!isValidUtr(utr)) {
+      return res.status(400).json({ error: 'Enter the 12-digit UTR number from your payment app.' });
     }
 
     // Validate receipt path
@@ -289,35 +430,51 @@ router.get('/admin/coupons', authenticateToken, requireAdmin, async (req: AuthRe
   }
 });
 
+const couponSchema = z.object({
+  code: z.string().trim().toUpperCase().regex(/^[A-Z0-9_-]{3,32}$/, 'Code must be 3–32 letters, numbers, - or _'),
+  discountType: z.enum(['PERCENTAGE', 'FLAT'], 'Discount type must be PERCENTAGE or FLAT'),
+  discountValue: z.coerce.number().int('Discount must be a whole number').min(1, 'Discount must be at least 1'),
+  productRestriction: z.string().trim().max(64).nullish().transform((v) => v || null),
+}).refine((c) => c.discountType !== 'PERCENTAGE' || c.discountValue <= 100, {
+  message: 'A percentage discount cannot be more than 100%',
+  path: ['discountValue'],
+});
+
 router.post('/admin/coupons', authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
+  const parsed = couponSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid coupon' });
+  }
   try {
-    const { code, discountType, discountValue, productRestriction } = req.body;
-    if (!code || !discountType || !discountValue) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-    const coupon = await prisma.coupon.create({
-      data: {
-        code: code.toUpperCase(),
-        discountType,
-        discountValue: parseInt(discountValue, 10),
-        productRestriction: productRestriction || null,
-        status: 'ACTIVE'
-      }
-    });
+    const coupon = await prisma.coupon.create({ data: { ...parsed.data, status: 'ACTIVE' } });
     res.json(coupon);
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Internal Server Error' });
+    if (error?.code === 'P2002') {
+      return res.status(409).json({ error: `Coupon code ${parsed.data.code} already exists` });
+    }
+    console.error('Coupon creation failed:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
+// A coupon that has been redeemed is referenced by those orders, so it is
+// deactivated (no longer accepted at checkout) instead of deleted.
 router.post('/admin/coupons/:id/delete', authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
   try {
-    await prisma.coupon.delete({
-      where: { id: String(req.params.id) }
-    });
-    res.json({ success: true });
+    const id = String(req.params.id);
+    const coupon = await prisma.coupon.findUnique({ where: { id } });
+    if (!coupon) return res.status(404).json({ error: 'Coupon not found' });
+
+    const redemptions = await prisma.couponRedemption.count({ where: { couponId: id } });
+    if (redemptions > 0) {
+      const deactivated = await prisma.coupon.update({ where: { id }, data: { status: 'INACTIVE' } });
+      return res.json({ success: true, deactivated: true, coupon: deactivated });
+    }
+    await prisma.coupon.delete({ where: { id } });
+    res.json({ success: true, deactivated: false });
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Internal Server Error' });
+    console.error('Coupon deletion failed:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
@@ -327,7 +484,7 @@ router.post('/admin/payments/:id/verify', authenticateToken, requireAdmin, async
     const updatedPayment = await CommerceService.verifyPayment(req.params.id as string, req.user.id);
     res.json(updatedPayment);
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Internal Server Error' });
+    sendPaymentError(res, error);
   }
 });
 
@@ -342,11 +499,25 @@ router.post('/admin/payments/:id/reject', authenticateToken, requireAdmin, async
     });
 
     if (!payment) return res.status(404).json({ error: 'Payment not found' });
-    if (payment.status === 'REJECTED') {
-      return res.status(400).json({ error: 'Payment is already rejected' });
+    if (payment.status !== 'PENDING_VERIFICATION' && payment.status !== 'VERIFIED') {
+      return res.status(409).json({ error: `Only pending or verified payments can be rejected (this one is ${payment.status}).` });
     }
+    const revoking = payment.status === 'VERIFIED';
+    const hadMockAccess = revoking && !!(await prisma.entitlement.findFirst({
+      where: { orderId: payment.orderId, resourceCode: 'PAID_MOCK_SERIES' }
+    }));
 
     const updatedPayment = await prisma.$transaction(async (tx) => {
+      // Claim the payment in its current status first, so a concurrent action can't
+      // interleave with the revoke below.
+      const claimed = await tx.payment.updateMany({
+        where: { id: payment.id, status: payment.status },
+        data: { status: 'REJECTED', verifiedBy: req.user.id, verifiedAt: new Date(), rejectionReason: reason }
+      });
+      if (claimed.count === 0) {
+        throw new PaymentStateError('This payment was just updated by someone else. Refresh and try again.');
+      }
+
       // If we are revoking a previously verified payment, undo the provisioning
       if (payment.status === 'VERIFIED') {
         await tx.order.update({
@@ -363,15 +534,7 @@ router.post('/admin/payments/:id/reject', authenticateToken, requireAdmin, async
         });
       }
 
-      const p = await tx.payment.update({
-        where: { id: req.params.id as string },
-        data: {
-          status: 'REJECTED',
-          verifiedBy: req.user.id,
-          verifiedAt: new Date(),
-          rejectionReason: reason
-        }
-      });
+      const p = (await tx.payment.findUnique({ where: { id: payment.id } }))!;
 
       await tx.auditLog.create({
         data: {
@@ -388,11 +551,15 @@ router.post('/admin/payments/:id/reject', authenticateToken, requireAdmin, async
       return p;
     });
 
+    if (hadMockAccess) {
+      await CommerceService.deprovisionMock(payment.order.userId, payment.order.user.email);
+    }
+
     EmailService.sendPaymentRejectedEmail(payment.order.user.email, payment.order.user.firstName, payment.order.orderNumber, reason).catch(console.error);
 
     res.json(updatedPayment);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    sendPaymentError(res, error);
   }
 });
 
@@ -405,10 +572,15 @@ router.post('/admin/payments/:id/cancel', authenticateToken, requireAdmin, async
     if (!payment) return res.status(404).json({ error: 'Payment not found' });
 
     const updatedPayment = await prisma.$transaction(async (tx) => {
-      const p = await tx.payment.update({
-        where: { id: req.params.id as string },
+      // Only an unreviewed payment can be deleted; a verified one must be revoked.
+      const claimed = await tx.payment.updateMany({
+        where: { id: payment.id, status: 'PENDING_VERIFICATION' },
         data: { status: 'CANCELLED' }
       });
+      if (claimed.count === 0) {
+        throw new PaymentStateError(`Only payments pending verification can be deleted (this one is ${payment.status}).`);
+      }
+      const p = (await tx.payment.findUnique({ where: { id: payment.id } }))!;
       await tx.auditLog.create({
         data: {
           actorId: req.user.id,
@@ -424,7 +596,7 @@ router.post('/admin/payments/:id/cancel', authenticateToken, requireAdmin, async
 
     res.json(updatedPayment);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    sendPaymentError(res, error);
   }
 });
 
@@ -437,10 +609,14 @@ router.post('/admin/payments/:id/restore', authenticateToken, requireAdmin, asyn
     if (!payment) return res.status(404).json({ error: 'Payment not found' });
 
     const updatedPayment = await prisma.$transaction(async (tx) => {
-      const p = await tx.payment.update({
-        where: { id: req.params.id as string },
+      const claimed = await tx.payment.updateMany({
+        where: { id: payment.id, status: 'CANCELLED' },
         data: { status: 'PENDING_VERIFICATION' }
       });
+      if (claimed.count === 0) {
+        throw new PaymentStateError(`Only deleted payments can be restored (this one is ${payment.status}).`);
+      }
+      const p = (await tx.payment.findUnique({ where: { id: payment.id } }))!;
       await tx.auditLog.create({
         data: {
           actorId: req.user.id,
@@ -456,7 +632,7 @@ router.post('/admin/payments/:id/restore', authenticateToken, requireAdmin, asyn
 
     res.json(updatedPayment);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    sendPaymentError(res, error);
   }
 });
 
@@ -486,8 +662,8 @@ router.post('/admin/entitlements/:id/retry', authenticateToken, requireAdmin, as
 });
 const guestSchema = z.object({
   email: z.string().trim().pipe(z.email().max(254)),
-  firstName: z.string().trim().max(100).optional(),
-  lastName: z.string().trim().max(100).optional(),
+  firstName: z.string().trim().max(100).regex(/^[^<>]*$/, 'Names cannot contain < or >').optional(),
+  lastName: z.string().trim().max(100).regex(/^[^<>]*$/, 'Names cannot contain < or >').optional(),
   phone: z.string().trim().max(20).optional(),
   college: z.string().trim().max(200).optional(),
   year: z.string().trim().max(20).optional(),
@@ -525,7 +701,8 @@ router.post('/auth/send-otp', async (req, res) => {
 router.post('/auth/guest', async (req, res) => {
   const parsed = guestSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ error: 'Valid email and 6-digit OTP are required' });
+    const nameIssue = parsed.error.issues.find((i) => i.path[0] === 'firstName' || i.path[0] === 'lastName');
+    return res.status(400).json({ error: nameIssue ? nameIssue.message : 'Valid email and 6-digit OTP are required' });
   }
   const { firstName, lastName, email, phone, college, year, otp } = parsed.data;
 

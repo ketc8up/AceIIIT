@@ -7,35 +7,6 @@ jest.mock('@prisma/client', () => {
   return { PrismaClient: jest.fn(() => fakePrisma) };
 });
 
-// The Mock Portal's MongoDB is replaced in memory: provisioning upserts land here.
-jest.mock('mongoose', () => {
-  const mockUsers: Record<string, any>[] = [];
-  const MockUserModel = {
-    findOneAndUpdate: jest.fn(async (query: any, update: any) => {
-      let user: Record<string, any> | undefined = mockUsers.find((u) => u.email === query.email);
-      if (!user) {
-        const created: Record<string, any> = { _id: { toString: () => `mock-${query.email}` }, ...update.$setOnInsert };
-        mockUsers.push(created);
-        user = created;
-      }
-      Object.assign(user, update.$set);
-      return user;
-    }),
-  };
-  class Schema {
-    constructor(..._args: any[]) {}
-  }
-  const mongoose = {
-    Schema,
-    models: {} as Record<string, any>,
-    model: jest.fn(() => MockUserModel),
-    connect: jest.fn(async () => {}),
-    connection: { readyState: 1 },
-    __mockUsers: mockUsers,
-  };
-  return { __esModule: true, default: mongoose, ...mongoose };
-});
-
 // Emails are never sent from these tests.
 jest.mock('../src/services/email.service', () => ({
   EmailService: {
@@ -56,10 +27,14 @@ import { spawnSync } from 'child_process';
 import app from '../src/app';
 import { parseConfig } from '../src/config';
 import { db, resetDb, addUser, addOrder, addOtp } from './helpers/fake-prisma';
-import mongoose from 'mongoose';
 
-// The in-memory Mock Portal user model from the mongoose mock above.
-const mockPortalUsers = (mongoose as any).model() as { findOneAndUpdate: jest.Mock };
+// The Mock Portal is reached only through its internal HTTP API (global fetch). In the
+// admin tests below, fetch is spied on and portal calls are read from the spy.
+function portalCallsFrom(spy: jest.SpyInstance) {
+  return spy.mock.calls
+    .filter((c: any[]) => String(c[0]).startsWith(process.env.MOCK_PORTAL_URL as string))
+    .map((c: any[]) => ({ url: String(c[0]), headers: (c[1] && c[1].headers) || {}, body: JSON.parse((c[1] && c[1].body) || '{}') }));
+}
 
 const API_ROOT = path.resolve(__dirname, '..');
 const REPO_ROOT = path.resolve(API_ROOT, '..');
@@ -482,9 +457,39 @@ describe('Student access (TEST 10)', () => {
     const res = await request(app)
       .post('/api/payments')
       .set('Authorization', `Bearer ${token}`)
-      .send({ orderId: attackerOrder.id, idempotencyKey: 'shared-key' });
+      .send({ orderId: attackerOrder.id, utr: '246813579024', idempotencyKey: 'shared-key' });
     expect(res.status).toBe(400);
     expect(res.text).not.toContain('victim-payment');
+  });
+
+  it('a payment needs a real 12-digit UTR', async () => {
+    const student = addUser({ email: 'utr@example.com' });
+    const order = addOrder(student.id);
+    const token = sign({ userId: student.id, scope: 'guest' });
+    for (const utr of [undefined, '', 'abc', '12345', '1234567890123', '000000000000', '888888888888', '<b>12345678</b>']) {
+      const res = await request(app)
+        .post('/api/payments')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ orderId: order.id, utr, idempotencyKey: crypto.randomUUID() });
+      expect(res.status).toBe(400);
+    }
+    expect(db.payments).toHaveLength(0);
+
+    const ok = await request(app)
+      .post('/api/payments')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ orderId: order.id, utr: '231027699841', idempotencyKey: crypto.randomUUID() });
+    expect(ok.status).toBe(201);
+  });
+
+  it('guest names cannot carry HTML into the admin panel', async () => {
+    const otp = addOtp('xss@example.com');
+    const res = await request(app)
+      .post('/api/auth/guest')
+      .send({ email: 'xss@example.com', firstName: '<img src=x onerror=alert(1)>', otp });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/cannot contain/);
+    expect(db.users.find((u) => u.email === 'xss@example.com')).toBeUndefined();
   });
 
   it('public product listing still works without a token', async () => {
@@ -557,11 +562,18 @@ describe('Admin access (TEST 11)', () => {
     expect(res.body.status).toBe('VERIFIED');
     expect(db.orders[0].status).toBe('PAID');
 
-    // Provisioning upserts the student straight into the Mock Portal's user store.
-    expect(mockPortalUsers.findOneAndUpdate).toHaveBeenCalledWith(
-      { email: 'learner@example.com' },
-      expect.objectContaining({ $set: expect.objectContaining({ isPaid: true, status: 'active' }) }),
-      expect.objectContaining({ upsert: true })
+    // Provisioning goes through the portal's authenticated internal API (no DB writes).
+    const portalCalls = portalCallsFrom(fetchSpy);
+    expect(portalCalls).toHaveLength(1);
+    expect(portalCalls[0].url).toBe(`${process.env.MOCK_PORTAL_URL}/api/internal/access/provision`);
+    expect(portalCalls[0].headers['x-internal-api-secret']).toBe(process.env.INTERNAL_API_SECRET);
+    expect(portalCalls[0].body).toEqual(
+      expect.objectContaining({
+        email: 'learner@example.com',
+        resourceCode: 'PAID_MOCK_SERIES',
+        entitlementId: db.entitlements[0].id,
+        idempotencyKey: `provision-${db.entitlements[0].id}`,
+      })
     );
     expect(db.entitlements[0].resourceCode).toBe('PAID_MOCK_SERIES');
     expect(db.entitlements[0].provisioningStatus).toBe('PROVISIONED');
@@ -597,5 +609,96 @@ describe('Admin access (TEST 11)', () => {
     expect(res.status).toBe(200);
     await new Promise((r) => setTimeout(r, 50));
     expect(db.entitlements[0].provisioningStatus).toBe('PROVISIONED');
+  });
+
+  it('payment status changes follow the allowed transitions', async () => {
+    const token = await login();
+    const order = addOrder(addUser({ email: 'flow@example.com' }).id);
+    db.payments.push({ id: 'pv', orderId: order.id, status: 'VERIFIED', utr: '135791357913' });
+    db.payments.push({ id: 'pp', orderId: addOrder(db.users[1].id).id, status: 'PENDING_VERIFICATION', utr: '246802468024' });
+    const post = (url: string, body: object = {}) =>
+      request(app).post(url).set('Authorization', `Bearer ${token}`).send(body);
+
+    // A verified payment can't be deleted or restored — only revoked.
+    expect((await post('/api/admin/payments/pv/cancel')).status).toBe(409);
+    expect((await post('/api/admin/payments/pv/restore')).status).toBe(409);
+    expect((await post('/api/admin/payments/pv/verify')).status).toBe(409);
+    expect(db.payments.find((p) => p.id === 'pv')!.status).toBe('VERIFIED');
+
+    // Pending → deleted → restored works; restoring a pending one doesn't.
+    expect((await post('/api/admin/payments/pp/restore')).status).toBe(409);
+    expect((await post('/api/admin/payments/pp/cancel')).body.status).toBe('CANCELLED');
+    expect((await post('/api/admin/payments/pp/cancel')).status).toBe(409);
+    expect((await post('/api/admin/payments/pp/reject', { reason: 'x' })).status).toBe(409);
+    expect((await post('/api/admin/payments/pp/restore')).body.status).toBe('PENDING_VERIFICATION');
+    expect((await post('/api/admin/payments/missing/verify')).status).toBe(404);
+  });
+
+  it('approving twice, or approving a second payment for a paid order, grants access only once', async () => {
+    const token = await login();
+    const order = addOrder(addUser({ email: 'twice@example.com' }).id);
+    db.payments.push({ id: 'a1', orderId: order.id, status: 'PENDING_VERIFICATION', utr: '111122223334' });
+    db.payments.push({ id: 'a2', orderId: order.id, status: 'PENDING_VERIFICATION', utr: '111122223335' });
+    const verify = (pid: string) => request(app).post(`/api/admin/payments/${pid}/verify`).set('Authorization', `Bearer ${token}`);
+
+    expect((await verify('a1')).status).toBe(200);
+    expect((await verify('a1')).status).toBe(409);
+    const second = await verify('a2');
+    expect(second.status).toBe(409);
+    expect(second.body.error).toMatch(/already paid/);
+    expect(db.entitlements).toHaveLength(1);
+    expect(db.enrollments).toHaveLength(1);
+  });
+
+  it('revoking a verified payment also removes Mock Portal access', async () => {
+    const token = await login();
+    const student = addUser({ email: 'revoke@example.com' });
+    db.products.push({ id: 'mock', name: 'Paid Mock Series', metadata: JSON.stringify({ resourceCode: 'PAID_MOCK_SERIES' }) });
+    const order = addOrder(student.id);
+    db.payments.push({ id: 'rv', orderId: order.id, status: 'PENDING_VERIFICATION', utr: '975318642097' });
+
+    expect((await request(app).post('/api/admin/payments/rv/verify').set('Authorization', `Bearer ${token}`)).status).toBe(200);
+    fetchSpy.mockClear();
+
+    const res = await request(app)
+      .post('/api/admin/payments/rv/reject')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ reason: 'Bank reversed the payment' });
+    expect(res.status).toBe(200);
+    expect(db.entitlements).toHaveLength(0);
+    expect(db.orders[0].status).toBe('PENDING');
+    const portalCalls = portalCallsFrom(fetchSpy);
+    expect(portalCalls).toHaveLength(1);
+    expect(portalCalls[0].url).toBe(`${process.env.MOCK_PORTAL_URL}/api/internal/access/revoke`);
+    expect(portalCalls[0].body).toEqual(expect.objectContaining({ email: 'revoke@example.com', resourceCode: 'PAID_MOCK_SERIES' }));
+  });
+
+  it('coupons are validated, unique, and deactivated instead of deleted once used', async () => {
+    const token = await login();
+    const create = (body: object) =>
+      request(app).post('/api/admin/coupons').set('Authorization', `Bearer ${token}`).send(body);
+
+    expect((await create({ code: 'BIG', discountType: 'PERCENTAGE', discountValue: 150 })).status).toBe(400);
+    expect((await create({ code: 'ZERO', discountType: 'FLAT', discountValue: 0 })).status).toBe(400);
+    expect((await create({ code: 'ODD', discountType: 'BOGUS', discountValue: 10 })).status).toBe(400);
+    expect((await create({ code: 'a b', discountType: 'FLAT', discountValue: 10 })).status).toBe(400);
+
+    const ok = await create({ code: 'save10', discountType: 'PERCENTAGE', discountValue: '10', productRestriction: '' });
+    expect(ok.status).toBe(200);
+    expect(ok.body).toMatchObject({ code: 'SAVE10', discountValue: 10, productRestriction: null, status: 'ACTIVE' });
+    expect((await create({ code: 'SAVE10', discountType: 'FLAT', discountValue: 50 })).status).toBe(409);
+
+    // Unused coupon: deleted. Redeemed coupon: kept but deactivated.
+    const unused = (await create({ code: 'UNUSED', discountType: 'FLAT', discountValue: 50 })).body;
+    const del = (cid: string) => request(app).post(`/api/admin/coupons/${cid}/delete`).set('Authorization', `Bearer ${token}`);
+    expect((await del(unused.id)).body.deactivated).toBe(false);
+    expect(db.coupons.find((c) => c.id === unused.id)).toBeUndefined();
+
+    db.redemptions.push({ id: 'r1', couponId: ok.body.id, userId: 'u', orderId: 'o' });
+    const used = await del(ok.body.id);
+    expect(used.status).toBe(200);
+    expect(used.body.deactivated).toBe(true);
+    expect(db.coupons.find((c) => c.id === ok.body.id)!.status).toBe('INACTIVE');
+    expect((await del('missing')).status).toBe(404);
   });
 });

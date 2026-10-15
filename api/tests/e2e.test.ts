@@ -9,6 +9,20 @@ import { describeDb } from './db-guard';
 
 const prisma = new PrismaClient();
 
+// The Mock Portal's internal API is mocked; commerce never touches the portal's database.
+const realFetch = global.fetch;
+beforeAll(() => {
+  global.fetch = jest.fn(async (input: any, init: any = {}) => {
+    const url = String(input);
+    if (!url.startsWith(process.env.MOCK_PORTAL_URL as string)) return realFetch(input, init);
+    const body = JSON.parse(init.body || '{}');
+    return new Response(JSON.stringify({ success: true, mockUserId: `MOCK-${body.email}` }), { status: 200 });
+  }) as any;
+});
+afterAll(() => {
+  global.fetch = realFetch;
+});
+
 describeDb('E2E Commerce & Admin flow', () => {
   let userToken: string;
   let adminToken: string;

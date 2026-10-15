@@ -835,7 +835,8 @@ document.getElementById("btn-pay-now").addEventListener("click", async function 
     const phone     = document.getElementById("phone").value.trim();
     const utr       = document.getElementById("utr") ? document.getElementById("utr").value.trim() : null;
 
-    if (!utr) {
+    // Same rule as the API: 12 digits, not one digit repeated.
+    if (!utr || !/^\d{12}$/.test(utr) || /^(\d)\1{11}$/.test(utr)) {
       alert("Please enter a valid 12-digit UTR to verify your payment.");
       btn.disabled = false;
       btn.innerHTML = '<span>Submit Details</span>';

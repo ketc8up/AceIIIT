@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
   <title>ACEIIIT - Admin Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -219,7 +220,7 @@
     
     table { width: 100%; border-collapse: collapse; }
     .table-container { max-height: 500px; overflow: auto; -webkit-overflow-scrolling: touch; }
-    th, td { padding: 12px 1.5rem; text-align: left; font-size: 0.875rem; }
+    th, td { padding: 12px 1rem; text-align: left; font-size: 0.875rem; }
     th { color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border); background: #f8fafc; position: sticky; top: 0; z-index: 1; }
     td { border-bottom: 1px solid var(--border); }
     tr:last-child td { border-bottom: none; }
@@ -236,7 +237,16 @@
     .badge-rejected { background: #fee2e2; color: #dc2626; }
     .badge-cancelled { background: #e2e8f0; color: #64748b; }
 
-    .action-group { display: flex; gap: 8px; }
+    .action-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .actions-cell { min-width: 200px; }
+    /* Actions stay visible at the right edge even when a wide table scrolls sideways. */
+    .actions-cell, thead th:last-child { position: sticky; right: 0; box-shadow: -10px 0 10px -10px rgba(15, 23, 42, 0.18); }
+    .actions-cell { background: #fff; }
+    thead th:last-child { z-index: 2; }
+    .mono { font-family: monospace; white-space: nowrap; }
+    .dup-badge { margin-left: 6px; white-space: nowrap; }
+    .btn-muted { background: #64748b; color: white; }
+    .btn-restore { background: #3b82f6; color: white; }
     .btn-sm { padding: 6px 12px; font-size: 0.75rem; border-radius: var(--radius-md); border: none; cursor: pointer; font-weight: 600; }
     .btn-view { background: #f1f5f9; color: var(--primary); }
     .btn-view:hover { background: #e2e8f0; }
@@ -700,99 +710,115 @@
       document.getElementById('stat-users').innerText = allUsers.filter(u => u.role !== 'ADMIN').length;
     }
 
+    // Every value from the API is untrusted (student names, UTRs, receipt paths), so
+    // it is escaped before going into innerHTML, and row actions read their ids from
+    // data-* attributes instead of inline onclick strings.
+    function esc(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+    }
+
+    function fmtDateTime(value) {
+      return new Date(value).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    const STATUS_BADGE = {
+      PENDING_VERIFICATION: 'badge-pending',
+      VERIFIED: 'badge-verified',
+      REJECTED: 'badge-rejected',
+      CANCELLED: 'badge-cancelled'
+    };
+
     function renderPayments() {
       const filter = document.getElementById('payment-filter').value;
       const tbody = document.getElementById('payments-tbody');
-      tbody.innerHTML = '';
-      
-      const filtered = filter === 'ALL' ? allPayments : allPayments.filter(p => p.status === filter);
-      
-      filtered.forEach(p => {
-        const tr = document.createElement('tr');
-        let badgeClass = 'badge-pending';
-        if (p.status === 'VERIFIED') badgeClass = 'badge-verified';
-        if (p.status === 'REJECTED') badgeClass = 'badge-rejected';
-        if (p.status === 'CANCELLED') badgeClass = 'badge-cancelled';
-        
-        const date = new Date(p.createdAt).toLocaleDateString();
-        const studentName = p.order && p.order.user ? `${p.order.user.firstName} ${p.order.user.lastName}` : 'Unknown';
 
-        tr.innerHTML = `
-          <td style="font-family: monospace;">${p.orderId.substring(0, 8)}...</td>
-          <td>${studentName}</td>
-          <td style="font-weight:600;">₹${p.amount}</td>
-          <td style="font-family: monospace;">${p.utr || '-'}</td>
-          <td><span class="badge ${badgeClass}">${p.status.replace('_', ' ')}</span></td>
-          <td style="color:var(--text-muted);">${date}</td>
-          <td>
-            <div class="action-group">
-              ${p.receiptReference ? `<button class="btn-sm btn-view" onclick="viewReceipt('${p.receiptReference}', this)">Receipt</button>` : ''}
-              ${p.status === 'PENDING_VERIFICATION' || p.status === 'REJECTED' ? `<button class="btn-sm btn-approve" onclick="approvePayment('${p.id}', this)">${p.status === 'REJECTED' ? 'Re-verify' : 'Approve'}</button>` : ''}
-              ${p.status === 'PENDING_VERIFICATION' || p.status === 'VERIFIED' ? `<button class="btn-sm btn-reject" onclick="rejectPayment('${p.id}', this)">${p.status === 'VERIFIED' ? 'Revoke' : 'Reject'}</button>` : ''}
-              ${p.status === 'PENDING_VERIFICATION' ? `<button class="btn-sm" style="background:#64748b; color: white;" onclick="cancelPayment('${p.id}', this)">Delete</button>` : ''}
-              ${p.status === 'CANCELLED' ? `<button class="btn-sm" style="background:#3b82f6; color: white;" onclick="restorePayment('${p.id}', this)">Restore</button>` : ''}
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
+      // Students with more than one payment awaiting review (usually a retried checkout).
+      const pendingByUser = {};
+      allPayments.forEach(p => {
+        if (p.status === 'PENDING_VERIFICATION' && p.order) {
+          pendingByUser[p.order.userId] = (pendingByUser[p.order.userId] || 0) + 1;
+        }
       });
+
+      const filtered = filter === 'ALL' ? allPayments : allPayments.filter(p => p.status === filter);
+      tbody.innerHTML = filtered.map(p => {
+        const user = p.order && p.order.user;
+        const studentName = user ? `${user.firstName} ${user.lastName}` : 'Unknown';
+        const pendingCount = p.status === 'PENDING_VERIFICATION' && p.order ? pendingByUser[p.order.userId] : 0;
+        const dupBadge = pendingCount > 1
+          ? `<span class="badge badge-pending dup-badge" title="This student has ${pendingCount} payments awaiting review">×${pendingCount} pending</span>`
+          : '';
+        const orderNo = p.order && p.order.orderNumber ? p.order.orderNumber : `${p.orderId.substring(0, 8)}…`;
+
+        const actions = [];
+        if (p.receiptReference) {
+          actions.push(`<button class="btn-sm btn-view" data-action="receipt" data-ref="${esc(p.receiptReference)}">Receipt</button>`);
+        }
+        if (p.status === 'PENDING_VERIFICATION' || p.status === 'REJECTED') {
+          actions.push(`<button class="btn-sm btn-approve" data-action="approve" data-id="${esc(p.id)}">${p.status === 'REJECTED' ? 'Re-verify' : 'Approve'}</button>`);
+        }
+        if (p.status === 'PENDING_VERIFICATION' || p.status === 'VERIFIED') {
+          actions.push(`<button class="btn-sm btn-reject" data-action="reject" data-id="${esc(p.id)}">${p.status === 'VERIFIED' ? 'Revoke' : 'Reject'}</button>`);
+        }
+        if (p.status === 'PENDING_VERIFICATION') {
+          actions.push(`<button class="btn-sm btn-muted" data-action="cancel" data-id="${esc(p.id)}">Delete</button>`);
+        }
+        if (p.status === 'CANCELLED') {
+          actions.push(`<button class="btn-sm btn-restore" data-action="restore" data-id="${esc(p.id)}">Restore</button>`);
+        }
+
+        return `<tr>
+          <td class="mono" title="${esc(p.orderId)}">${esc(orderNo)}</td>
+          <td>${esc(studentName)}${dupBadge}</td>
+          <td style="font-weight:600;">₹${esc(p.amount)}</td>
+          <td class="mono">${esc(p.utr || '-')}</td>
+          <td><span class="badge ${STATUS_BADGE[p.status] || 'badge-cancelled'}">${esc(p.status.replace(/_/g, ' '))}</span></td>
+          <td style="color:var(--text-muted);">${esc(fmtDateTime(p.createdAt))}</td>
+          <td class="actions-cell"><div class="action-group">${actions.join('')}</div></td>
+        </tr>`;
+      }).join('');
     }
 
     function renderUsers() {
       const filter = document.getElementById('user-filter').value;
       const tbody = document.getElementById('users-tbody');
-      tbody.innerHTML = '';
-      
       const filtered = filter === 'ALL' ? allUsers : allUsers.filter(u => u.role === filter);
-      
-      filtered.forEach(u => {
-        const tr = document.createElement('tr');
-        if (u.deletedAt) {
-          tr.style.opacity = '0.5';
+      tbody.innerHTML = filtered.map(u => {
+        const actions = [];
+        if (!u.deletedAt && u.role !== 'ADMIN') {
+          actions.push(`<button class="btn-sm btn-reject" data-action="delete-user" data-id="${esc(u.id)}">Delete</button>`);
         }
-        const date = new Date(u.createdAt).toLocaleDateString();
-        tr.innerHTML = `
-          <td style="font-weight:600;">${u.firstName} ${u.lastName}</td>
-          <td>${u.email}</td>
-          <td>${u.phone || '-'}</td>
+        if (u.deletedAt) {
+          actions.push(`<button class="btn-sm btn-restore" data-action="restore-user" data-id="${esc(u.id)}">Restore</button>`);
+        }
+        return `<tr${u.deletedAt ? ' style="opacity:0.5;"' : ''}>
+          <td style="font-weight:600;">${esc(u.firstName)} ${esc(u.lastName)}</td>
+          <td>${esc(u.email)}</td>
+          <td>${esc(u.phone || '-')}</td>
           <td>
-            <span class="badge ${u.role === 'ADMIN' ? 'badge-verified' : 'badge-pending'}">${u.role}</span>
+            <span class="badge ${u.role === 'ADMIN' ? 'badge-verified' : 'badge-pending'}">${esc(u.role)}</span>
             ${u.deletedAt ? '<span class="badge badge-rejected" style="margin-left:5px;">DELETED</span>' : ''}
           </td>
-          <td style="color:var(--text-muted);">${date}</td>
-          <td>
-            <div class="action-group">
-              ${!u.deletedAt && u.role !== 'ADMIN' ? `<button class="btn-sm btn-reject" onclick="deleteUser('${u.id}', this)">Delete</button>` : ''}
-              ${u.deletedAt ? `<button class="btn-sm" style="background:#3b82f6; color: white;" onclick="restoreUser('${u.id}', this)">Restore</button>` : ''}
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+          <td style="color:var(--text-muted);">${esc(new Date(u.createdAt).toLocaleDateString('en-IN'))}</td>
+          <td class="actions-cell"><div class="action-group">${actions.join('')}</div></td>
+        </tr>`;
+      }).join('');
     }
 
-    
     function renderCoupons() {
       const tbody = document.getElementById('coupons-tbody');
-      tbody.innerHTML = '';
-      allCoupons.forEach(c => {
-        const tr = document.createElement('tr');
-        const date = new Date(c.createdAt).toLocaleDateString();
+      tbody.innerHTML = allCoupons.map(c => {
         const discountText = c.discountType === 'PERCENTAGE' ? `${c.discountValue}%` : `₹${c.discountValue}`;
-        tr.innerHTML = `
-          <td style="font-weight:700;">${c.code}</td>
-          <td>${discountText}</td>
-          <td style="font-family: monospace;">${c.productRestriction || 'None'}</td>
-          <td><span class="badge badge-verified">${c.status}</span></td>
-          <td style="color:var(--text-muted);">${date}</td>
-          <td>
-            <div class="action-group">
-              <button class="btn-sm btn-reject" onclick="deleteCoupon('${c.id}', this)">Delete</button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+        const active = c.status === 'ACTIVE';
+        return `<tr${active ? '' : ' style="opacity:0.6;"'}>
+          <td style="font-weight:700;">${esc(c.code)}</td>
+          <td>${esc(discountText)}</td>
+          <td class="mono">${esc(c.productRestriction || 'None')}</td>
+          <td><span class="badge ${active ? 'badge-verified' : 'badge-cancelled'}">${esc(c.status)}</span></td>
+          <td style="color:var(--text-muted);">${esc(new Date(c.createdAt).toLocaleDateString('en-IN'))}</td>
+          <td class="actions-cell"><div class="action-group">${active ? `<button class="btn-sm btn-reject" data-action="delete-coupon" data-id="${esc(c.id)}">Delete</button>` : ''}</div></td>
+        </tr>`;
+      }).join('');
     }
 
     async function createCoupon(e) {
@@ -816,10 +842,10 @@
         });
 
         if (!res.ok) {
-          const err = await res.json();
+          const err = await res.json().catch(() => ({}));
           throw new Error(err.error || "Failed to create coupon");
         }
-        
+
         document.getElementById('create-coupon-form').reset();
         await loadDashboardData();
       } catch (err) {
@@ -830,124 +856,99 @@
       }
     }
 
-    async function deleteCoupon(id, btn) {
-      if (!confirm("Are you sure you want to delete this coupon?")) return;
-      const originalText = btn.innerText;
-      btn.innerText = "Deleting...";
-      btn.disabled = true;
+    function renderLogs() {
+      const tbody = document.getElementById('activity-tbody');
+      tbody.innerHTML = allLogs.map(l => {
+        const actor = l.actor ? l.actor.firstName : 'System';
+        return `<div class="activity-item">
+          <div class="avatar" style="width:36px; height:36px;">${esc(String(actor).substring(0, 2).toUpperCase())}</div>
+          <div>
+            <div class="activity-text"><span>${esc(actor)}</span> performed action: <b>${esc(l.action)}</b>${l.rejectionReason ? ` — ${esc(l.rejectionReason)}` : ''}</div>
+            <div class="activity-time">${esc(fmtDateTime(l.createdAt))} | Order/Payment ID: ${esc(l.orderId || l.paymentId || 'N/A')}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
 
+    // Runs one admin POST, showing the server's own error message on failure
+    // (e.g. "Only pending or rejected payments can be approved").
+    async function adminAction(btn, busyLabel, url, body) {
+      const originalText = btn.innerText;
+      btn.innerText = busyLabel;
+      btn.disabled = true;
       try {
-        const res = await fetch(`/api/admin/coupons/${id}/delete`, {
+        const res = await fetch(url, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: body
+            ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            : { 'Authorization': `Bearer ${token}` },
+          body: body ? JSON.stringify(body) : undefined
         });
-        if (!res.ok) throw new Error("Failed to delete coupon");
+        if (res.status === 401) { logout(); return null; }
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
         await loadDashboardData();
+        return data;
       } catch (err) {
         alert(err.message);
         btn.innerText = originalText;
         btn.disabled = false;
+        return null;
       }
     }
 
-    function renderLogs() {
-      const tbody = document.getElementById('activity-tbody');
-      tbody.innerHTML = '';
-      allLogs.forEach(l => {
-        const div = document.createElement('div');
-        div.className = 'activity-item';
-        const date = new Date(l.createdAt).toLocaleString();
-        const actor = l.actor ? `${l.actor.firstName}` : 'System';
-        div.innerHTML = `
-          <div class="avatar" style="width:36px; height:36px;">${actor.substring(0,2).toUpperCase()}</div>
-          <div>
-            <div class="activity-text"><span>${actor}</span> performed action: <b>${l.action}</b></div>
-            <div class="activity-time">${date} | Order/Payment ID: ${l.orderId || l.paymentId || 'N/A'}</div>
-          </div>
-        `;
-        tbody.appendChild(div);
-      });
+    function approvePayment(id, btn) {
+      if (!confirm("Approve payment? This will grant the student access.")) return;
+      adminAction(btn, 'Verifying...', `/api/admin/payments/${encodeURIComponent(id)}/verify`);
     }
 
-    async function approvePayment(id, btn) {
-      if (!confirm("Approve payment? This will grant user access.")) return;
-      
-      const originalText = btn.innerText;
-      btn.innerText = "Verifying...";
-      btn.disabled = true;
-
-      const res = await fetch(`/api/admin/payments/${id}/verify`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        await loadDashboardData();
-      } else {
-        alert("Error approving payment");
-        btn.innerText = originalText;
-        btn.disabled = false;
-      }
-    }
-
-    async function rejectPayment(id, btn) {
-      const reason = prompt("Enter rejection reason:");
+    function rejectPayment(id, btn) {
+      const reason = (prompt("Enter rejection reason (sent to the student):") || '').trim();
       if (!reason) return;
-      
-      const originalText = btn.innerText;
-      btn.innerText = "Rejecting...";
-      btn.disabled = true;
+      adminAction(btn, 'Rejecting...', `/api/admin/payments/${encodeURIComponent(id)}/reject`, { reason });
+    }
 
-      const res = await fetch(`/api/admin/payments/${id}/reject`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason })
-      });
-      if (res.ok) {
-        await loadDashboardData();
-      } else {
-        alert("Error rejecting payment");
-        btn.innerText = originalText;
-        btn.disabled = false;
+    function cancelPayment(id, btn) {
+      if (!confirm("Delete this payment registration? It can be restored later.")) return;
+      adminAction(btn, 'Deleting...', `/api/admin/payments/${encodeURIComponent(id)}/cancel`);
+    }
+
+    function restorePayment(id, btn) {
+      adminAction(btn, 'Restoring...', `/api/admin/payments/${encodeURIComponent(id)}/restore`);
+    }
+
+    function deleteUser(id, btn) {
+      if (!confirm("Delete this user? Their email is freed for a new registration; the account can be restored later.")) return;
+      adminAction(btn, 'Deleting...', `/api/admin/users/${encodeURIComponent(id)}/delete`);
+    }
+
+    function restoreUser(id, btn) {
+      adminAction(btn, 'Restoring...', `/api/admin/users/${encodeURIComponent(id)}/restore`);
+    }
+
+    async function deleteCoupon(id, btn) {
+      if (!confirm("Delete this coupon?")) return;
+      const result = await adminAction(btn, 'Deleting...', `/api/admin/coupons/${encodeURIComponent(id)}/delete`);
+      if (result && result.deactivated) {
+        alert("This coupon has already been used, so it was deactivated instead of deleted. It no longer works at checkout.");
       }
     }
 
-    async function cancelPayment(id, btn) {
-      if (!confirm("Are you sure you want to delete this payment registration?")) return;
-      
-      const originalText = btn.innerText;
-      btn.innerText = "Deleting...";
-      btn.disabled = true;
+    const ROW_ACTIONS = {
+      'receipt': btn => viewReceipt(btn.dataset.ref, btn),
+      'approve': btn => approvePayment(btn.dataset.id, btn),
+      'reject': btn => rejectPayment(btn.dataset.id, btn),
+      'cancel': btn => cancelPayment(btn.dataset.id, btn),
+      'restore': btn => restorePayment(btn.dataset.id, btn),
+      'delete-user': btn => deleteUser(btn.dataset.id, btn),
+      'restore-user': btn => restoreUser(btn.dataset.id, btn),
+      'delete-coupon': btn => deleteCoupon(btn.dataset.id, btn)
+    };
 
-      const res = await fetch(`/api/admin/payments/${id}/cancel`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        await loadDashboardData();
-      } else {
-        alert("Error deleting payment");
-        btn.innerText = originalText;
-        btn.disabled = false;
-      }
-    }
-
-    async function restorePayment(id, btn) {
-      const originalText = btn.innerText;
-      btn.innerText = "Restoring...";
-      btn.disabled = true;
-
-      const res = await fetch(`/api/admin/payments/${id}/restore`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        await loadDashboardData();
-      } else {
-        alert("Error restoring payment");
-        btn.innerText = originalText;
-        btn.disabled = false;
-      }
-    }
+    document.addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-action]');
+      if (btn && !btn.disabled && ROW_ACTIONS[btn.dataset.action]) ROW_ACTIONS[btn.dataset.action](btn);
+    });
 
     let currentBlobUrl = null;
 

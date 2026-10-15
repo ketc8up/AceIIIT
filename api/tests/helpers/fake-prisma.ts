@@ -17,6 +17,8 @@ export const db = {
   identities: [] as Row[],
   products: [] as Row[],
   otps: [] as Row[],
+  coupons: [] as Row[],
+  redemptions: [] as Row[],
 };
 
 export function resetDb() {
@@ -37,6 +39,7 @@ function project(row: Row | undefined | null, select?: Row): Row | null {
 function matches(row: Row, where: Row = {}): boolean {
   return Object.entries(where).every(([k, v]) => {
     if (v && typeof v === 'object' && 'in' in v) return (v.in as any[]).includes(row[k]);
+    if (v && typeof v === 'object' && 'not' in v) return row[k] !== v.not;
     return row[k] === v;
   });
 }
@@ -110,6 +113,14 @@ export const fakePrisma: any = {
     },
   },
   order: {
+    findMany: async ({ where, include }: any = {}) =>
+      db.orders
+        .filter((o) => matches(o, where))
+        .map((o) => ({
+          ...o,
+          ...(include?.items ? { items: db.orderItems.filter((i) => i.orderId === o.id) } : {}),
+          ...(include?.payments ? { payments: db.payments.filter((p) => p.orderId === o.id) } : {}),
+        })),
     findUnique: async ({ where, include }: any) => {
       const o = db.orders.find((r) => matches(r, where));
       if (!o) return null;
@@ -122,6 +133,11 @@ export const fakePrisma: any = {
       const o = db.orders.find((r) => matches(r, where))!;
       Object.assign(o, data);
       return { ...o };
+    },
+    updateMany: async ({ where, data }: any) => {
+      const rows = db.orders.filter((r) => matches(r, where));
+      rows.forEach((r) => Object.assign(r, data));
+      return { count: rows.length };
     },
   },
   payment: {
@@ -139,6 +155,11 @@ export const fakePrisma: any = {
       const p = db.payments.find((r) => matches(r, where))!;
       Object.assign(p, data);
       return { ...p };
+    },
+    updateMany: async ({ where, data }: any) => {
+      const rows = db.payments.filter((r) => matches(r, where));
+      rows.forEach((r) => Object.assign(r, data));
+      return { count: rows.length };
     },
   },
   auditLog: {
@@ -161,6 +182,7 @@ export const fakePrisma: any = {
         .filter((e) => matches(e, where))
         .map((e) => (include?.user ? { ...e, user: withUser(e.userId, true) } : { ...e })),
     findUnique: async ({ where }: any) => db.entitlements.find((e) => matches(e, where)) ?? null,
+    findFirst: async ({ where }: any) => db.entitlements.find((e) => matches(e, where)) ?? null,
     update: async ({ where, data }: any) => {
       const e = db.entitlements.find((r) => matches(r, where))!;
       Object.assign(e, data);
@@ -189,6 +211,34 @@ export const fakePrisma: any = {
       db.identities.push(row);
       return row;
     },
+  },
+  coupon: {
+    findMany: async () => db.coupons.map((c) => ({ ...c })),
+    findUnique: async ({ where }: any) => {
+      const c = db.coupons.find((r) => matches(r, where));
+      return c ? { ...c } : null;
+    },
+    create: async ({ data }: any) => {
+      if (db.coupons.some((c) => c.code === data.code)) {
+        throw Object.assign(new Error('Unique constraint failed on the fields: (`code`)'), { code: 'P2002' });
+      }
+      const row = { id: id(), createdAt: now(), usageLimit: null, ...data };
+      db.coupons.push(row);
+      return { ...row };
+    },
+    update: async ({ where, data }: any) => {
+      const c = db.coupons.find((r) => matches(r, where))!;
+      Object.assign(c, data);
+      return { ...c };
+    },
+    delete: async ({ where }: any) => {
+      const i = db.coupons.findIndex((r) => matches(r, where));
+      if (i === -1) throw Object.assign(new Error('Record to delete does not exist.'), { code: 'P2025' });
+      return db.coupons.splice(i, 1)[0];
+    },
+  },
+  couponRedemption: {
+    count: async ({ where }: any = {}) => db.redemptions.filter((r) => matches(r, where)).length,
   },
   $transaction: async (fn: (tx: any) => any) => fn(fakePrisma),
   $disconnect: async () => {},

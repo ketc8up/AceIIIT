@@ -23,6 +23,7 @@ const limiterOptions = {
 };
 app.use('/api/auth', rateLimit({ ...limiterOptions, limit: config.AUTH_RATE_LIMIT_PER_MIN }));
 app.use('/api/receipts/upload', rateLimit({ ...limiterOptions, limit: 10 }));
+app.use('/api/internal', rateLimit({ ...limiterOptions, limit: 120 }));
 
 app.use('/api', routes);
 app.use('/api', (req, res) => {

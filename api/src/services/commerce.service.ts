@@ -2,22 +2,41 @@ import { PrismaClient } from '@prisma/client';
 import type { Coupon } from '@prisma/client';
 import crypto from 'crypto';
 import { config } from '../config';
-import mongoose from 'mongoose';
 import { EmailService } from './email.service';
 
 const prisma = new PrismaClient();
 
-const mockUserSchema = new mongoose.Schema({
-  email: String,
-  name: String,
-  isPaid: Boolean,
-  status: String,
-  isActivated: Boolean,
-  emailVerified: Boolean,
-  role: String
-}, { strict: false });
+/**
+ * A payment action that isn't allowed from the payment's current status (or lost
+ * a race with another admin). Routes turn it into 409 Conflict.
+ */
+export class PaymentStateError extends Error {}
 
-const MockUser = mongoose.models.User || mongoose.model('User', mockUserSchema);
+const MOCK_PORTAL_TIMEOUT_MS = 10_000;
+
+/**
+ * Mock Portal access is granted and revoked through the portal's authenticated internal
+ * API (`/api/internal/access/*`). Commerce never writes to the portal's database: the
+ * portal records a PaymentRecord → Entitlement → AuditLog on its side.
+ */
+async function callMockPortal(
+  action: 'provision' | 'revoke',
+  body: { commerceUserId: string; email: string; resourceCode: string; entitlementId: string; idempotencyKey: string }
+): Promise<any> {
+  const base = (config.MOCK_PORTAL_URL || '').replace(/\/+$/, '');
+  if (!base) throw new Error('MOCK_PORTAL_URL is not configured');
+  const res = await fetch(`${base}/api/internal/access/${action}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-internal-api-secret': config.INTERNAL_API_SECRET },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(MOCK_PORTAL_TIMEOUT_MS),
+  });
+  const data: any = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(`Mock Portal ${action} failed (${res.status})${data && data.code ? `: ${data.code}` : ''}`);
+  }
+  return data;
+}
 
 export class CommerceService {
   
@@ -244,18 +263,31 @@ export class CommerceService {
     });
 
     if (!payment) throw new Error('Payment not found');
-    if (payment.status === 'VERIFIED') throw new Error('Payment is already verified');
+    if (payment.status !== 'PENDING_VERIFICATION' && payment.status !== 'REJECTED') {
+      throw new PaymentStateError(`Only pending or rejected payments can be approved (this one is ${payment.status}).`);
+    }
+    if (payment.order.status === 'PAID') {
+      throw new PaymentStateError('This order is already paid through another payment.');
+    }
 
     const updatedPayment = await prisma.$transaction(async (tx) => {
-      const p = await tx.payment.update({
-        where: { id: paymentId },
+      // Conditional updates: if another admin acted first, nothing matches and the
+      // whole approval (entitlements included) is rolled back instead of duplicated.
+      const claimed = await tx.payment.updateMany({
+        where: { id: paymentId, status: payment.status },
         data: { status: 'VERIFIED', verifiedBy: adminId, verifiedAt: new Date() }
       });
-      
-      await tx.order.update({
-        where: { id: payment.orderId },
+      if (claimed.count === 0) {
+        throw new PaymentStateError('This payment was just updated by someone else. Refresh and try again.');
+      }
+      const paid = await tx.order.updateMany({
+        where: { id: payment.orderId, status: { not: 'PAID' } },
         data: { status: 'PAID' }
       });
+      if (paid.count === 0) {
+        throw new PaymentStateError('This order is already paid through another payment.');
+      }
+      const p = (await tx.payment.findUnique({ where: { id: paymentId } }))!;
 
       // Generate entitlements based on order items
       for (const item of payment.order.items) {
@@ -326,29 +358,14 @@ export class CommerceService {
     for (const ent of entitlements) {
       if (ent.resourceCode === 'PAID_MOCK_SERIES') {
         try {
-          if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI is not configured');
-          if (mongoose.connection.readyState !== 1) {
-            await mongoose.connect(process.env.MONGODB_URI);
-          }
-
-          // Directly Upsert into Mock Portal MongoDB
-          const mockUser = await MockUser.findOneAndUpdate(
-            { email: ent.user.email },
-            { 
-              $set: {
-                name: `${ent.user.firstName} ${ent.user.lastName}`.trim(),
-                email: ent.user.email,
-                isPaid: true,
-                status: 'active',
-                isActivated: true,
-                emailVerified: true
-              },
-              $setOnInsert: {
-                role: 'student'
-              }
-            },
-            { upsert: true, new: true }
-          );
+          const provisioned = await callMockPortal('provision', {
+            commerceUserId: ent.userId,
+            email: ent.user.email,
+            resourceCode: ent.resourceCode,
+            entitlementId: ent.id,
+            // Stable per entitlement, so retries are idempotent on the portal.
+            idempotencyKey: `provision-${ent.id}`,
+          });
 
           // Link identity if not exists
           let identity = await prisma.studentIdentity.findFirst({
@@ -359,7 +376,7 @@ export class CommerceService {
             identity = await prisma.studentIdentity.create({
               data: {
                 commerceUserId: ent.userId,
-                mockUserId: mockUser._id.toString(),
+                mockUserId: String(provisioned.mockUserId || ''),
                 email: ent.user.email
               }
             });
@@ -378,6 +395,28 @@ export class CommerceService {
           });
         }
       }
+    }
+  }
+
+  /**
+   * Called after a verified payment is revoked: the order's entitlements are gone,
+   * so take Mock Portal access away too — unless another paid order still grants it.
+   */
+  static async deprovisionMock(userId: string, email: string) {
+    const stillEntitled = await prisma.entitlement.findFirst({
+      where: { userId, resourceCode: 'PAID_MOCK_SERIES', status: 'ACTIVE' }
+    });
+    if (stillEntitled) return;
+    try {
+      await callMockPortal('revoke', {
+        commerceUserId: userId,
+        email,
+        resourceCode: 'PAID_MOCK_SERIES',
+        entitlementId: `revoke-${userId}`,
+        idempotencyKey: `revoke-${userId}-${Date.now()}`,
+      });
+    } catch (error) {
+      console.error(`Mock Portal access could not be revoked for ${email}:`, error);
     }
   }
 }
