@@ -341,3 +341,8 @@ body.state-hero-active .entry-skip {
 @media (prefers-reduced-motion: reduce) {
   .ace-part { animation: none; stroke-dasharray: 1 0; stroke-dashoffset: 0; fill-opacity: 1; }
 }
+/* Arriving at a section (/#packages): no intro (see js/entry-sequence.js). */
+.skip-intro .entry-layer,
+.skip-intro .entry-skip {
+  display: none !important;
+}

@@ -26,6 +26,22 @@ try {
   }
 } catch (e) {}
 
+// A link can pre-tick a course: /?course=mock#packages (the mock portal's "Buy" buttons).
+// The parameter is then removed, so unticking it and refreshing doesn't tick it again.
+try {
+  const params = new URLSearchParams(window.location.search);
+  const wanted = params.get("course");
+  if (wanted) {
+    if (courses.some(function (c) { return c.id === wanted; }) && selected.indexOf(wanted) === -1) {
+      selected.push(wanted);
+      localStorage.setItem("aceiiit_selected_courses", JSON.stringify(selected));
+    }
+    params.delete("course");
+    const query = params.toString();
+    history.replaceState(history.state, "", window.location.pathname + (query ? "?" + query : "") + window.location.hash);
+  }
+} catch (e) {}
+
 for (let i = 0; i < courses.length; i++) {
   const c = courses[i];
   const row = document.createElement("div");

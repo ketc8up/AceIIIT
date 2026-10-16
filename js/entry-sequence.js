@@ -1,3 +1,9 @@
+// Links to a section (e.g. /#packages from a "Buy" or "Get Started" button) skip the intro:
+// the visitor came for that section. Runs before first paint (this script is in <head>), so the
+// intro layers never flash; plain visits to the home page still get the intro.
+const ENTRY_TARGET_ID = /^#[A-Za-z][\w-]*$/.test(window.location.hash) ? window.location.hash.slice(1) : '';
+if (ENTRY_TARGET_ID) document.documentElement.classList.add('skip-intro');
+
 document.addEventListener('DOMContentLoaded', () => {
   const paperLayer = document.getElementById('entry-layer-paper');
   const inkLayer = document.getElementById('entry-layer-ink');
@@ -30,6 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (prefersReducedMotion) {
     skipCinematic();
     return;
+  }
+
+  if (ENTRY_TARGET_ID) {
+    const target = document.getElementById(ENTRY_TARGET_ID);
+    if (target) {
+      skipCinematic();
+      try { sessionStorage.setItem('aceiiit_seen_cinematic', 'true'); } catch (e) {}
+      requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+      return;
+    }
+    document.documentElement.classList.remove('skip-intro');
   }
 
   // --- LOGIC FOR REFRESHES VS FIRST LOAD ---
