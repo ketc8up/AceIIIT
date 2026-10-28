@@ -221,3 +221,71 @@
     padding: 0.4rem 0;
   }
 }
+
+/* ── Powered by KARVON.STUDIO ──────────────────────────────────────────────
+   The studio credit in the bottom bar. The KARVON mark's twelve facets snap
+   together when the footer comes into view (js/karvon-credit.js) and again on
+   hover. Its charcoal facets are lifted to cream so the mark reads on ink. */
+.footer-bottom { flex-wrap: wrap; gap: 1rem 2rem; }
+
+.karvon-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+  color: rgba(255, 250, 240, 0.45);
+  text-decoration: none;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  transition: color 0.3s ease;
+}
+
+.karvon-credit:hover,
+.karvon-credit:focus-visible { color: rgba(255, 250, 240, 0.9); }
+
+.karvon-credit__mark {
+  display: block;
+  flex: none;
+  width: 17px;
+  height: auto;
+  overflow: visible;
+}
+
+.karvon-credit__mark [data-tone='charcoal'] { fill: #f3ecdf; }
+
+.karvon-credit__mark polygon {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+  transition-delay: calc(var(--i) * 45ms);
+}
+
+/* before it plays: the facets wait apart (only once the script is running) */
+.karvon-credit.is-armed .karvon-credit__mark polygon { opacity: 0; transform: var(--o) rotate(calc((var(--i) - 5) * 10deg)) scale(0.6); }
+.karvon-credit.is-armed.is-in .karvon-credit__mark polygon { opacity: 1; transform: none; }
+
+.karvon-credit__word {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  color: rgba(255, 250, 240, 0.8);
+  transition: color 0.3s ease, letter-spacing 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.karvon-credit__dot { color: var(--gold, #c5a028); }
+
+.karvon-credit:hover .karvon-credit__word { color: #fff; letter-spacing: 0.2em; }
+
+@media (max-width: 1024px) {
+  .footer-bottom .karvon-credit { order: 3; }
+}
+
+@media (max-width: 768px) {
+  .karvon-credit { font-size: 0.72rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .karvon-credit__mark polygon { transition: none; }
+  .karvon-credit.is-armed .karvon-credit__mark polygon { opacity: 1; transform: none; }
+}
